@@ -28,7 +28,8 @@ export function useAccount(): Account | null | undefined {
   return acc;
 }
 
-export const appleAvailable = async () => Platform.OS === 'ios' && (await AppleAuthentication.isAvailableAsync());
+// Inside Expo Go, Apple would issue the token to Expo Go instead of Fakka, so Firebase would reject it
+export const appleAvailable = async () => Platform.OS === 'ios' && !inExpoGo && (await AppleAuthentication.isAvailableAsync());
 
 // Apple: ask Apple for a signed token (with a one-time nonce), hand it to Firebase
 async function appleCredential() {
