@@ -6,7 +6,8 @@ import * as Notifications from 'expo-notifications';
 import { setLang, t } from './i18n';
 
 export type Installment = { id: string; provider: string; item: string; monthly: number; monthsLeft: number; dueDay: number; paidMonths?: string[] };
-export type Loan = { id: string; type: string; lender: string; monthly: number; remaining: number; dueDay: number; paidMonths?: string[] };
+// Mortgages can also track the property: name = nickname (e.g. "Sahel chalet"), price = property price, paid = paid so far
+export type Loan = { id: string; type: string; lender: string; monthly: number; remaining: number; dueDay: number; paidMonths?: string[]; name?: string; price?: number; paid?: number };
 export type Bill = { id: string; cat: string; name: string; amount: number; dueDay: number; paidMonths?: string[] };
 export type Gameya = { id: string; name: string; monthly: number; members: number; myTurn: number; start: string; dueDay: number; paidMonths?: string[] };
 export type Goal = { id: string; name: string; icon: string; unit: string; target: number; saved: number; deadline?: string; history?: { date: string; amount: number }[] };
@@ -52,6 +53,10 @@ export const monthsBetween = (a: string, b: string) => {
 export const savingValue = (x: Saving, rates: Record<string, number>) =>
   x.kind === 'custom' ? x.qty * (x.price ?? 1) : x.qty * (rates[x.kind] ?? 0);
 export const goalValue = (g: Goal, rates: Record<string, number>) => g.saved * (rates[g.unit] ?? 1);
+
+export const isPropertyLoan = (l: Loan) => l.type === 'Mortgage' && (l.price ?? 0) > 0;
+// How much of the property you own: what you've paid, never more than its price
+export const propertyOwned = (l: Loan) => Math.min(l.price ?? 0, Math.max(0, l.paid ?? 0));
 
 export function gameyaStatus(g: Gameya) {
   const round = monthsBetween(g.start, ym()) + 1; // 1-based
@@ -165,7 +170,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
     const flip = (arr?: string[]) => (arr ?? []).includes(m) ? (arr ?? []).filter(k => k !== m) : [...(arr ?? []), m];
     const was = (arr?: string[]) => (arr ?? []).includes(m);
     if (kind === 'inst') return { ...x, installments: x.installments.map(i => i.id !== id ? i : { ...i, paidMonths: flip(i.paidMonths), monthsLeft: Math.max(0, i.monthsLeft + (was(i.paidMonths) ? 1 : -1)) }) };
-    if (kind === 'loan') return { ...x, loans: x.loans.map(l => l.id !== id ? l : { ...l, paidMonths: flip(l.paidMonths), remaining: Math.max(0, l.remaining + (was(l.paidMonths) ? l.monthly : -l.monthly)) }) };
+    if (kind === 'loan') return { ...x, loans: x.loans.map(l => l.id !== id ? l : { ...l, paidMonths: flip(l.paidMonths), remaining: Math.max(0, l.remaining + (was(l.paidMonths) ? l.monthly : -l.monthly)), paid: l.price ? Math.max(0, (l.paid ?? 0) + (was(l.paidMonths) ? -l.monthly : l.monthly)) : l.paid }) };
     if (kind === 'bill') return { ...x, bills: x.bills.map(b => b.id !== id ? b : { ...b, paidMonths: flip(b.paidMonths) }) };
     return { ...x, gameyas: x.gameyas.map(g => g.id !== id ? g : { ...g, paidMonths: flip(g.paidMonths) }) };
   });
@@ -188,7 +193,7 @@ export function dueItems(d: Data): DueItem[] {
   const paid = (arr?: string[]) => (arr ?? []).includes(m);
   const out: DueItem[] = [];
   d.installments.forEach(i => { if (i.monthsLeft > 0 || paid(i.paidMonths)) out.push({ id: i.id, kind: 'inst', name: i.item, by: i.provider, amount: i.monthly, day: i.dueDay, color: PROVIDERS.find(p => p.name === i.provider)?.color ?? C.primary, icon: i.provider[0].toUpperCase(), paid: paid(i.paidMonths) }); });
-  d.loans.forEach(l => { if (l.remaining > 0 || paid(l.paidMonths)) out.push({ id: l.id, kind: 'loan', name: t(l.type), by: l.lender, amount: l.monthly, day: l.dueDay, color: C.primary, icon: LOAN_TYPES.find(x => x.name === l.type)?.icon ?? 'cash', paid: paid(l.paidMonths) }); });
+  d.loans.forEach(l => { if (l.remaining > 0 || paid(l.paidMonths)) out.push({ id: l.id, kind: 'loan', name: l.name ? t(l.name) : t(l.type), by: l.lender, amount: l.monthly, day: l.dueDay, color: C.primary, icon: LOAN_TYPES.find(x => x.name === l.type)?.icon ?? 'cash', paid: paid(l.paidMonths) }); });
   d.bills.forEach(b => { const bt = BILL_TYPES.find(x => x.name === b.cat); out.push({ id: b.id, kind: 'bill', name: b.name || t(b.cat), by: t('Bill'), amount: b.amount, day: b.dueDay, color: bt?.color ?? C.sub, icon: bt?.icon ?? 'document-text', paid: paid(b.paidMonths) }); });
   d.gameyas.forEach(g => { if (gameyaStatus(g).active) out.push({ id: g.id, kind: 'gameya', name: g.name, by: t("Gam'eya"), amount: g.monthly, day: g.dueDay, color: '#8E6FE0', icon: 'people', paid: paid(g.paidMonths) }); });
   const today = new Date().getDate();
@@ -212,9 +217,12 @@ export function useTotals() {
   const gNet = d.gameyas.reduce((s, g) => s + gameyaStatus(g).net, 0);
   const holdings = d.savings.reduce((s, x) => s + savingValue(x, d.rates), 0);
   const goalsSaved = d.goals.reduce((s, g) => s + goalValue(g, d.rates), 0);
-  const assets = holdings + goalsSaved + Math.max(0, gNet);
-  const debt = d.installments.reduce((s, i) => s + i.monthly * i.monthsLeft, 0) + d.loans.reduce((s, l) => s + l.remaining, 0) + Math.max(0, -gNet);
+  // A mortgage with a property price: the part you've paid is yours (an asset). Its balance is already
+  // taken out of that share, so it isn't subtracted again from net worth.
+  const property = d.loans.filter(isPropertyLoan).reduce((s, l) => s + propertyOwned(l), 0);
+  const assets = holdings + goalsSaved + property + Math.max(0, gNet);
+  const debt = d.installments.reduce((s, i) => s + i.monthly * i.monthsLeft, 0) + d.loans.filter(l => !isPropertyLoan(l)).reduce((s, l) => s + l.remaining, 0) + Math.max(0, -gNet);
   const left = income - committed - spent;
   const unpaid = due.filter(x => !x.paid);
-  return { income, instMonthly, loanMonthly, billsMonthly, gameyaMonthly, committed, spent, assets, debt, netWorth: assets - debt, left, holdings, goalsSaved, due, unpaid };
+  return { property, income, instMonthly, loanMonthly, billsMonthly, gameyaMonthly, committed, spent, assets, debt, netWorth: assets - debt, left, holdings, goalsSaved, due, unpaid };
 }

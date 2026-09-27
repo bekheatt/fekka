@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { View, Pressable, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { C, le, PROVIDERS, LOAN_TYPES, BILL_TYPES, themed } from '../theme';
-import { useStore, useTotals, uid, gameyaStatus, ym, daysUntil } from '../store';
-import { Header, Section, Card, Row, Empty, Sheet, Field, Chips, num, tap, Screen, Hint, Check } from '../ui';
+import { C, le, leShort, PROVIDERS, LOAN_TYPES, BILL_TYPES, themed } from '../theme';
+import { useStore, useTotals, uid, gameyaStatus, ym, daysUntil, isPropertyLoan, propertyOwned } from '../store';
+import { Header, Section, Card, Row, Empty, Sheet, Field, Chips, num, tap, Screen, Hint, Check, Progress } from '../ui';
 import { t } from '../i18n';
 import { dueLabel } from './Dashboard';
 
 type Mode = 'inst' | 'loan' | 'bill' | 'gameya' | null;
+const HOME_NICKNAMES = ['Primary home', 'Sahel chalet', 'Rental apartment', 'Family house'];
 
 export default function Pay({ action, clear }: { action?: string; clear: () => void }) {
   const { d, set, togglePaid } = useStore();
@@ -27,7 +28,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
   const edit = (kind: string, id: string) => {
     const S = (n: number) => String(n);
     if (kind === 'inst') { const i = d.installments.find(y => y.id === id); if (!i) return; setF({ provider: i.provider, item: i.item, monthly: S(i.monthly), months: S(i.monthsLeft), day: S(i.dueDay) }); setMode('inst'); }
-    if (kind === 'loan') { const l = d.loans.find(y => y.id === id); if (!l) return; setF({ type: l.type, lender: l.lender, monthly: S(l.monthly), remaining: S(l.remaining), day: S(l.dueDay) }); setMode('loan'); }
+    if (kind === 'loan') { const l = d.loans.find(y => y.id === id); if (!l) return; setF({ type: l.type, lender: l.lender, monthly: S(l.monthly), remaining: S(l.remaining), day: S(l.dueDay), name: l.name ?? '', price: l.price ? S(l.price) : '', paid: l.paid ? S(l.paid) : '' }); setMode('loan'); }
     if (kind === 'bill') { const b = d.bills.find(y => y.id === id); if (!b) return; setF({ cat: b.cat, name: b.name, amount: S(b.amount), day: S(b.dueDay) }); setMode('bill'); }
     if (kind === 'gameya') { const g = d.gameyas.find(y => y.id === id); if (!g) return; setF({ name: g.name, monthly: S(g.monthly), members: S(g.members), turn: S(g.myTurn), start: g.start, day: S(g.dueDay) }); setMode('gameya'); }
     setEditId(id);
@@ -41,13 +42,21 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
   }, [action]);
 
   const day = () => Math.min(31, Math.max(1, num(f.day) || 1));
+  // Mortgages also save the nickname, apartment price and amount paid. If "still owe" is left empty, it's price − paid.
+  const isMortgage = f.type === 'Mortgage';
+  const loanExtras = () => {
+    if (!isMortgage) return { remaining: num(f.remaining), name: undefined, price: undefined, paid: undefined };
+    const price = num(f.price), paid = num(f.paid);
+    const remaining = f.remaining?.trim() ? num(f.remaining) : Math.max(0, price - paid);
+    return { remaining, name: f.name?.trim() || undefined, price: price || undefined, paid: price ? paid : undefined };
+  };
   const save = () => {
     if (editId) {
       const members = Math.max(2, num(f.members) || 10);
       set(x => ({
         ...x,
         installments: x.installments.map(i => i.id !== editId ? i : { ...i, provider: f.provider, item: f.item || i.item, monthly: num(f.monthly), monthsLeft: num(f.months), dueDay: day() }),
-        loans: x.loans.map(l => l.id !== editId ? l : { ...l, type: f.type, lender: f.lender || l.lender, monthly: num(f.monthly), remaining: num(f.remaining), dueDay: day() }),
+        loans: x.loans.map(l => l.id !== editId ? l : { ...l, type: f.type, lender: f.lender || l.lender, monthly: num(f.monthly), dueDay: day(), ...loanExtras() }),
         bills: x.bills.map(b => b.id !== editId ? b : { ...b, cat: f.cat, name: f.name?.trim() || '', amount: num(f.amount), dueDay: day() }),
         gameyas: x.gameyas.map(g => g.id !== editId ? g : { ...g, name: f.name?.trim() || g.name, monthly: num(f.monthly), members, myTurn: Math.min(members, Math.max(1, num(f.turn) || 1)), start: /^\d{4}-\d{2}$/.test(f.start ?? '') ? f.start : g.start, dueDay: day() }),
       }));
@@ -55,7 +64,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
       return;
     }
     if (mode === 'inst') set(x => ({ ...x, installments: [...x.installments, { id: uid(), provider: f.provider, item: f.item || 'Purchase', monthly: num(f.monthly), monthsLeft: num(f.months) || 1, dueDay: day() }] }));
-    if (mode === 'loan') set(x => ({ ...x, loans: [...x.loans, { id: uid(), type: f.type, lender: f.lender || 'Bank', monthly: num(f.monthly), remaining: num(f.remaining), dueDay: day() }] }));
+    if (mode === 'loan') set(x => ({ ...x, loans: [...x.loans, { id: uid(), type: f.type, lender: f.lender || 'Bank', monthly: num(f.monthly), dueDay: day(), ...loanExtras() }] }));
     if (mode === 'bill') set(x => ({ ...x, bills: [...x.bills, { id: uid(), cat: f.cat, name: f.name?.trim() || '', amount: num(f.amount), dueDay: day() }] }));
     if (mode === 'gameya') {
       const members = Math.max(2, num(f.members) || 10);
@@ -164,8 +173,10 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
         {d.loans.length === 0
           ? <Empty icon="business-outline" text={t('Mortgage, car loan, personal loan or credit card')} />
           : d.loans.map((l, idx) => (
-            <Row key={l.id} icon={LOAN_TYPES.find(x => x.name === l.type)?.icon ?? 'cash'} color={C.primary} title={t(l.type)}
-              sub={`${l.lender} · ${l.remaining > 0 ? t('{x} left', { x: le(l.remaining) }) : t('Paid off 🎉')} · ${t('day {n}', { n: l.dueDay })}`} value={le(l.monthly)}
+            <Row key={l.id} icon={LOAN_TYPES.find(x => x.name === l.type)?.icon ?? 'cash'} color={C.primary} title={l.name ? t(l.name) : t(l.type)}
+              sub={isPropertyLoan(l)
+                ? `${t('You own {x} of {y}', { x: leShort(propertyOwned(l)), y: leShort(l.price!) })} (${Math.round(propertyOwned(l) / l.price! * 100)}%) · ${l.remaining > 0 ? t('{x} left', { x: leShort(l.remaining) }) : t('Paid off 🎉')}`
+                : `${l.lender} · ${l.remaining > 0 ? t('{x} left', { x: le(l.remaining) }) : t('Paid off 🎉')} · ${t('day {n}', { n: l.dueDay })}`} value={le(l.monthly)}
               last={idx === d.loans.length - 1} onPress={() => edit('loan', l.id)}
               onDelete={() => set(x => ({ ...x, loans: x.loans.filter(y => y.id !== l.id) }))} />
           ))}
@@ -201,9 +212,26 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
       <Sheet visible={mode === 'loan'} title={t(editId ? 'Edit loan' : 'New loan')} onClose={() => { setMode(null); setEditId(null); }} onSave={save}>
         <Text style={s.lbl}>{t('Type of loan')}</Text>
         <Chips options={LOAN_TYPES.map(x => x.name)} value={f.type} onChange={upd('type')} />
+        {isMortgage ? <>
+          <Text style={s.lbl}>{t('Nickname')}</Text>
+          <Chips options={HOME_NICKNAMES} value={f.name ?? ''} onChange={upd('name')} />
+          <Field label={t('Or type your own')} placeholder={t('e.g. Sahel chalet')} value={f.name} onChangeText={upd('name')} />
+          <Field label={t('Apartment price (L.E)')} keyboardType="numeric" placeholder="8,000,000" value={f.price} onChangeText={upd('price')} />
+          <Field label={t('How much have you paid so far? (L.E)')} keyboardType="numeric" placeholder="1,000,000" value={f.paid} onChangeText={upd('paid')} />
+          <Field label={t('How much do you still owe? (L.E)')} keyboardType="numeric" value={f.remaining} onChangeText={upd('remaining')}
+            placeholder={num(f.price) ? le(Math.max(0, num(f.price) - num(f.paid))) : '7,000,000'} />
+          {num(f.price) > 0 && (
+            <View style={s.ownBox}>
+              <Text style={s.ownLabel}>{t('You own')}</Text>
+              <Text style={s.ownVal}>{le(Math.min(num(f.price), num(f.paid)))} · {Math.round(Math.min(1, num(f.paid) / num(f.price)) * 100)}%</Text>
+              <Progress value={num(f.paid) / num(f.price)} color={C.green} />
+              <Text style={s.ownHint}>{t('This counts in what you own and grows every time you mark a payment as paid.')}</Text>
+            </View>
+          )}
+        </> : null}
         <Field label={t('Bank')} placeholder={t('e.g. NBE, CIB, Banque Misr')} value={f.lender} onChangeText={upd('lender')} />
         <Field label={t('Monthly payment (L.E)')} keyboardType="numeric" placeholder="8,000" value={f.monthly} onChangeText={upd('monthly')} />
-        <Field label={t('How much is left to pay? (L.E)')} keyboardType="numeric" placeholder="450,000" value={f.remaining} onChangeText={upd('remaining')} />
+        {!isMortgage && <Field label={t('How much is left to pay? (L.E)')} keyboardType="numeric" placeholder="450,000" value={f.remaining} onChangeText={upd('remaining')} />}
         <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="1" value={f.day} onChangeText={upd('day')} />
       </Sheet>
     </Screen>
@@ -227,6 +255,10 @@ const s = themed(() => StyleSheet.create({
   btn: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: C.card, borderRadius: 14, paddingVertical: 13, paddingHorizontal: 16 },
   btnTxt: { fontWeight: '700', fontSize: 15, color: C.ink },
   lbl: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 10 },
+  ownBox: { backgroundColor: C.soft, borderRadius: 16, padding: 14, marginBottom: 16, gap: 6 },
+  ownLabel: { fontSize: 13, color: C.sub, fontWeight: '600' },
+  ownVal: { fontSize: 20, fontWeight: '800', color: C.green, marginBottom: 4 },
+  ownHint: { fontSize: 12, color: C.sub, marginTop: 4 },
   turns: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingBottom: 14, paddingTop: 2 },
   turn: { width: 28, height: 28, borderRadius: 14, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
   turnTxt: { fontSize: 12, fontWeight: '700', color: C.ink },
