@@ -4,7 +4,7 @@ import { Text } from '../fonts';
 import { pickReceipt, deleteReceipt } from '../receipts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, EXPENSE_CATS, themed } from '../theme';
-import { useStore, useTotals, uid, ym } from '../store';
+import { useStore, useTotals, uid, ym, inPeriod } from '../store';
 import { Header, Section, Card, Row, Empty, AddBtn, Sheet, Field, num, tap, Screen, Hint, Segmented } from '../ui';
 import { t, locale } from '../i18n';
 
@@ -33,8 +33,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
   const editExpense = (e: any) => { setEditId(e.id); setCat(e.cat); setAmt(String(e.amount)); setNote(e.note); setReceipt(e.receipt); setOpen('exp'); };
   const snap = async (from: 'camera' | 'library') => { const uri = await pickReceipt(from); if (uri) setReceipt(uri); };
   const editIncome = (i: any) => { setEditId(i.id); setOnce(!!i.oneOff); setAmt(String(i.monthly)); setNote(i.source); setOpen('inc'); };
-  const m = ym();
-  const incomes = d.incomes.filter(i => !i.oneOff || ym(new Date(i.oneOff)) === m);
+  const incomes = d.incomes.filter(i => !i.oneOff || inPeriod(i.oneOff));
   const save = () => {
     const v = num(amt);
     if (!v) return reset();
@@ -47,14 +46,14 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
 
   return (
     <Screen>
-      <Header title={t('Spending')} subtitle={t('Track what comes in and goes out')} right={<AddBtn onPress={() => setOpen('exp')} label={t('Expense')} />} />
+      <Header title={t('Spending')} right={<AddBtn onPress={() => setOpen('exp')} label={t('Expense')} />} />
 
       <View style={s.sumRow}>
         <View style={s.sum}><Text style={s.sumLabel}>{t('Today')}</Text><Text style={s.sumVal}>{le(todaySpent)}</Text></View>
         <View style={s.sum}><Text style={s.sumLabel}>{t('This month')}</Text><Text style={s.sumVal}>{le(tot.spent)}</Text></View>
       </View>
 
-      <Section>{t('Tap to add a spend')}</Section>
+      <Section>{t('Add a spend')}</Section>
       <View style={s.quick}>
         {EXPENSE_CATS.map(c => (
           <Pressable key={c.name} style={s.qItem} onPress={() => { tap(); setCat(c.name); setOpen('exp'); }}>
@@ -64,7 +63,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
         ))}
       </View>
 
-      <Section action={t('+ Add')} onAction={() => { setOnce(d.settings.work === 'freelancer'); setOpen('inc'); }}>{t('Income this month')}</Section>
+      <Section action={t('+ Add')} onAction={() => { setOnce(d.settings.work === 'freelancer'); setOpen('inc'); }}>{t('Income')}</Section>
       <Card>
         {incomes.length === 0
           ? <Empty icon="wallet-outline" text={t('Add your salary or any monthly income')} button={t('Add income')} onPress={() => setOpen('inc')} />
@@ -80,7 +79,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
       <Section>{t('Recent spending')}</Section>
       <Card>
         {d.expenses.length === 0
-          ? <Empty icon="receipt-outline" text={t('Nothing yet. Tap a category above to log your first spend.')} />
+          ? <Empty icon="receipt-outline" text={t('No spending yet')} />
           : d.expenses.slice(0, 30).map((e, idx, arr) => {
             const c = EXPENSE_CATS.find(x => x.name === e.cat) ?? EXPENSE_CATS[6];
             return <Row key={e.id} icon={c.icon} color={c.color} title={e.note || t(e.cat)}
@@ -89,7 +88,6 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
               onDelete={() => { deleteReceipt(e.receipt); set(x => ({ ...x, expenses: x.expenses.filter(y => y.id !== e.id) })); }} />;
           })}
       </Card>
-      <Hint>{t('Tip: tap an item to edit it, swipe left to delete')}</Hint>
 
       <Sheet visible={open === 'exp'} title={t(editId ? 'Edit expense' : 'New expense')} onClose={reset} onSave={save}>
         <Text style={s.lbl}>{t('Category')}</Text>
@@ -124,9 +122,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
       <Sheet visible={open === 'inc'} title={t(editId ? 'Edit income' : 'New income')} onClose={reset} onSave={save}>
         <Segmented value={once ? 'once' : 'monthly'} onChange={k => setOnce(k === 'once')}
           options={[{ key: 'monthly', label: t('Every month') }, { key: 'once', label: t('One-time') }]} />
-        <Text style={[s.lbl, { color: C.sub, fontWeight: '400', marginTop: 4 }]}>
-          {t(once ? 'A single payment: a freelance job, bonus or Eid money' : 'Salary, pension, rent — anything that comes every month')}
-        </Text>
+        <View style={{ height: 12 }} />
         <Field label={t('Where does it come from?')} placeholder={t(once ? 'e.g. Logo design for client' : 'Salary')} value={note} onChangeText={setNote} />
         <Field label={t(once ? 'Amount (L.E)' : 'Monthly amount (L.E)')} keyboardType="numeric" placeholder="25,000" value={amt} onChangeText={setAmt} style={s.big} />
       </Sheet>

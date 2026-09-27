@@ -17,7 +17,7 @@ export type PriceAlert = { id: string; kind: string; dir: 'above' | 'below'; pri
 export type Income = { id: string; source: string; monthly: number; day?: number; oneOff?: string };
 export type Saving = { id: string; kind: string; qty: number; name?: string; price?: number };
 export type Work = 'employee' | 'freelancer' | 'business' | 'student' | 'retired' | 'other';
-export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean };
+export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; monthStart?: number };
 
 export type Data = {
   installments: Installment[]; loans: Loan[]; bills: Bill[]; gameyas: Gameya[]; goals: Goal[];
@@ -46,6 +46,32 @@ const Store = createContext<Ctx>(null as any);
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
 export const ym = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+
+// ---------- "This month" can start on payday ----------
+// monthStart = day of the month your money month begins (1 = calendar month, 25 = from the 25th to the 24th).
+let MONTH_START = 1;
+export const setMonthStart = (n?: number) => { MONTH_START = Math.min(31, Math.max(1, Math.round(n || 1))); };
+export const monthStartDay = () => MONTH_START;
+const dayIn = (y: number, m: number, day: number) => new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate()));
+
+// The money month that contains `at`: [start, end)
+export function period(at = new Date()) {
+  const y = at.getFullYear(), m = at.getMonth();
+  const here = dayIn(y, m, MONTH_START);
+  const start = at >= here ? here : dayIn(y, m - 1, MONTH_START);
+  const end = dayIn(start.getFullYear(), start.getMonth() + 1, MONTH_START);
+  return { start, end, days: Math.round((end.getTime() - start.getTime()) / 864e5) };
+}
+export const inPeriod = (iso: string, p = period()) => { const t = new Date(iso); return t >= p.start && t < p.end; };
+
+// A monthly payment's due date inside the current money month (and the calendar month it's tracked under)
+export function dueDateOf(day: number, p = period()) {
+  let d = dayIn(p.start.getFullYear(), p.start.getMonth(), day);
+  if (d < p.start) d = dayIn(p.start.getFullYear(), p.start.getMonth() + 1, day);
+  return d;
+}
+export const dueKey = (day: number) => ym(dueDateOf(day));
+
 export const monthsBetween = (a: string, b: string) => {
   const [ay, am] = a.split('-').map(Number); const [by, bm] = b.split('-').map(Number);
   return (by - ay) * 12 + (bm - am);
@@ -121,6 +147,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
       if (!hadSettings) loaded.settings.onboarded = [loaded.incomes, loaded.expenses, loaded.installments, loaded.loans, loaded.savings].some(a => a.length > 0);
       setLang(loaded.settings.lang);
       setHidden(!!loaded.settings.hideAmounts);
+      setMonthStart(loaded.settings.monthStart);
       applyTheme(resolveTheme(loaded.settings));
       setD(loaded);
       setReady(true);
@@ -156,6 +183,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
     const next = fn(prev);
     if (next.settings !== prev.settings) {
       const s = next.settings, p = prev.settings;
+      setMonthStart(s.monthStart);
       if (s.theme !== p.theme || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
         setLang(s.lang);
         setHidden(!!s.hideAmounts);
@@ -167,7 +195,8 @@ export function Provider({ children }: { children: React.ReactNode }) {
   });
 
   const togglePaid = (kind: DueKind, id: string) => set(x => {
-    const m = ym();
+    const item: any = [...x.installments, ...x.loans, ...x.bills, ...x.gameyas].find(i => i.id === id);
+    const m = dueKey(item?.dueDay ?? 1);
     const flip = (arr?: string[]) => (arr ?? []).includes(m) ? (arr ?? []).filter(k => k !== m) : [...(arr ?? []), m];
     const was = (arr?: string[]) => (arr ?? []).includes(m);
     if (kind === 'inst') return { ...x, installments: x.installments.map(i => i.id !== id ? i : { ...i, paidMonths: flip(i.paidMonths), monthsLeft: Math.max(0, i.monthsLeft + (was(i.paidMonths) ? 1 : -1)) }) };
@@ -190,13 +219,12 @@ export type DueKind = 'inst' | 'loan' | 'bill' | 'gameya';
 export type DueItem = { id: string; kind: DueKind; name: string; by: string; amount: number; day: number; color: string; icon: string; paid: boolean };
 
 export function dueItems(d: Data): DueItem[] {
-  const m = ym();
-  const paid = (arr?: string[]) => (arr ?? []).includes(m);
+  const paidFor = (day: number) => (arr?: string[]) => (arr ?? []).includes(dueKey(day));
   const out: DueItem[] = [];
-  d.installments.forEach(i => { if (i.monthsLeft > 0 || paid(i.paidMonths)) out.push({ id: i.id, kind: 'inst', name: i.item, by: i.provider, amount: i.monthly, day: i.dueDay, color: PROVIDERS.find(p => p.name === i.provider)?.color ?? C.primary, icon: i.provider[0].toUpperCase(), paid: paid(i.paidMonths) }); });
-  d.loans.forEach(l => { if (l.remaining > 0 || paid(l.paidMonths)) out.push({ id: l.id, kind: 'loan', name: l.name ? t(l.name) : t(l.type), by: l.lender, amount: l.monthly, day: l.dueDay, color: C.primary, icon: LOAN_TYPES.find(x => x.name === l.type)?.icon ?? 'cash', paid: paid(l.paidMonths) }); });
-  d.bills.forEach(b => { const bt = BILL_TYPES.find(x => x.name === b.cat); out.push({ id: b.id, kind: 'bill', name: b.name || t(b.cat), by: t('Bill'), amount: b.amount, day: b.dueDay, color: bt?.color ?? C.sub, icon: bt?.icon ?? 'document-text', paid: paid(b.paidMonths) }); });
-  d.gameyas.forEach(g => { if (gameyaStatus(g).active) out.push({ id: g.id, kind: 'gameya', name: g.name, by: t("Gam'eya"), amount: g.monthly, day: g.dueDay, color: '#8E6FE0', icon: 'people', paid: paid(g.paidMonths) }); });
+  d.installments.forEach(i => { if (i.monthsLeft > 0 || paidFor(i.dueDay)(i.paidMonths)) out.push({ id: i.id, kind: 'inst', name: i.item, by: i.provider, amount: i.monthly, day: i.dueDay, color: PROVIDERS.find(p => p.name === i.provider)?.color ?? C.primary, icon: i.provider[0].toUpperCase(), paid: paidFor(i.dueDay)(i.paidMonths) }); });
+  d.loans.forEach(l => { if (l.remaining > 0 || paidFor(l.dueDay)(l.paidMonths)) out.push({ id: l.id, kind: 'loan', name: l.name ? t(l.name) : t(l.type), by: l.lender, amount: l.monthly, day: l.dueDay, color: C.primary, icon: LOAN_TYPES.find(x => x.name === l.type)?.icon ?? 'cash', paid: paidFor(l.dueDay)(l.paidMonths) }); });
+  d.bills.forEach(b => { const bt = BILL_TYPES.find(x => x.name === b.cat); out.push({ id: b.id, kind: 'bill', name: b.name || t(b.cat), by: t('Bill'), amount: b.amount, day: b.dueDay, color: bt?.color ?? C.sub, icon: bt?.icon ?? 'document-text', paid: paidFor(b.dueDay)(b.paidMonths) }); });
+  d.gameyas.forEach(g => { if (gameyaStatus(g).active) out.push({ id: g.id, kind: 'gameya', name: g.name, by: t("Gam'eya"), amount: g.monthly, day: g.dueDay, color: '#8E6FE0', icon: 'people', paid: paidFor(g.dueDay)(g.paidMonths) }); });
   const today = new Date().getDate();
   return out.sort((a, b) => (a.paid === b.paid ? ((a.day - today + 31) % 31) - ((b.day - today + 31) % 31) : a.paid ? 1 : -1));
 }
@@ -208,13 +236,13 @@ export const daysUntil = (day: number) => {
 
 export function useTotals() {
   const { d } = useStore();
-  const m = ym();
+  const p = period();
   const due = dueItems(d);
   const sum = (k: DueKind) => due.filter(x => x.kind === k).reduce((s, x) => s + x.amount, 0);
-  const income = d.incomes.filter(i => !i.oneOff || ym(new Date(i.oneOff)) === m).reduce((s, i) => s + i.monthly, 0);
+  const income = d.incomes.filter(i => !i.oneOff || inPeriod(i.oneOff, p)).reduce((s, i) => s + i.monthly, 0);
   const instMonthly = sum('inst'), loanMonthly = sum('loan'), billsMonthly = sum('bill'), gameyaMonthly = sum('gameya');
   const committed = instMonthly + loanMonthly + billsMonthly + gameyaMonthly;
-  const spent = d.expenses.filter(e => ym(new Date(e.date)) === m).reduce((s, e) => s + e.amount, 0);
+  const spent = d.expenses.filter(e => inPeriod(e.date, p)).reduce((s, e) => s + e.amount, 0);
   const gNet = d.gameyas.reduce((s, g) => s + gameyaStatus(g).net, 0);
   const holdings = d.savings.reduce((s, x) => s + savingValue(x, d.rates), 0);
   const goalsSaved = d.goals.reduce((s, g) => s + goalValue(g, d.rates), 0);
@@ -224,6 +252,15 @@ export function useTotals() {
   const assets = holdings + goalsSaved + property + Math.max(0, gNet);
   const debt = d.installments.reduce((s, i) => s + i.monthly * i.monthsLeft, 0) + d.loans.filter(l => !isPropertyLoan(l)).reduce((s, l) => s + l.remaining, 0) + Math.max(0, -gNet);
   const left = income - committed - spent;
+  // Month-end forecast: what should be left when the money month ends, if spending keeps its pace.
+  // Early in the month (first 5 days) the pace comes from last month, when there is one.
+  const now = new Date();
+  const daysGone = Math.min(p.days, Math.floor((now.getTime() - p.start.getTime()) / 864e5) + 1);
+  const daysLeft = p.days - daysGone;
+  const prev = period(new Date(p.start.getTime() - 864e5));
+  const prevSpent = d.expenses.filter(e => inPeriod(e.date, prev)).reduce((s, e) => s + e.amount, 0);
+  const pace = daysGone < 5 && prevSpent > 0 ? prevSpent / prev.days : spent / daysGone;
+  const forecast = left - pace * daysLeft;
   const unpaid = due.filter(x => !x.paid);
-  return { property, income, instMonthly, loanMonthly, billsMonthly, gameyaMonthly, committed, spent, assets, debt, netWorth: assets - debt, left, holdings, goalsSaved, due, unpaid };
+  return { forecast, pace, daysLeft, periodEnd: p.end, property, income, instMonthly, loanMonthly, billsMonthly, gameyaMonthly, committed, spent, assets, debt, netWorth: assets - debt, left, holdings, goalsSaved, due, unpaid };
 }

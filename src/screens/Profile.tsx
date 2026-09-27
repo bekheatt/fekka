@@ -26,13 +26,12 @@ export default function Profile() {
   const debtMonths = Math.max(0,
     ...d.installments.map(i => i.monthsLeft),
     ...d.loans.map(l => (l.monthly > 0 ? Math.ceil(l.remaining / l.monthly) : 0)));
-  const m = ym();
 
   if (showSettings) return <Settings onBack={() => setShowSettings(false)} />;
 
   return (
     <Screen>
-      <Header title={t('Profile')} subtitle={t('Your money at a glance')}
+      <Header title={t('Profile')}
         right={<Pressable onPress={() => { tap(); setShowSettings(true); }} hitSlop={10} style={s.gear}><Ionicons name="settings-outline" size={22} color={C.primary} /></Pressable>} />
 
       <View style={s.card}>

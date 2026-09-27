@@ -36,7 +36,6 @@ export default function InterestCalculator({ visible, onClose }: { visible: bool
           <Pressable onPress={onClose} hitSlop={10}><Text style={s.done}>{t('Done')}</Text></Pressable>
         </View>
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
-          <Text style={s.intro}>{t('See what financing something really costs before you sign.')}</Text>
 
           <View style={s.card}>
             <Field label={t('Price (L.E)')} keyboardType="numeric" placeholder="30,000" value={f.price} onChangeText={upd('price')} />
@@ -50,24 +49,20 @@ export default function InterestCalculator({ visible, onClose }: { visible: bool
               options={[{ key: 'monthly', label: t('Monthly payment') }, { key: 'rate', label: t('Interest rate') }]} />
             <View style={{ height: 12 }} />
             {mode === 'monthly'
-              ? <Field label={t('Monthly payment (L.E)')} keyboardType="numeric" placeholder="2,875" value={f.monthly} onChangeText={upd('monthly')}
-                  hint={t("From the shop, app or bank offer — e.g. valU, Souhoola, a car dealer")} />
+              ? <Field label={t('Monthly payment (L.E)')} keyboardType="numeric" placeholder="2,875" value={f.monthly} onChangeText={upd('monthly')} />
               : <>
                   <Field label={t('Yearly interest rate (%)')} keyboardType="numeric" placeholder="18" value={f.rate} onChangeText={upd('rate')} />
                   <Segmented value={kind} onChange={k => { tap(); setKind(k as RateKind); }}
                     options={[{ key: 'flat', label: t('Flat rate') }, { key: 'reducing', label: t('Reducing rate') }]} />
-                  <Text style={s.hint}>{t(kind === 'flat'
-                    ? 'Flat: interest on the full amount for the whole time. Most car and personal loans in Egypt are quoted this way. Ask the bank if unsure.'
-                    : 'Reducing: interest only on what you still owe. Usually called "declining balance".')}</Text>
+                  <Text style={s.hint}>{t(kind === 'flat' ? 'Most car and personal loans in Egypt use a flat rate' : 'Also called declining balance')}</Text>
                 </>}
-            <Field label={t('One-time fees (L.E) — optional')} keyboardType="numeric" placeholder="0" value={f.fees} onChangeText={upd('fees')}
-              hint={t('Admin fees, insurance or anything paid once at the start')} />
+            <Field label={t('One-time fees (L.E) — optional')} keyboardType="numeric" placeholder="0" value={f.fees} onChangeText={upd('fees')} />
           </View>
 
           {!r ? (
             <View style={[s.card, s.empty]}>
               <Ionicons name="calculator-outline" size={28} color={C.sub} />
-              <Text style={s.emptyTxt}>{t('Fill in the price, months and the monthly payment or rate to see the real cost.')}</Text>
+              <Text style={s.emptyTxt}>{t('Fill in the details above to see the real cost')}</Text>
             </View>
           ) : <>
             <View style={s.card}>
@@ -91,9 +86,9 @@ export default function InterestCalculator({ visible, onClose }: { visible: bool
 
             <View style={s.card}>
               <Line label={t('Monthly payment')} v={money(r.monthly)} />
-              <Line label={t('Total you pay')} v={money(r.totalPaid)} sub={t('Down payment + all monthly payments + fees')} />
+              <Line label={t('Total you pay')} v={money(r.totalPaid)} />
               <Line label={t('Real yearly interest rate')} v={pct(r.realRate)} strong last
-                sub={t('Use this to compare offers. It counts fees and assumes interest only on what you still owe.')} />
+                sub={t('Use this to compare offers')} />
             </View>
 
             {r.interest > 0.5 && (

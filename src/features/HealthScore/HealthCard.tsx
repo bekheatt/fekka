@@ -133,7 +133,6 @@ function Detail({ hs, visible, onClose }: { hs: HealthScore; visible: boolean; o
               );
             })}
           </View>
-          <Text style={s.foot}>{t('Your score is calculated on your phone from the numbers you entered. It updates as you add payments, savings and income.')}</Text>
         </ScrollView>
       </View>
     </Modal>

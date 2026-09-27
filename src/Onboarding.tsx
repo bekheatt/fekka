@@ -12,7 +12,7 @@ import { canUseLock } from './Lock';
 import Logo from './Logo';
 
 type Draft = {
-  name: string; work?: Work; income: string; payDay: string; extraName: string; extra: string;
+  name: string; work?: Work; income: string; payDay: string; startOnPayday: boolean; extraName: string; extra: string;
   inst: Record<string, { monthly: string; months: string }>;
   loans: Record<string, { monthly: string; remaining: string }>;
   bills: Record<string, string>;
@@ -50,7 +50,7 @@ export default function Onboarding() {
   const { d, set } = useStore();
   const [step, setStep] = useState(0);
   const [x, setX] = useState<Draft>({
-    name: d.settings.name, work: d.settings.work, income: '', payDay: '', extraName: '', extra: '',
+    name: d.settings.name, work: d.settings.work, income: '', payDay: '', startOnPayday: true, extraName: '', extra: '',
     inst: {}, loans: {}, bills: {}, gameya: { on: false, monthly: '', members: '', turn: '' },
     sav: {}, goal: { name: '', target: '' }, lock: true,
   });
@@ -99,7 +99,8 @@ export default function Onboarding() {
         const idea = GOAL_IDEAS.find(g => t(g.name) === x.goal.name);
         n.goals = [...n.goals, { id: uid(), name: x.goal.name.trim() || t('Goal'), icon: idea?.icon ?? 'star', unit: 'egp', target: num(x.goal.target), saved: 0 }];
       }
-      n.settings = { ...n.settings, name: x.name.trim(), work: w, onboarded: true, lock: lockOk || n.settings.lock };
+      const payDay = Math.min(31, Math.max(0, Math.round(num(x.payDay))));
+      n.settings = { ...n.settings, name: x.name.trim(), work: w, onboarded: true, lock: lockOk || n.settings.lock, monthStart: x.startOnPayday && payDay ? payDay : 1 };
       return n;
     });
   };
@@ -128,7 +129,7 @@ export default function Onboarding() {
 
       case 'name': return (
         <>
-          <Q title={t("What should we call you?")} sub={t('Just your first name is fine')} />
+          <Q title={t("What should we call you?")} />
           <TextInput style={s.bigInput} value={x.name} onChangeText={v => setX({ ...x, name: v })} placeholder={t('Your name')}
             placeholderTextColor={C.sub} autoFocus returnKeyType="next" onSubmitEditing={() => move(1)} />
         </>
@@ -136,7 +137,7 @@ export default function Onboarding() {
 
       case 'work': return (
         <>
-          <Q title={t('What do you do?')} sub={t('So Fakka asks the right questions')} />
+          <Q title={t('What do you do?')} />
           <View style={s.workGrid}>
             {WORK.map(w => {
               const on = x.work === w.key;
@@ -158,7 +159,18 @@ export default function Onboarding() {
           <>
             <Q title={t('How much comes in?')} sub={t(q.hint)} />
             <In label={t(q.label)} value={x.income} onChange={(v: string) => setX({ ...x, income: v })} big placeholder="15,000" />
-            {x.work === 'employee' && <In label={t('Which day do you get paid?')} value={x.payDay} onChange={(v: string) => setX({ ...x, payDay: v })} placeholder="25" />}
+            <In label={t(x.work === 'employee' ? 'Which day do you get paid?' : 'Which day do you usually get paid? (optional)')} value={x.payDay} onChange={(v: string) => setX({ ...x, payDay: v })} placeholder="25" />
+            {num(x.payDay) > 1 && <>
+              <Text style={s.lbl}>{t('Your month starts')}</Text>
+              <View style={[s.pair, { marginBottom: 14 }]}>
+                {[{ on: true, label: t('On payday (the {n})', { n: Math.round(num(x.payDay)) }) }, { on: false, label: t('On the 1st') }].map(o => (
+                  <Pressable key={String(o.on)} onPress={() => { tap(); setX({ ...x, startOnPayday: o.on }); }}
+                    style={[s.chip, { flex: 1, justifyContent: 'center' }, x.startOnPayday === o.on && { backgroundColor: C.accent }]}>
+                    <Text style={[s.chipTxt, x.startOnPayday === o.on && { color: '#fff' }]}>{o.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </>}
             <Text style={[s.lbl, { marginTop: 12 }]}>{t('Any other monthly income? (optional)')}</Text>
             <View style={s.pair}>
               <TextInput style={[s.input, { flex: 1.3 }]} value={x.extraName} onChangeText={v => setX({ ...x, extraName: v })} placeholder={t('e.g. Rent, side job')} placeholderTextColor={C.sub} />
@@ -170,7 +182,7 @@ export default function Onboarding() {
 
       case 'installments': return (
         <>
-          <Q title={t('Do you pay any installments?')} sub={t('Tap the apps you use, then fill in the monthly amount')} />
+          <Q title={t('Do you pay any installments?')} />
           <Multi options={PROVIDERS.map(p => p.name)} colors={Object.fromEntries(PROVIDERS.map(p => [p.name, p.color]))} translate={false}
             selected={Object.keys(x.inst)} onToggle={p => setX({ ...x, inst: toggle(x.inst, p, { monthly: '', months: '' }) })} />
           {Object.keys(x.inst).map(p => (
@@ -186,7 +198,7 @@ export default function Onboarding() {
 
       case 'loans': return (
         <>
-          <Q title={t('Any bank loans?')} sub={t('Mortgage, car, personal loan or credit card')} />
+          <Q title={t('Any bank loans?')} />
           <Multi options={LOAN_TYPES.map(l => l.name)} selected={Object.keys(x.loans)}
             onToggle={l => setX({ ...x, loans: toggle(x.loans, l, { monthly: '', remaining: '' }) })} />
           {Object.keys(x.loans).map(l => (
@@ -202,7 +214,7 @@ export default function Onboarding() {
 
       case 'bills': return (
         <>
-          <Q title={t('Your monthly bills')} sub={t('Tap the ones you pay and enter the usual amount')} />
+          <Q title={t('Your monthly bills')} />
           <Multi options={BILL_TYPES.map(b => b.name)} colors={Object.fromEntries(BILL_TYPES.map(b => [b.name, b.color]))}
             selected={Object.keys(x.bills)} onToggle={b => setX({ ...x, bills: toggle(x.bills, b, '') })} />
           {Object.keys(x.bills).length > 0 && (
@@ -219,7 +231,7 @@ export default function Onboarding() {
 
       case 'gameya': return (
         <>
-          <Q title={t("Are you in a gam'eya?")} sub={t("Fakka tracks your payments and tells you when it's your turn")} />
+          <Q title={t("Are you in a gam'eya?")} />
           <View style={s.langRow}>
             {[false, true].map(v => (
               <Pressable key={String(v)} onPress={() => { tap(); setX({ ...x, gameya: { ...x.gameya, on: v } }); }} style={[s.lang, x.gameya.on === v && s.langOn]}>
@@ -242,7 +254,7 @@ export default function Onboarding() {
 
       case 'savings': return (
         <>
-          <Q title={t('What have you saved?')} sub={t('Fill in only what you have — we convert it to L.E with live prices')} />
+          <Q title={t('What have you saved?')} />
           <SavIn icon="wallet" color={C.primary} label={t('Cash / bank (L.E)')} k="egp" x={x} setX={setX} />
           <SavIn icon="diamond" color="#E0AA3E" label={t('Gold 21K (grams)')} k="gold21" x={x} setX={setX} />
           <SavIn icon="diamond-outline" color="#C9922A" label={t('Gold 24K (grams)')} k="gold24" x={x} setX={setX} />
@@ -253,7 +265,7 @@ export default function Onboarding() {
 
       case 'goal': return (
         <>
-          <Q title={t('Saving for something?')} sub={t('Pick one to start — you can add more later')} />
+          <Q title={t('Saving for something?')} />
           <View style={s.multi}>
             {GOAL_IDEAS.map(g => {
               const on = x.goal.name === t(g.name);
@@ -285,10 +297,9 @@ export default function Onboarding() {
               <SumRow label={t('Left for daily spending')} value={le(inc - monthly)} color={inc - monthly >= 0 ? C.ink : C.red} last />
             </View>
             <View style={[s.summary, { marginTop: 0 }]}>
-              <Toggle icon="finger-print" title={t('Lock with Face ID / fingerprint')} sub={t('Locks the moment you leave the app, like a banking app')}
+              <Toggle icon="finger-print" title={t('Lock with Face ID / fingerprint')}
                 value={x.lock} onChange={v => setX({ ...x, lock: v })} last />
             </View>
-            <Text style={[s.hint, { textAlign: 'center' }]}>{t('Log your daily spending on the Spend tab to see where it goes.')}</Text>
           </View>
         );
       }

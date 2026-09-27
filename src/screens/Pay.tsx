@@ -81,7 +81,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
 
   return (
     <Screen>
-      <Header title={t('Payments')} subtitle={t("Installments, loans, bills and gam'eya")} />
+      <Header title={t('Payments')} />
 
       <View style={s.total}>
         <Text style={s.totalLabel}>{t('You pay every month')}</Text>
@@ -107,7 +107,6 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
         <View style={s.calcIcon}><Ionicons name="calculator" size={20} color={C.accent} /></View>
         <View style={{ flex: 1 }}>
           <Text style={s.calcTitle}>{t('Interest calculator')}</Text>
-          <Text style={s.calcSub}>{t('How much interest will you really pay?')}</Text>
         </View>
         <Ionicons name="chevron-forward" size={18} color={C.sub} />
       </Pressable>
@@ -125,12 +124,11 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
               last={i === tot.due.length - 1} />
           ))}
       </Card>
-      {tot.due.length > 0 && <Hint>{tot.unpaid.length === 0 ? t('All paid this month') : t('Tap the circle when you pay')}</Hint>}
 
       <Section>{t("Gam'eya")}</Section>
       <Card>
         {d.gameyas.length === 0
-          ? <Empty icon="people-outline" text={t("Track your gam'eya: who pays, when it's your turn")} button={t("Add gam'eya")} onPress={() => open('gameya')} />
+          ? <Empty icon="people-outline" text={t("No gam'eya yet")} button={t("Add gam'eya")} onPress={() => open('gameya')} />
           : d.gameyas.map((g, idx) => {
             const st = gameyaStatus(g);
             const sub = st.round < 1 ? t('Not started yet')
@@ -161,7 +159,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
       <Section>{t('Installment apps')}</Section>
       <Card>
         {d.installments.length === 0
-          ? <Empty icon="phone-portrait-outline" text={t('valU, Souhoola, Klivvr, Sympl, Contact, Aman…')} />
+          ? <Empty icon="phone-portrait-outline" text={t('No installments yet')} />
           : d.installments.map((i, idx) => (
             <Row key={i.id} icon={i.provider[0].toUpperCase()} color={colors[i.provider]} title={i.item}
               sub={`${i.provider} · ${i.monthsLeft > 0 ? t('{n} months left', { n: i.monthsLeft }) : t('Paid off')} · ${t('day {n}', { n: i.dueDay })}`} value={le(i.monthly)}
@@ -173,7 +171,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
       <Section>{t('Bills')}</Section>
       <Card>
         {d.bills.length === 0
-          ? <Empty icon="flash-outline" text={t('Electricity, gas, water, internet, mobile, school…')} />
+          ? <Empty icon="flash-outline" text={t('No bills yet')} />
           : d.bills.map((b, idx) => {
             const bt = BILL_TYPES.find(x => x.name === b.cat);
             return <Row key={b.id} icon={bt?.icon ?? 'document-text'} color={bt?.color} title={b.name || t(b.cat)}
@@ -185,7 +183,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
       <Section>{t('Loans')}</Section>
       <Card>
         {d.loans.length === 0
-          ? <Empty icon="business-outline" text={t('Mortgage, car loan, personal loan or credit card')} />
+          ? <Empty icon="business-outline" text={t('No loans yet')} />
           : d.loans.map((l, idx) => (
             <Row key={l.id} icon={LOAN_TYPES.find(x => x.name === l.type)?.icon ?? 'cash'} color={C.primary} title={l.name ? t(l.name) : t(l.type)}
               sub={isPropertyLoan(l)
@@ -195,7 +193,6 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
               onDelete={() => set(x => ({ ...x, loans: x.loans.filter(y => y.id !== l.id) }))} />
           ))}
       </Card>
-      <Hint>{t('Tip: tap an item to edit it, swipe left to delete')}</Hint>
 
       <Sheet visible={mode === 'inst'} title={t(editId ? 'Edit installment' : 'New installment')} onClose={() => { setMode(null); setEditId(null); }} onSave={save}>
         <Text style={s.lbl}>{t('Which app?')}</Text>
@@ -203,7 +200,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
         <Field label={t('What did you buy?')} placeholder={t('e.g. iPhone, fridge, course')} value={f.item} onChangeText={upd('item')} />
         <Field label={t('Monthly amount (L.E)')} keyboardType="numeric" placeholder="2,500" value={f.monthly} onChangeText={upd('monthly')} />
         <Field label={t('Months left')} keyboardType="numeric" placeholder="12" value={f.months} onChangeText={upd('months')} />
-        <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="5" hint={t("We'll remind you before it's due")} value={f.day} onChangeText={upd('day')} />
+        <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="5" value={f.day} onChangeText={upd('day')} />
       </Sheet>
 
       <Sheet visible={mode === 'bill'} title={t(editId ? 'Edit bill' : 'New bill')} onClose={() => { setMode(null); setEditId(null); }} onSave={save}>
@@ -211,7 +208,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
         <Chips options={BILL_TYPES.map(b => b.name)} value={f.cat} onChange={upd('cat')} colors={Object.fromEntries(BILL_TYPES.map(b => [b.name, b.color]))} />
         <Field label={t('Name (optional)')} placeholder={t('e.g. WE home internet')} value={f.name} onChangeText={upd('name')} />
         <Field label={t('Usual amount (L.E)')} keyboardType="numeric" placeholder="600" value={f.amount} onChangeText={upd('amount')} />
-        <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="10" hint={t("We'll remind you before it's due")} value={f.day} onChangeText={upd('day')} />
+        <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="10" value={f.day} onChangeText={upd('day')} />
       </Sheet>
 
       <Sheet visible={mode === 'gameya'} title={t(editId ? "Edit gam'eya" : "New gam'eya")} onClose={() => { setMode(null); setEditId(null); }} onSave={save}>
@@ -219,7 +216,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
         <Field label={t('Monthly share (L.E)')} keyboardType="numeric" placeholder="2,000" value={f.monthly} onChangeText={upd('monthly')} />
         <Field label={t('Number of members')} keyboardType="numeric" placeholder="10" value={f.members} onChangeText={upd('members')} />
         <Field label={t('Your turn (number)')} keyboardType="numeric" placeholder="4" value={f.turn} onChangeText={upd('turn')} />
-        <Field label={t('First month')} placeholder="2026-09" value={f.start} onChangeText={upd('start')} hint={t('Format: YYYY-MM, e.g. 2026-09')} />
+        <Field label={t('First month')} placeholder="2026-09" value={f.start} onChangeText={upd('start')} />
         <Field label={t('Pay day of the month')} keyboardType="numeric" placeholder="1" value={f.day} onChangeText={upd('day')} />
       </Sheet>
 
@@ -239,7 +236,6 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
               <Text style={s.ownLabel}>{t('You own')}</Text>
               <Text style={s.ownVal}>{le(Math.min(num(f.price), num(f.paid)))} · {Math.round(Math.min(1, num(f.paid) / num(f.price)) * 100)}%</Text>
               <Progress value={num(f.paid) / num(f.price)} color={C.green} />
-              <Text style={s.ownHint}>{t('This counts in what you own and grows every time you mark a payment as paid.')}</Text>
             </View>
           )}
         </> : null}

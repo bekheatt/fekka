@@ -3,7 +3,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, EXPENSE_CATS, themed, isHidden } from '../theme';
-import { useStore, useTotals, daysUntil, goalValue, ym } from '../store';
+import { useStore, useTotals, daysUntil, goalValue, ym, inPeriod, monthStartDay } from '../store';
 import { Card, Row, Section, Screen, tap, Progress, Check } from '../ui';
 import { t, locale } from '../i18n';
 import Logo from '../Logo';
@@ -27,6 +27,7 @@ export default function Dashboard({ go }: { go: Go }) {
   const isNew = d.incomes.length + d.expenses.length + d.installments.length + d.loans.length + d.savings.length + d.bills.length + d.goals.length + d.gameyas.length === 0;
 
   const upcoming = tot.unpaid.slice(0, 3);
+  const endStr = new Date(tot.periodEnd.getTime() - 864e5).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
 
   const base = Math.max(tot.income, tot.committed + tot.spent, 1);
   const segs = [
@@ -36,8 +37,7 @@ export default function Dashboard({ go }: { go: Go }) {
     { label: 'Left', v: Math.max(0, tot.left), c: C.green },
   ];
 
-  const m = ym();
-  const cats = EXPENSE_CATS.map(c => ({ ...c, v: d.expenses.filter(e => ym(new Date(e.date)) === m && e.cat === c.name).reduce((s, e) => s + e.amount, 0) }))
+  const cats = EXPENSE_CATS.map(c => ({ ...c, v: d.expenses.filter(e => inPeriod(e.date) && e.cat === c.name).reduce((s, e) => s + e.amount, 0) }))
     .filter(c => c.v > 0).sort((a, b) => b.v - a.v).slice(0, 4);
   const catMax = Math.max(1, ...cats.map(c => c.v));
 
@@ -59,7 +59,6 @@ export default function Dashboard({ go }: { go: Go }) {
       <View style={s.hero}>
         <Text style={s.heroLabel}>{t("What you're worth")}</Text>
         <Text style={s.heroVal} adjustsFontSizeToFit numberOfLines={1}>{le(tot.netWorth)}</Text>
-        <Text style={s.heroExplain}>{t('Everything you own minus everything you owe')}</Text>
         <View style={s.heroRow}>
           <View style={s.heroPill}>
             <Ionicons name="arrow-up-circle" size={18} color={C.green} />
@@ -83,9 +82,9 @@ export default function Dashboard({ go }: { go: Go }) {
         <>
           <Section>{t('Get started')}</Section>
           <Card>
-            <Step n={1} title={t('Add your salary')} sub={t('So Fakka knows your monthly budget')} onPress={() => go('spend', 'income')} />
-            <Step n={2} title={t('Add installments & bills')} sub={t('valU, Souhoola, electricity, internet…')} onPress={() => go('pay')} />
-            <Step n={3} title={t('Set a savings goal')} sub={t('Wedding, car, Sahel summer…')} onPress={() => go('save', 'goal')} last />
+            <Step n={1} title={t('Add your salary')} onPress={() => go('spend', 'income')} />
+            <Step n={2} title={t('Add installments & bills')} onPress={() => go('pay')} />
+            <Step n={3} title={t('Set a savings goal')} onPress={() => go('save', 'goal')} last />
           </Card>
         </>
       ) : (
@@ -94,7 +93,7 @@ export default function Dashboard({ go }: { go: Go }) {
           <Card style={{ padding: 18 }}>
             <Text style={s.leftLabel}>{t(tot.left >= 0 ? 'You still have' : "You're over budget by")}</Text>
             <Text style={[s.leftVal, { color: tot.left >= 0 ? C.ink : C.red }]}>{le(Math.abs(tot.left))}</Text>
-            <Text style={s.leftSub}>{t('out of {x} income', { x: le(tot.income) })}</Text>
+            <Text style={s.leftSub}>{t('of {x}', { x: le(tot.income) })} · {t('until {d}', { d: endStr })}</Text>
             <View style={s.stack}>
               {segs.filter(x => x.v > 0).map(x => <View key={x.label} style={{ flex: x.v / base, backgroundColor: x.c }} />)}
             </View>
@@ -109,6 +108,15 @@ export default function Dashboard({ go }: { go: Go }) {
                 </View>
               ))}
             </View>
+            {tot.income > 0 && tot.daysLeft > 0 && (
+              <View style={s.fc}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.fcLabel}>{t(monthStartDay() > 1 ? 'Left on payday' : 'Left at month end')}</Text>
+                  <Text style={s.fcSub}>{t('At {x} a day', { x: le(tot.pace) })}</Text>
+                </View>
+                <Text style={[s.fcVal, { color: tot.forecast >= 0 ? C.green : C.red }]}>{tot.forecast < 0 ? '−' : ''}{le(Math.abs(tot.forecast))}</Text>
+              </View>
+            )}
           </Card>
 
           <Section action={tot.due.length ? t('See all') : undefined} onAction={() => go('pay')}>{t('Next payments')}</Section>
@@ -181,7 +189,7 @@ const Step = ({ n, title, sub, onPress, last }: any) => (
     <View style={s.stepN}><Text style={s.stepNTxt}>{n}</Text></View>
     <View style={{ flex: 1 }}>
       <Text style={s.stepTitle}>{title}</Text>
-      <Text style={s.stepSub}>{sub}</Text>
+      {!!sub && <Text style={s.stepSub}>{sub}</Text>}
     </View>
     <Ionicons name="chevron-forward" size={18} color={C.sub} />
   </Pressable>
@@ -206,6 +214,10 @@ const s = themed(() => StyleSheet.create({
   qTxt: { fontSize: 13, fontWeight: '500', color: C.ink, marginTop: 8 },
   leftLabel: { color: C.sub, fontSize: 15 },
   leftVal: { fontSize: 30, fontWeight: '700', letterSpacing: -0.4, marginTop: 4 },
+  fc: { flexDirection: 'row', alignItems: 'center', borderTopWidth: 1, borderColor: C.line, marginTop: 12, paddingTop: 14 },
+  fcLabel: { fontSize: 15, fontWeight: '500', color: C.ink },
+  fcSub: { fontSize: 13, color: C.sub, marginTop: 2 },
+  fcVal: { fontSize: 20, fontWeight: '600' },
   leftSub: { color: C.sub, fontSize: 14, marginTop: 2 },
   stack: { flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', backgroundColor: C.soft, marginTop: 16, gap: 2 },
   legend: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 14 },

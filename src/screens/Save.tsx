@@ -107,7 +107,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
 
   return (
     <Screen>
-      <Header title={t('Savings')} subtitle={t('Gold, foreign currency and more')} right={<AddBtn onPress={() => { setF({}); setOpen('hold'); }} />} />
+      <Header title={t('Savings')} right={<AddBtn onPress={() => { setF({}); setOpen('hold'); }} />} />
 
       <View style={s.hero}>
         <Text style={s.heroLabel}>{t('All your savings are worth')}</Text>
@@ -117,7 +117,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
       {/* Goals */}
       <Section action={t('+ Add')} onAction={() => { setF({ unit: 'egp', icon: 'heart' }); setOpen('goal'); }}>{t('Savings goals')}</Section>
       {d.goals.length === 0 ? (
-        <Card><Empty icon="flag-outline" text={t('Save for a wedding, car, trip or Umrah — in pounds, gold or dollars')} button={t('Add goal')}
+        <Card><Empty icon="flag-outline" text={t('No goals yet')} button={t('Add goal')}
           onPress={() => { setF({ unit: 'egp', icon: 'heart' }); setOpen('goal'); }} /></Card>
       ) : d.goals.map(g => {
         const p = g.target ? Math.min(1, g.saved / g.target) : 0;
@@ -147,7 +147,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
       <Section>{t('What you have')}</Section>
       <Card>
         {d.savings.length === 0
-          ? <Empty icon="diamond-outline" text={t('Add your gold, dollars, euros, cash — or anything else you save')} button={t('Add savings')} onPress={() => { setF({}); setOpen('hold'); }} />
+          ? <Empty icon="diamond-outline" text={t('No savings yet')} button={t('Add savings')} onPress={() => { setF({}); setOpen('hold'); }} />
           : d.savings.map((x, idx) => {
             const st = SAVING_TYPES.find(y => y.key === x.kind);
             return <Row key={x.id} icon={st?.icon ?? 'star'} color={st?.color ?? C.sky}
@@ -158,7 +158,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
       </Card>
 
       {/* Prices */}
-      <Section>{t("Today's prices in L.E")}</Section>
+      <Section>{t('Prices today')}</Section>
       <View style={s.live}>
         <View style={[s.liveDot, { backgroundColor: rateStatus === 'error' ? C.red : C.green }]} />
         <Text style={s.liveTxt}>
@@ -183,12 +183,12 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
           </View>
         ))}
       </Card>
-      <Hint>{t('Prices update automatically when you open the app. Gold is the world price — shop prices in Egypt can differ a little, so you can tap any price to adjust it.')}</Hint>
+      <Hint>{t('Tap a price to adjust it')}</Hint>
 
       <Section action={t('+ Add')} onAction={openAlert}>{t('Price alerts')}</Section>
       <Card>
         {d.alerts.length === 0
-          ? <Empty icon="notifications-outline" text={t('Get a notification when gold or the dollar hits your price')} button={t('Add alert')} onPress={openAlert} />
+          ? <Empty icon="notifications-outline" text={t('No price alerts')} button={t('Add alert')} onPress={openAlert} />
           : d.alerts.map((a, idx) => (
             <Row key={a.id} icon={a.active ? 'notifications' : 'checkmark-done'} color={a.active ? C.accent : C.green}
               title={t(a.dir === 'above' ? '{k} above {p}' : '{k} below {p}', { k: t(ALERT_NAMES[a.kind]), p: le(a.price) })}
@@ -198,8 +198,6 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
               onDelete={() => set(x => ({ ...x, alerts: x.alerts.filter(y => y.id !== a.id) }))} />
           ))}
       </Card>
-      <Hint>{t('Fakka checks prices whenever you open the app. Checking in the background comes with the App Store version.')}</Hint>
-      <Hint>{t('Tip: tap an item to edit it, swipe left to delete')}</Hint>
 
       {/* Add holding */}
       <Sheet visible={open === 'hold'} title={t(editId ? 'Edit savings' : 'Add savings')} onClose={close} onSave={saveHolding}>
@@ -208,8 +206,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
         {isOther ? (
           <>
             <Field label={t('What is it?')} placeholder={t('e.g. Silver, stocks, car')} value={f.name} onChangeText={upd('name')} autoFocus />
-            <Field label={t('Total value (L.E)')} keyboardType="numeric" placeholder="0" value={f.qty} onChangeText={upd('qty')} style={s.big}
-              hint={t('Or enter a quantity here and a price per unit below')} />
+            <Field label={t('Total value (L.E)')} keyboardType="numeric" placeholder="0" value={f.qty} onChangeText={upd('qty')} style={s.big}  />
             <Field label={t('Price per unit in L.E (optional)')} keyboardType="numeric" placeholder={t('Leave empty if you entered the total')}
               value={f.price} onChangeText={upd('price')}
               hint={num(f.price) > 0 && num(f.qty) > 0 ? t('≈ {x} in total', { x: le(preview) }) : undefined} />
@@ -236,7 +233,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
           onChange={v => setF((x: any) => ({ ...x, unit: GOAL_UNITS.find(u => u.label === v)!.key }))} />
         <Field label={t('Target ({u})', { u: unitLabel(f.unit) })} keyboardType="numeric" placeholder="100,000" value={f.target} onChangeText={upd('target')} />
         <Field label={t('Already saved ({u})', { u: unitLabel(f.unit) })} keyboardType="numeric" placeholder="0" value={f.saved} onChangeText={upd('saved')} />
-        <Field label={t('Deadline (optional)')} placeholder="2027-06" value={f.deadline} onChangeText={upd('deadline')} hint={t('Format: YYYY-MM, e.g. 2026-09')} />
+        <Field label={t('Deadline (optional)')} placeholder="2027-06" value={f.deadline} onChangeText={upd('deadline')} />
       </Sheet>
 
       {/* Add money to goal */}

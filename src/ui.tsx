@@ -29,7 +29,10 @@ export const Card = ({ children, style }: any) => <View style={[s.card, style]}>
 
 // Swipe left to reveal Delete (like Mail). Swipe far to delete instantly.
 const ACTION_W = 88;
-export const Row = ({ icon, color, title, sub, value, valueColor, onDelete, onPress, left, last, dim }: any) => {
+export const Row = ({ icon, color, title, sub: rawSub, value, valueColor, onDelete, onPress, left, last, dim }: any) => {
+  // Don't repeat the title underneath it ("Food" / "Food · 20 Sept" → "20 Sept")
+  const same = (x: string) => String(x ?? '').trim().toLowerCase() === String(title ?? '').trim().toLowerCase();
+  const sub = typeof rawSub === 'string' ? rawSub.split(' · ').filter((part: string) => !same(part)).join(' · ') : rawSub;
   const x = useRef(new Animated.Value(0)).current;
   const h = useRef(new Animated.Value(1)).current;
   const open = useRef(false);

@@ -3,8 +3,9 @@ import { View, StyleSheet, Pressable, Alert, I18nManager } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, themed } from '../theme';
-import { useStore, Settings as S } from '../store';
-import { Header, Section, Card, Screen, Toggle, Segmented, tap } from '../ui';
+import { useStore, Settings as S, period } from '../store';
+import { Header, Section, Card, Screen, Toggle, Segmented, Field, tap } from '../ui';
+import { locale } from '../i18n';
 import { t } from '../i18n';
 import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
@@ -48,7 +49,16 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
           <Text style={s.backTxt}>{t('Profile')}</Text>
         </Pressable>
       )}
-      <Header title={t('Settings')} subtitle={t('Personalise Fakka')} />
+      <Header title={t('Settings')} />
+
+      <Section>{t('Your month')}</Section>
+      <Card style={{ paddingVertical: 14 }}>
+        <Field label={t('Starts on day')} keyboardType="numeric" placeholder="1" maxLength={2}
+          value={st.monthStart && st.monthStart > 1 ? String(st.monthStart) : ''}
+          onChangeText={(v: string) => { const n = parseInt(v, 10); change({ monthStart: n >= 1 && n <= 31 ? n : 1 }); }}
+          hint={(() => { const p = period(); const f = (x: Date) => x.toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
+            return t('Now: {a} – {b}', { a: f(p.start), b: f(new Date(p.end.getTime() - 864e5)) }); })()} />
+      </Card>
 
       <Section>{t('Appearance')}</Section>
       <Card style={{ paddingVertical: 12 }}>
@@ -61,13 +71,13 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
 
       <Section>{t('Security')}</Section>
       <Card>
-        <Toggle icon="finger-print" title={t('Lock with Face ID / fingerprint')} sub={t('Locks the moment you leave the app, like a banking app')} value={st.lock} onChange={setLock} />
-        <Toggle icon="eye-off" title={t('Hide amounts')} sub={t('Show ••••• instead of numbers. Tap the eye on Home to switch quickly.')} value={!!st.hideAmounts} onChange={v => change({ hideAmounts: v })} last />
+        <Toggle icon="finger-print" title={t('Lock with Face ID / fingerprint')} value={st.lock} onChange={setLock} />
+        <Toggle icon="eye-off" title={t('Hide amounts')} value={!!st.hideAmounts} onChange={v => change({ hideAmounts: v })} last />
       </Card>
 
       <Section>{t('Notifications')}</Section>
       <Card>
-        <Toggle icon="notifications" title={t('Payment reminders')} sub={t('The day before and on the due day, at 10 AM')} value={st.notify} onChange={setNotify} last />
+        <Toggle icon="notifications" title={t('Payment reminders')} value={st.notify} onChange={setNotify} last />
       </Card>
 
       <Section>{t('Data')}</Section>
@@ -76,7 +86,6 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
           <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="refresh" size={18} color={C.primary} /></View>
           <View style={{ flex: 1 }}>
             <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Redo setup')}</Text>
-            <Text style={s.aboutVal}>{t('Go through the welcome questions again')}</Text>
           </View>
         </Pressable>
         <Pressable onPress={() => { tap(); wipe(); }} style={s.danger}>

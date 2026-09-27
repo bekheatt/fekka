@@ -210,4 +210,17 @@ const AR: Record<string, string> = {
   'Interest takes {a} of your first payment, but only {b} of your last.': 'الفايدة بتاخد {a} من أول قسط، و{b} بس من آخر قسط.',
   'Month by month': 'شهر بشهر', 'Month': 'الشهر', 'Interest': 'الفايدة', 'Pays off': 'بيسدّد', 'Still owed': 'لسه عليك', 'Show less': 'اعرض أقل', 'Show all {n} months': 'اعرض الـ {n} شهر',
 
+  // payday month, forecast, cleanup
+  'Your month': 'شهرك', 'Starts on day': 'بيبدأ يوم', 'Now: {a} – {b}': 'دلوقتي: {a} – {b}',
+  'Which day do you usually get paid? (optional)': 'بتقبض يوم كام عادةً؟ (اختياري)', 'Your month starts': 'شهرك بيبدأ',
+  'On payday (the {n})': 'يوم القبض ({n})', 'On the 1st': 'أول الشهر',
+  'until {d}': 'لحد {d}', 'Left on payday': 'هيفضل معاك يوم القبض', 'Left at month end': 'هيفضل معاك آخر الشهر', 'At {x} a day': 'بمعدل {x} في اليوم',
+  'Tap a price to adjust it': 'دوس على أي سعر علشان تعدّله', 'Use this to compare offers': 'استخدمها علشان تقارن العروض',
+  'Most car and personal loans in Egypt use a flat rate': 'أغلب قروض العربيات والقروض الشخصية في مصر بفايدة ثابتة', 'Also called declining balance': 'اسمها كمان رصيد متناقص',
+  'Fill in the details above to see the real cost': 'اكتب البيانات اللي فوق علشان تشوف التكلفة الحقيقية',
+
+  'Prices today': 'أسعار النهارده', 'Add a spend': 'سجّل مصروف',
+  'No goals yet': 'مفيش أهداف لسه', 'No savings yet': 'مفيش ادخار لسه', 'No price alerts': 'مفيش تنبيهات أسعار', 'No spending yet': 'مفيش مصاريف لسه',
+  "No gam'eya yet": 'مفيش جمعية لسه', 'No installments yet': 'مفيش أقساط لسه', 'No bills yet': 'مفيش فواتير لسه', 'No loans yet': 'مفيش قروض لسه',
+
 };
