@@ -18,3 +18,6 @@ export const GOOGLE_IOS_CLIENT_ID = '203574113579-5jlh51p8b4mqgtd9ahusudgtud7d76
 
 export const isCloudConfigured = () => !FIREBASE_CONFIG.apiKey.startsWith('PASTE_');
 export const isGoogleConfigured = () => !GOOGLE_IOS_CLIENT_ID.startsWith('PASTE_');
+
+// Sign in with Apple: switch on after Part B of the setup guide (Apple provider enabled in Firebase)
+export const APPLE_SIGN_IN_ENABLED = false;

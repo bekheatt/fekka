@@ -6,7 +6,7 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { firebase } from './firebase';
-import { GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, isCloudConfigured, isGoogleConfigured } from './config';
+import { APPLE_SIGN_IN_ENABLED, GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, isCloudConfigured, isGoogleConfigured } from './config';
 
 export type Account = { uid: string; email: string | null; name: string | null; provider: 'apple' | 'google' | 'other' };
 
@@ -29,7 +29,7 @@ export function useAccount(): Account | null | undefined {
 }
 
 // Inside Expo Go, Apple would issue the token to Expo Go instead of Fakka, so Firebase would reject it
-export const appleAvailable = async () => Platform.OS === 'ios' && !inExpoGo && (await AppleAuthentication.isAvailableAsync());
+export const appleAvailable = async () => APPLE_SIGN_IN_ENABLED && Platform.OS === 'ios' && !inExpoGo && (await AppleAuthentication.isAvailableAsync());
 
 // Apple: ask Apple for a signed token (with a one-time nonce), hand it to Firebase
 async function appleCredential() {
