@@ -17,7 +17,7 @@ export type PriceAlert = { id: string; kind: string; dir: 'above' | 'below'; pri
 export type Income = { id: string; source: string; monthly: number; day?: number; oneOff?: string };
 export type Saving = { id: string; kind: string; qty: number; name?: string; price?: number };
 export type Work = 'employee' | 'freelancer' | 'business' | 'student' | 'retired' | 'other';
-export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean };
+export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; cloudSkipped?: boolean };
 
 export type Data = {
   installments: Installment[]; loans: Loan[]; bills: Bill[]; gameyas: Gameya[]; goals: Goal[];

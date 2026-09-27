@@ -7,9 +7,12 @@ import { Header, Section, Card, Screen, Toggle, Segmented, tap } from '../ui';
 import { t } from '../i18n';
 import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
+import { useCloud } from '../cloud/CloudProvider';
+import { wasCancelled } from '../cloud/auth';
 
 export default function Settings({ onBack }: { onBack?: () => void }) {
   const { d, set, reset, redoSetup } = useStore();
+  const cloud = useCloud();
   const st = d.settings;
   const change = (patch: Partial<S>) => set(x => ({ ...x, settings: { ...x.settings, ...patch } }));
 
@@ -39,6 +42,17 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
     { text: t('Delete'), style: 'destructive', onPress: reset },
   ]);
 
+  const removeAccount = () => Alert.alert(t('Delete your account?'), t('This deletes your Fakka account and everything backed up in it, and removes the data from this phone. It cannot be undone.'), [
+    { text: t('Cancel'), style: 'cancel' },
+    { text: t('Delete account'), style: 'destructive', onPress: async () => {
+      try { await cloud.deleteAccount(); }
+      catch (e: any) { if (!wasCancelled(e)) Alert.alert(t("Couldn't delete the account"), t('Please try again.')); }
+    } },
+  ]);
+
+  const statusText = cloud.status === 'syncing' ? t('Backing up…') : cloud.status === 'error' ? t("Couldn't back up — will retry") : cloud.lastSynced
+    ? t('Backed up at {x}', { x: cloud.lastSynced.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }) : t('Backed up');
+
   return (
     <Screen>
       {onBack && (
@@ -48,6 +62,38 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
         </Pressable>
       )}
       <Header title={t('Settings')} subtitle={t('Personalise Fakka')} />
+
+      {cloud.enabled && <>
+        <Section>{t('Account')}</Section>
+        <Card>
+          {cloud.account ? <>
+            <View style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]}>
+              <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name={cloud.account.provider === 'apple' ? 'logo-apple' : cloud.account.provider === 'google' ? 'logo-google' : 'person'} size={18} color={C.primary} /></View>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.dangerTxt, { color: C.ink }]} numberOfLines={1}>{cloud.account.name || cloud.account.email || t('Signed in')}</Text>
+                <Text style={s.aboutVal} numberOfLines={1}>{statusText}</Text>
+              </View>
+              <Pressable onPress={() => { tap(); cloud.syncNow(); }} hitSlop={10}><Ionicons name="cloud-upload-outline" size={22} color={C.primary} /></Pressable>
+            </View>
+            <Pressable onPress={() => { tap(); cloud.signOut(); }} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]}>
+              <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="log-out-outline" size={18} color={C.primary} /></View>
+              <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Sign out')}</Text>
+            </Pressable>
+            <Pressable onPress={() => { tap(); removeAccount(); }} style={s.danger}>
+              <View style={[s.icon, { backgroundColor: C.red + '22' }]}><Ionicons name="person-remove" size={18} color={C.red} /></View>
+              <Text style={s.dangerTxt}>{t('Delete account')}</Text>
+            </Pressable>
+          </> : (
+            <Pressable onPress={() => { tap(); change({ cloudSkipped: false }); }} style={s.danger}>
+              <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="cloud-outline" size={18} color={C.primary} /></View>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Sign in to back up')}</Text>
+                <Text style={s.aboutVal}>{t('Keep your data safe when you change phones')}</Text>
+              </View>
+            </Pressable>
+          )}
+        </Card>
+      </>}
 
       <Section>{t('Appearance')}</Section>
       <Card style={{ paddingVertical: 12 }}>

@@ -189,4 +189,20 @@ const AR: Record<string, string> = {
   'No regular monthly income': 'مفيش دخل شهري ثابت', '1 regular income source': 'مصدر دخل ثابت واحد', '{n} regular income sources': '{n} مصادر دخل ثابتة',
   'A second steady income would make you safer': 'مصدر دخل تاني ثابت هيخليك في أمان أكتر', 'Your income is steady': 'دخلك ثابت',
   'Your score is calculated on your phone from the numbers you entered. It updates as you add payments, savings and income.': 'درجتك بتتحسب على موبايلك من الأرقام اللي دخلتها، وبتتحدث كل ما تضيف مدفوعات أو ادخار أو دخل.',
+  // account & cloud backup
+  'Sign in to back up your finances and keep them when you change phones.': 'سجّل دخولك علشان بياناتك تتحفظ وتفضل معاك لو غيّرت موبايلك.',
+  'Sign in with Google': 'الدخول بحساب جوجل', 'Continue without an account': 'كمّل من غير حساب',
+  'Only you can see your data. Fakka never sells or shares it.': 'محدش يقدر يشوف بياناتك غيرك. فكّة عمرها ما تبيعها أو تشاركها.',
+  'Sign-in works in the full Fakka app. In Expo Go you can continue without an account.': 'تسجيل الدخول بيشتغل في تطبيق فكّة الكامل. في Expo Go تقدر تكمّل من غير حساب.',
+  'Sign-in is not available on this device.': 'تسجيل الدخول مش متاح على الجهاز ده.', "Couldn't sign in": 'معرفناش نسجّل دخولك', 'Please try again.': 'جرّب تاني.',
+  'Account': 'الحساب', 'Signed in': 'مسجّل دخول', 'Sign out': 'تسجيل الخروج', 'Sign out?': 'تسجيل الخروج؟', 'Delete account': 'حذف الحساب',
+  'Sign in to back up': 'سجّل دخولك للنسخ الاحتياطي', 'Keep your data safe when you change phones': 'بياناتك تفضل في أمان لو غيّرت موبايلك',
+  'Backing up…': 'بنحفظ نسخة…', "Couldn't back up — will retry": 'معرفناش نحفظ — هنحاول تاني', 'Backed up at {x}': 'اتحفظت الساعة {x}', 'Backed up': 'اتحفظت',
+  'Which data should Fakka keep?': 'فكّة تحتفظ بأنهي بيانات؟', 'This phone and your account have different data.': 'البيانات اللي على الموبايل مختلفة عن اللي في حسابك.',
+  'Use my account data': 'استخدم بيانات حسابي', "Keep this phone's data": 'خلّي بيانات الموبايل ده',
+  'Your data is backed up to your account and will be removed from this phone. Sign in again to get it back.': 'بياناتك محفوظة في حسابك وهتتشال من الموبايل ده. سجّل دخول تاني علشان ترجعها.',
+  "Couldn't back up": 'معرفناش نحفظ', 'Connect to the internet and try again, so nothing is lost.': 'اتصل بالإنترنت وجرّب تاني علشان مفيش حاجة تضيع.',
+  'Delete your account?': 'تحذف حسابك؟', "Couldn't delete the account": 'معرفناش نحذف الحساب',
+  'This deletes your Fakka account and everything backed up in it, and removes the data from this phone. It cannot be undone.': 'ده هيحذف حسابك في فكّة وكل اللي محفوظ فيه، وهيشيل البيانات من الموبايل ده. مينفعش ترجع فيه.',
+
 };

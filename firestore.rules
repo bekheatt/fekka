@@ -1,0 +1,16 @@
+rules_version = '2';
+
+// Fakka: every person can only ever read or write their own data.
+// Data lives at users/{uid}/data/{docId}. Nothing else in the database is readable or writable.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/data/{docId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['items', 'updatedAt']);
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -7,13 +7,14 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.fekka.app",
+      "bundleIdentifier": "com.bekheatt.fakka",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Fakka uses Face ID to keep your finances private."
-      }
+      },
+      "usesAppleSignIn": true
     },
     "android": {
-      "package": "com.fekka.app"
+      "package": "com.bekheatt.fakka"
     },
     "plugins": [
       [
@@ -28,6 +29,13 @@
         {
           "cameraPermission": "Fakka uses the camera to photograph your receipts. Photos stay on your phone.",
           "photosPermission": "Fakka lets you attach receipt photos. Photos stay on your phone."
+        }
+      ],
+      "expo-apple-authentication",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.PASTE_IOS_CLIENT_ID"
         }
       ]
     ],

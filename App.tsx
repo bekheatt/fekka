@@ -19,6 +19,8 @@ import Spend from './src/screens/Spend';
 import Pay from './src/screens/Pay';
 import Save from './src/screens/Save';
 import Profile from './src/screens/Profile';
+import { CloudProvider, useCloud } from './src/cloud/CloudProvider';
+import SignIn from './src/cloud/SignIn';
 
 const TABS = [
   { key: 'home', label: 'Home', icon: 'grid' },
@@ -30,6 +32,9 @@ const TABS = [
 
 function Shell() {
   const { d, version } = useStore();
+  const cloud = useCloud();
+  // Cloud set up, nobody signed in, and they haven't chosen "continue without an account"
+  const needSignIn = cloud.enabled && cloud.account === null && !d.settings.cloudSkipped;
   const [tab, setTab] = useState<string>('home');
   const [action, setAction] = useState<string | undefined>();
   const [splash, setSplash] = useState(true);
@@ -109,10 +114,11 @@ function Shell() {
       )}
       <QuickAdd visible={!!quick} initial={quick ?? undefined} onClose={() => setQuick(null)} />
 
-      {!d.settings.onboarded && <View style={StyleSheet.absoluteFill}><Onboarding /></View>}
-      {locked && !splash && d.settings.onboarded && <Lock resume={resume} onUnlock={() => setLocked(false)} />}
+      {needSignIn && <View style={StyleSheet.absoluteFill}><SignIn /></View>}
+      {!needSignIn && !d.settings.onboarded && <View style={StyleSheet.absoluteFill}><Onboarding /></View>}
+      {locked && !splash && !needSignIn && d.settings.onboarded && <Lock resume={resume} onUnlock={() => setLocked(false)} />}
       {covered && !locked && <Cover />}
-      {splash && <Splash onDone={() => setSplash(false)} />}
+      {(splash || (cloud.enabled && cloud.account === undefined)) && <Splash onDone={() => setSplash(false)} />}
     </View>
   );
 }
@@ -130,7 +136,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <Provider>
-        <Shell />
+        <CloudProvider>
+          <Shell />
+        </CloudProvider>
       </Provider>
     </SafeAreaProvider>
   );
