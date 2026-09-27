@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Pressable, Text, StyleSheet, AppState } from 'react-native';
+import { View, Pressable, StyleSheet, AppState } from 'react-native';
+import { Text, FONTS } from './src/fonts';
+import { useFonts } from 'expo-font';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
@@ -127,6 +129,9 @@ function Cover() {
 }
 
 export default function App() {
+  // Wait for IBM Plex before drawing anything (the phone's launch screen stays up meanwhile)
+  const [fontsReady, fontError] = useFonts(FONTS);
+  if (!fontsReady && !fontError) return null;
   return (
     <SafeAreaProvider>
       <Provider>
@@ -139,7 +144,7 @@ export default function App() {
 const s = themed(() => StyleSheet.create({
   bar: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', backgroundColor: C.tabBar, paddingTop: 10, borderTopWidth: 1, borderColor: C.line },
   item: { flex: 1, alignItems: 'center', gap: 4 },
-  fab: { position: 'absolute', right: 20, width: 60, height: 60, borderRadius: 30, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center',
+  fab: { position: 'absolute', right: 20, width: 60, height: 60, borderRadius: 14, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center',
     shadowColor: '#003366', shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   label: { fontSize: 11, fontWeight: '600', color: C.sub },
 }));

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { Text, TextInput } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, SAVING_TYPES, GOAL_ICONS, themed, isHidden, MASK } from '../theme';
 import { askPermission } from '../notify';
@@ -127,7 +128,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
         return (
           <Card key={g.id} style={s.goal}>
             <Row icon={g.icon} color={C.accent} title={g.name}
-              sub={p >= 1 ? t('Goal reached 🎉') : t('{p}% · {x} to go', { p: Math.round(p * 100), x: fmtUnit(g.unit, left) })}
+              sub={p >= 1 ? t('Goal reached') : t('{p}% · {x} to go', { p: Math.round(p * 100), x: fmtUnit(g.unit, left) })}
               value={fmtUnit(g.unit, g.saved)} last onPress={() => fund(g)}
               onDelete={() => set(x => ({ ...x, goals: x.goals.filter(y => y.id !== g.id) }))} />
             <Progress value={p} color={p >= 1 ? C.green : C.accent} height={10} />
@@ -291,18 +292,18 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
 }
 
 const s = themed(() => StyleSheet.create({
-  hero: { backgroundColor: C.accent, borderRadius: 24, padding: 22 },
+  hero: { backgroundColor: C.accent, borderRadius: 14, padding: 22 },
   heroLabel: { color: C.pale, fontWeight: '600', fontSize: 15 },
   heroVal: { color: '#fff', fontSize: 36, fontWeight: '800', letterSpacing: -1, marginTop: 6 },
   goal: { paddingBottom: 14, marginBottom: 10 },
   goalFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, gap: 10 },
   goalHint: { flex: 1, color: C.sub, fontSize: 13 },
-  fundBtn: { backgroundColor: C.soft, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999 },
+  fundBtn: { backgroundColor: C.soft, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
   fundHead: { alignItems: 'center', marginBottom: 14 },
-  fundIcon: { width: 56, height: 56, borderRadius: 18, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+  fundIcon: { width: 56, height: 56, borderRadius: 12, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   fundSaved: { fontSize: 30, fontWeight: '800', color: C.ink },
   fundOf: { fontSize: 14, color: C.sub, marginTop: 3 },
-  hist: { backgroundColor: C.soft, borderRadius: 14, paddingHorizontal: 14, marginBottom: 16 },
+  hist: { backgroundColor: C.soft, borderRadius: 10, paddingHorizontal: 14, marginBottom: 16 },
   histRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 11 },
   histDate: { color: C.sub, fontSize: 14 },
   histAmt: { fontWeight: '700', fontSize: 15 },
@@ -316,7 +317,7 @@ const s = themed(() => StyleSheet.create({
   rate: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 },
   rateName: { fontWeight: '600', fontSize: 16, color: C.ink },
   rateUnit: { color: C.sub, fontSize: 13, marginTop: 2 },
-  rateInput: { backgroundColor: C.soft, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, minWidth: 110, textAlign: 'right', fontWeight: '700', fontSize: 16, color: C.ink },
+  rateInput: { backgroundColor: C.soft, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, minWidth: 110, textAlign: 'right', fontWeight: '700', fontSize: 16, color: C.ink },
   lbl: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 10 },
   big: { fontSize: 30, fontWeight: '800' },
   icons: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 18 },

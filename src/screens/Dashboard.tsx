@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
+import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, EXPENSE_CATS, themed, isHidden } from '../theme';
 import { useStore, useTotals, daysUntil, goalValue, ym } from '../store';
@@ -44,7 +45,7 @@ export default function Dashboard({ go }: { go: Go }) {
     <Screen>
       <View style={s.top}>
         <View style={{ flex: 1 }}>
-          <Text style={s.hello}>{hello}{first ? `, ${first}` : ''} 👋</Text>
+          <Text style={s.hello}>{hello}{first ? `, ${first}` : ''}</Text>
           <Text style={s.date}>{dateStr}</Text>
         </View>
         <Pressable onPress={() => { tap(); set(x => ({ ...x, settings: { ...x.settings, hideAmounts: !x.settings.hideAmounts } })); }} hitSlop={10} style={s.eye}>
@@ -115,7 +116,7 @@ export default function Dashboard({ go }: { go: Go }) {
             {tot.due.length === 0
               ? <Text style={s.none}>{t('No payments added yet')}</Text>
               : upcoming.length === 0
-                ? <Text style={s.none}>{t('All paid this month 🎉')}</Text>
+                ? <Text style={s.none}>{t('All paid this month')}</Text>
                 : upcoming.map((u, i) => (
                   <Row key={u.id} icon={u.icon} color={u.color} title={u.name}
                     left={<Check on={u.paid} onPress={() => togglePaid(u.kind, u.id)} />} onPress={() => go('pay', `edit:${u.kind}:${u.id}`)}
@@ -188,20 +189,20 @@ const Step = ({ n, title, sub, onPress, last }: any) => (
 
 const s = themed(() => StyleSheet.create({
   top: { marginTop: 10, marginBottom: 16, flexDirection: 'row', alignItems: 'center' },
-  eye: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  eye: { width: 40, height: 40, borderRadius: 14, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
   hello: { fontSize: 24, fontWeight: '700', color: C.ink, letterSpacing: -0.3 },
   date: { fontSize: 15, color: C.sub, marginTop: 3 },
-  hero: { backgroundColor: C.hero, borderRadius: 24, padding: 22 },
+  hero: { backgroundColor: C.hero, borderRadius: 14, padding: 22 },
   heroLabel: { color: '#CCE0FF', fontSize: 15, fontWeight: '500' },
   heroVal: { color: '#fff', fontSize: 34, fontWeight: '700', letterSpacing: -0.6, marginTop: 6 },
   heroExplain: { color: '#CCE0FF', opacity: 0.8, fontSize: 13, marginTop: 4 },
   heroRow: { flexDirection: 'row', gap: 10, marginTop: 18 },
-  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: 12 },
+  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 12, padding: 12 },
   pillLabel: { color: '#CCE0FF', fontSize: 12 },
   pillVal: { color: '#fff', fontSize: 15, fontWeight: '600', marginTop: 2 },
-  quick: { flexDirection: 'row', backgroundColor: C.card, borderRadius: 22, paddingVertical: 16, marginTop: 14 },
+  quick: { flexDirection: 'row', backgroundColor: C.card, borderRadius: 14, paddingVertical: 16, marginTop: 14 },
   qItem: { flex: 1, alignItems: 'center' },
-  qIcon: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
+  qIcon: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   qTxt: { fontSize: 13, fontWeight: '500', color: C.ink, marginTop: 8 },
   leftLabel: { color: C.sub, fontSize: 15 },
   leftVal: { fontSize: 30, fontWeight: '700', letterSpacing: -0.4, marginTop: 4 },

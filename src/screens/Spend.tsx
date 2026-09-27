@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
+import { View, Pressable, StyleSheet, Image } from 'react-native';
+import { Text } from '../fonts';
 import { pickReceipt, deleteReceipt } from '../receipts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, EXPENSE_CATS, themed } from '../theme';
@@ -135,21 +136,21 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
 
 const s = themed(() => StyleSheet.create({
   sumRow: { flexDirection: 'row', gap: 12 },
-  sum: { flex: 1, backgroundColor: C.card, borderRadius: 20, padding: 16 },
+  sum: { flex: 1, backgroundColor: C.card, borderRadius: 14, padding: 16 },
   sumLabel: { color: C.sub, fontSize: 14 },
   sumVal: { color: C.ink, fontSize: 21, fontWeight: '800', marginTop: 4 },
-  quick: { flexDirection: 'row', flexWrap: 'wrap', backgroundColor: C.card, borderRadius: 20, paddingVertical: 8 },
+  quick: { flexDirection: 'row', flexWrap: 'wrap', backgroundColor: C.card, borderRadius: 14, paddingVertical: 8 },
   qItem: { width: '25%', alignItems: 'center', paddingVertical: 10 },
-  qIcon: { width: 50, height: 50, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  qIcon: { width: 50, height: 50, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   qTxt: { fontSize: 13, fontWeight: '600', marginTop: 7, color: C.ink },
   lbl: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 10 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, backgroundColor: C.soft },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, backgroundColor: C.soft },
   chipTxt: { fontWeight: '600', color: C.ink, fontSize: 15 },
   big: { fontSize: 30, fontWeight: '800' },
-  receipt: { width: '100%', height: 180, borderRadius: 14, backgroundColor: C.soft },
+  receipt: { width: '100%', height: 180, borderRadius: 10, backgroundColor: C.soft },
   rmReceipt: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'center', paddingVertical: 10 },
   receiptBtns: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-  receiptBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: C.soft, borderRadius: 14, paddingVertical: 14 },
+  receiptBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: C.soft, borderRadius: 10, paddingVertical: 14 },
   receiptBtnTxt: { color: C.primary, fontWeight: '700', fontSize: 15 },
 }));

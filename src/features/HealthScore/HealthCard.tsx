@@ -1,6 +1,7 @@
 // Home-screen card for the Financial Health Score + a detail sheet when tapped
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
+import { View, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
+import { Text } from '../../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, themed } from '../../theme';
 import { useStore, useTotals, ym } from '../../store';
@@ -140,27 +141,27 @@ function Detail({ hs, visible, onClose }: { hs: HealthScore; visible: boolean; o
 }
 
 const s = themed(() => StyleSheet.create({
-  card: { backgroundColor: C.card, borderRadius: 20, padding: 16, marginTop: 14 },
-  top: { backgroundColor: C.card, borderRadius: 24, padding: 20, marginBottom: 14, shadowColor: '#0F2440', shadowOpacity: 0.05, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  card: { backgroundColor: C.card, borderRadius: 14, padding: 16, marginTop: 14 },
+  top: { backgroundColor: C.card, borderRadius: 14, padding: 20, marginBottom: 14, shadowColor: '#0F2440', shadowOpacity: 0.05, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { fontSize: 16, fontWeight: '600', color: C.ink },
   emptyTxt: { color: C.sub, fontSize: 14, marginTop: 8 },
   scoreRow: { flexDirection: 'row', alignItems: 'flex-end', marginTop: 8, marginBottom: 12 },
   score: { fontSize: 50, fontWeight: '700', letterSpacing: -1, lineHeight: 56 },
   outOf: { fontSize: 17, color: C.sub, fontWeight: '600', marginLeft: 4, marginBottom: 6 },
-  badge: { marginLeft: 'auto', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginBottom: 6 },
+  badge: { marginLeft: 'auto', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, marginBottom: 6 },
   badgeTxt: { fontSize: 14, fontWeight: '600' },
   trend: { fontSize: 13, fontWeight: '600', marginTop: 10 },
   sheetHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 18, paddingTop: 22 },
   sheetTitle: { fontSize: 20, fontWeight: '800', color: C.ink },
   done: { fontSize: 17, fontWeight: '700', color: C.primary },
-  bigCard: { backgroundColor: C.card, borderRadius: 26, padding: 24, alignItems: 'center', borderWidth: 2 },
+  bigCard: { backgroundColor: C.card, borderRadius: 14, padding: 24, alignItems: 'center', borderWidth: 2 },
   bigScore: { fontSize: 68, fontWeight: '700', letterSpacing: -1.5 },
   bigBand: { fontSize: 20, fontWeight: '800', marginTop: -4 },
   bigMsg: { fontSize: 15, color: C.sub, textAlign: 'center', marginTop: 8 },
   section: { fontSize: 13, fontWeight: '700', color: C.sub, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 24, marginLeft: 4 },
   tipRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
-  tipN: { width: 28, height: 28, borderRadius: 14, backgroundColor: C.primary + '1F', alignItems: 'center', justifyContent: 'center' },
+  tipN: { width: 28, height: 28, borderRadius: 10, backgroundColor: C.primary + '1F', alignItems: 'center', justifyContent: 'center' },
   tipNTxt: { color: C.primary, fontWeight: '800' },
   tipTxt: { flex: 1, fontSize: 15, color: C.ink, fontWeight: '600' },
   line: { borderBottomWidth: 1, borderColor: C.line },

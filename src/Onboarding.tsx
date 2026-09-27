@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, ScrollView, KeyboardAvoidingView, Platform, Animated, I18nManager, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView, KeyboardAvoidingView, Platform, Animated, I18nManager, Alert } from 'react-native';
+import { Text, TextInput } from './fonts';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -399,37 +400,37 @@ const s = themed(() => StyleSheet.create({
   h1: { fontSize: 28, fontWeight: '800', color: C.ink, letterSpacing: -0.5 },
   p: { fontSize: 16, color: C.sub, marginTop: 8, lineHeight: 22 },
   langRow: { flexDirection: 'row', gap: 10, marginTop: 28, alignSelf: 'stretch' },
-  lang: { flex: 1, paddingVertical: 15, borderRadius: 16, backgroundColor: C.card, alignItems: 'center' },
+  lang: { flex: 1, paddingVertical: 15, borderRadius: 12, backgroundColor: C.card, alignItems: 'center' },
   langOn: { backgroundColor: C.primary },
   langTxt: { fontSize: 16, fontWeight: '700', color: C.ink },
   bigInput: { fontSize: 30, fontWeight: '800', color: C.ink, borderBottomWidth: 2, borderColor: C.accent, paddingVertical: 10 },
   workGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  work: { width: '47.5%', backgroundColor: C.card, borderRadius: 20, padding: 16, minHeight: 130 },
+  work: { width: '47.5%', backgroundColor: C.card, borderRadius: 14, padding: 16, minHeight: 130 },
   workOn: { backgroundColor: C.primary },
   workIcon: { width: 42, height: 42, borderRadius: 13, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   workTxt: { fontSize: 16, fontWeight: '700', color: C.ink },
   workSub: { fontSize: 12.5, color: C.sub, marginTop: 3 },
   lbl: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 7 },
   smallLbl: { fontSize: 13, fontWeight: '600', color: C.sub, marginBottom: 6 },
-  input: { backgroundColor: C.card, borderRadius: 14, padding: 14, fontSize: 17, color: C.ink },
+  input: { backgroundColor: C.card, borderRadius: 10, padding: 14, fontSize: 17, color: C.ink },
   inputBig: { fontSize: 28, fontWeight: '800' },
   hint: { fontSize: 13, color: C.sub, marginTop: 6 },
   pair: { flexDirection: 'row', gap: 10 },
   multi: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 15, paddingVertical: 11, borderRadius: 999, backgroundColor: C.card },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 15, paddingVertical: 11, borderRadius: 10, backgroundColor: C.card },
   chipTxt: { fontWeight: '600', color: C.ink, fontSize: 15 },
-  sub: { backgroundColor: C.soft, borderRadius: 18, padding: 14, paddingBottom: 4, marginBottom: 10 },
+  sub: { backgroundColor: C.soft, borderRadius: 12, padding: 14, paddingBottom: 4, marginBottom: 10 },
   subTitle: { fontSize: 15, fontWeight: '700', color: C.ink, marginBottom: 8 },
   billGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   savRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
   savIcon: { width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   savLbl: { flex: 1, fontSize: 15, fontWeight: '600', color: C.ink },
   doneIcon: { width: 90, height: 90, borderRadius: 45, backgroundColor: C.green, alignItems: 'center', justifyContent: 'center' },
-  summary: { backgroundColor: C.card, borderRadius: 20, paddingHorizontal: 16, alignSelf: 'stretch', marginTop: 24, marginBottom: 14 },
+  summary: { backgroundColor: C.card, borderRadius: 14, paddingHorizontal: 16, alignSelf: 'stretch', marginTop: 24, marginBottom: 14 },
   sumRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 15 },
   sumLbl: { fontSize: 15, color: C.sub },
   sumVal: { fontSize: 16, fontWeight: '800' },
   footer: { padding: 20, paddingTop: 10 },
-  next: { backgroundColor: C.primary, borderRadius: 18, paddingVertical: 18, alignItems: 'center' },
+  next: { backgroundColor: C.primary, borderRadius: 12, paddingVertical: 18, alignItems: 'center' },
   nextTxt: { color: '#fff', fontSize: 17, fontWeight: '800' },
 }));

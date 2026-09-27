@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, Pressable, StyleSheet, ScrollView, TextInput, Image } from 'react-native';
+import { Modal, View, Pressable, StyleSheet, ScrollView, Image } from 'react-native';
+import { Text, TextInput } from './fonts';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -120,16 +121,16 @@ const s = themed(() => StyleSheet.create({
   cur: { fontSize: 16, fontWeight: '700', color: C.sub },
   amount: { fontSize: 60, fontWeight: '800', letterSpacing: -1.5 },
   cats: { gap: 8, paddingHorizontal: 18, paddingVertical: 10 },
-  cat: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, backgroundColor: C.soft },
+  cat: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, backgroundColor: C.soft },
   catTxt: { fontWeight: '600', color: C.ink, fontSize: 15 },
   noteRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 18, marginTop: 4 },
-  note: { flex: 1, backgroundColor: C.soft, borderRadius: 14, padding: 13, fontSize: 16, color: C.ink },
-  camBtn: { width: 46, height: 46, borderRadius: 14, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
-  thumb: { width: 46, height: 46, borderRadius: 12 },
+  note: { flex: 1, backgroundColor: C.soft, borderRadius: 10, padding: 13, fontSize: 16, color: C.ink },
+  camBtn: { width: 46, height: 46, borderRadius: 10, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
+  thumb: { width: 46, height: 46, borderRadius: 10 },
   thumbX: { position: 'absolute', top: -5, right: -5, width: 18, height: 18, borderRadius: 9, backgroundColor: C.red, alignItems: 'center', justifyContent: 'center' },
   pad: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 18, marginTop: 'auto' },
-  key: { width: '33.33%', height: 62, alignItems: 'center', justifyContent: 'center', borderRadius: 16 },
+  key: { width: '33.33%', height: 62, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
   keyTxt: { fontSize: 28, fontWeight: '600', color: C.ink },
-  save: { marginHorizontal: 18, marginTop: 8, marginBottom: 10, borderRadius: 18, paddingVertical: 18, alignItems: 'center' },
+  save: { marginHorizontal: 18, marginTop: 8, marginBottom: 10, borderRadius: 12, paddingVertical: 18, alignItems: 'center' },
   saveTxt: { color: '#fff', fontSize: 17, fontWeight: '800' },
 }));

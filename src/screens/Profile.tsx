@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
+import { Text, TextInput } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, themed } from '../theme';
 import { useStore, useTotals, ym } from '../store';
@@ -56,7 +57,7 @@ export default function Profile() {
         <Stat icon="trending-up" color={C.accent} label={t('Net worth')} value={leShort(tot.netWorth)} />
         <Stat icon="wallet" color={C.green} label={t('Saved this month')} value={leShort(savedThisMonth)} />
         <Stat icon="pie-chart" color={C.sky} label={t('Savings rate')} value={`${rate}%`} />
-        <Stat icon="flag" color={C.orange} label={t('Debt-free in')} value={debtMonths ? t('{n} months', { n: debtMonths }) : t('No debt 🎉')} />
+        <Stat icon="flag" color={C.orange} label={t('Debt-free in')} value={debtMonths ? t('{n} months', { n: debtMonths }) : t('No debt')} />
       </View>
 
       <Section>{t('Your numbers')}</Section>
@@ -99,23 +100,23 @@ const Line = ({ label, value, last }: any) => (
 
 const s = themed(() => StyleSheet.create({
   gear: { width: 42, height: 42, borderRadius: 21, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
-  settingsBtn: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 20, padding: 16, marginTop: 16 },
-  settingsIcon: { width: 38, height: 38, borderRadius: 11, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
+  settingsBtn: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 14, padding: 16, marginTop: 16 },
+  settingsIcon: { width: 38, height: 38, borderRadius: 8, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
   settingsTitle: { fontSize: 16, fontWeight: '700', color: C.ink },
   settingsSub: { fontSize: 13, color: C.sub, marginTop: 2 },
-  card: { backgroundColor: C.hero, borderRadius: 26, padding: 24, alignItems: 'center' },
+  card: { backgroundColor: C.hero, borderRadius: 14, padding: 24, alignItems: 'center' },
   avatar: { width: 84, height: 84, borderRadius: 42, backgroundColor: '#007ACC', borderWidth: 3, borderColor: '#66A3FF', alignItems: 'center', justifyContent: 'center' },
   avatarTxt: { color: '#fff', fontSize: 32, fontWeight: '800' },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 },
   name: { color: '#fff', fontSize: 22, fontWeight: '800' },
   editRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, alignSelf: 'stretch' },
-  input: { flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', color: '#fff', borderRadius: 12, padding: 12, fontSize: 17, textAlign: 'center' },
-  ok: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#007ACC', alignItems: 'center', justifyContent: 'center' },
+  input: { flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', color: '#fff', borderRadius: 10, padding: 12, fontSize: 17, textAlign: 'center' },
+  ok: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#007ACC', alignItems: 'center', justifyContent: 'center' },
   since: { color: '#CCE0FF', fontSize: 13, marginTop: 6 },
-  work: { color: '#fff', fontSize: 13, fontWeight: '700', marginTop: 8, backgroundColor: 'rgba(255,255,255,0.14)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999, overflow: 'hidden' },
+  work: { color: '#fff', fontSize: 13, fontWeight: '700', marginTop: 8, backgroundColor: 'rgba(255,255,255,0.14)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10, overflow: 'hidden' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 14 },
-  stat: { width: '47.5%', backgroundColor: C.card, borderRadius: 20, padding: 16 },
-  statIcon: { width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  stat: { width: '47.5%', backgroundColor: C.card, borderRadius: 14, padding: 16 },
+  statIcon: { width: 36, height: 36, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   statLabel: { color: C.sub, fontSize: 14 },
   statVal: { color: C.ink, fontSize: 20, fontWeight: '800', marginTop: 3 },
   line: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 14 },

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Pressable, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, PROVIDERS, LOAN_TYPES, BILL_TYPES, themed } from '../theme';
 import { useStore, useTotals, uid, gameyaStatus, ym, daysUntil, isPropertyLoan, propertyOwned } from '../store';
@@ -124,7 +125,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
               last={i === tot.due.length - 1} />
           ))}
       </Card>
-      {tot.due.length > 0 && <Hint>{tot.unpaid.length === 0 ? t('All paid this month 🎉') : t('Tap the circle when you pay')}</Hint>}
+      {tot.due.length > 0 && <Hint>{tot.unpaid.length === 0 ? t('All paid this month') : t('Tap the circle when you pay')}</Hint>}
 
       <Section>{t("Gam'eya")}</Section>
       <Card>
@@ -163,7 +164,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
           ? <Empty icon="phone-portrait-outline" text={t('valU, Souhoola, Klivvr, Sympl, Contact, Aman…')} />
           : d.installments.map((i, idx) => (
             <Row key={i.id} icon={i.provider[0].toUpperCase()} color={colors[i.provider]} title={i.item}
-              sub={`${i.provider} · ${i.monthsLeft > 0 ? t('{n} months left', { n: i.monthsLeft }) : t('Paid off 🎉')} · ${t('day {n}', { n: i.dueDay })}`} value={le(i.monthly)}
+              sub={`${i.provider} · ${i.monthsLeft > 0 ? t('{n} months left', { n: i.monthsLeft }) : t('Paid off')} · ${t('day {n}', { n: i.dueDay })}`} value={le(i.monthly)}
               last={idx === d.installments.length - 1} onPress={() => edit('inst', i.id)}
               onDelete={() => set(x => ({ ...x, installments: x.installments.filter(y => y.id !== i.id) }))} />
           ))}
@@ -188,8 +189,8 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
           : d.loans.map((l, idx) => (
             <Row key={l.id} icon={LOAN_TYPES.find(x => x.name === l.type)?.icon ?? 'cash'} color={C.primary} title={l.name ? t(l.name) : t(l.type)}
               sub={isPropertyLoan(l)
-                ? `${t('You own {x} of {y}', { x: leShort(propertyOwned(l)), y: leShort(l.price!) })} (${Math.round(propertyOwned(l) / l.price! * 100)}%) · ${l.remaining > 0 ? t('{x} left', { x: leShort(l.remaining) }) : t('Paid off 🎉')}`
-                : `${l.lender} · ${l.remaining > 0 ? t('{x} left', { x: le(l.remaining) }) : t('Paid off 🎉')} · ${t('day {n}', { n: l.dueDay })}`} value={le(l.monthly)}
+                ? `${t('You own {x} of {y}', { x: leShort(propertyOwned(l)), y: leShort(l.price!) })} (${Math.round(propertyOwned(l) / l.price! * 100)}%) · ${l.remaining > 0 ? t('{x} left', { x: leShort(l.remaining) }) : t('Paid off')}`
+                : `${l.lender} · ${l.remaining > 0 ? t('{x} left', { x: le(l.remaining) }) : t('Paid off')} · ${t('day {n}', { n: l.dueDay })}`} value={le(l.monthly)}
               last={idx === d.loans.length - 1} onPress={() => edit('loan', l.id)}
               onDelete={() => set(x => ({ ...x, loans: x.loans.filter(y => y.id !== l.id) }))} />
           ))}
@@ -259,24 +260,24 @@ const AddChip = ({ icon, color, label, onPress }: any) => (
 );
 
 const s = themed(() => StyleSheet.create({
-  total: { backgroundColor: C.card, borderRadius: 20, padding: 18 },
+  total: { backgroundColor: C.card, borderRadius: 14, padding: 18 },
   totalLabel: { color: C.sub, fontSize: 15 },
   totalVal: { color: C.ink, fontSize: 30, fontWeight: '800', marginTop: 4, letterSpacing: -0.5 },
   split: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
   splitTxt: { color: C.sub, fontSize: 13, fontWeight: '600' },
   btns: { gap: 10, marginTop: 12, paddingRight: 4 },
-  btn: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: C.card, borderRadius: 14, paddingVertical: 13, paddingHorizontal: 16 },
+  btn: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: C.card, borderRadius: 10, paddingVertical: 13, paddingHorizontal: 16 },
   btnTxt: { fontWeight: '700', fontSize: 15, color: C.ink },
-  calc: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 22, padding: 14, marginTop: 12 },
-  calcIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.accent + '1F', alignItems: 'center', justifyContent: 'center' },
+  calc: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 14, padding: 14, marginTop: 12 },
+  calcIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: C.accent + '1F', alignItems: 'center', justifyContent: 'center' },
   calcTitle: { fontSize: 16, fontWeight: '600', color: C.ink },
   calcSub: { fontSize: 13, color: C.sub, marginTop: 2 },
   lbl: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 10 },
-  ownBox: { backgroundColor: C.soft, borderRadius: 16, padding: 14, marginBottom: 16, gap: 6 },
+  ownBox: { backgroundColor: C.soft, borderRadius: 12, padding: 14, marginBottom: 16, gap: 6 },
   ownLabel: { fontSize: 13, color: C.sub, fontWeight: '600' },
   ownVal: { fontSize: 20, fontWeight: '800', color: C.green, marginBottom: 4 },
   ownHint: { fontSize: 12, color: C.sub, marginTop: 4 },
   turns: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingBottom: 14, paddingTop: 2 },
-  turn: { width: 28, height: 28, borderRadius: 14, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
+  turn: { width: 28, height: 28, borderRadius: 10, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
   turnTxt: { fontSize: 12, fontWeight: '700', color: C.ink },
 }));

@@ -1,6 +1,7 @@
 // Interest calculator: what does financing something really cost, in plain words
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Modal, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, Pressable, Modal, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Text } from '../../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, themed } from '../../theme';
 import { Field, Chips, Segmented, num, tap } from '../../ui';
@@ -160,7 +161,7 @@ const s = themed(() => StyleSheet.create({
   title: { fontSize: 20, fontWeight: '700', color: C.ink },
   done: { fontSize: 17, fontWeight: '600', color: C.primary },
   intro: { fontSize: 15, color: C.sub, marginBottom: 14 },
-  card: { backgroundColor: C.card, borderRadius: 22, padding: 18, marginBottom: 14, shadowColor: '#0F2440', shadowOpacity: 0.04, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 1 },
+  card: { backgroundColor: C.card, borderRadius: 14, padding: 18, marginBottom: 14, shadowColor: '#0F2440', shadowOpacity: 0.04, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 1 },
   lbl: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 10 },
   hint: { fontSize: 13, color: C.sub, marginTop: -2, marginBottom: 16, lineHeight: 18 },
   empty: { alignItems: 'center', gap: 10, paddingVertical: 26 },

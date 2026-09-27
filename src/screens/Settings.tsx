@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, I18nManager } from 'react-native';
+import { View, StyleSheet, Pressable, Alert, I18nManager } from 'react-native';
+import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, themed } from '../theme';
 import { useStore, Settings as S } from '../store';
@@ -98,7 +99,7 @@ const s = themed(() => StyleSheet.create({
   backTxt: { color: C.primary, fontSize: 16, fontWeight: '600' },
   lbl: { fontSize: 14, fontWeight: '600', color: C.sub, marginTop: 4 },
   danger: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13 },
-  icon: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  icon: { width: 34, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   dangerTxt: { color: C.red, fontSize: 16, fontWeight: '600' },
   about: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 14 },
   aboutLabel: { color: C.ink, fontSize: 15 },
