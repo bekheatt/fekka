@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Fakka",
+    "slug": "fekka",
+    "version": "1.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.fekka.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Fakka uses Face ID to keep your finances private."
+      }
+    },
+    "android": {
+      "package": "com.fekka.app"
+    },
+    "plugins": [
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Fakka uses Face ID to keep your finances private."
+        }
+      ],
+      "expo-notifications",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Fakka uses the camera to photograph your receipts. Photos stay on your phone.",
+          "photosPermission": "Fakka lets you attach receipt photos. Photos stay on your phone."
+        }
+      ]
+    ],
+    "extra": {
+      "supportsRTL": true
+    },
+    "scheme": "fakka"
+  }
+}
