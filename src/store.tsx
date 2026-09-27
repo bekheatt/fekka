@@ -24,6 +24,7 @@ export type Data = {
   expenses: Expense[]; incomes: Income[]; savings: Saving[];
   rates: Record<string, number>; ratesUpdated?: string; settings: Settings;
   alerts: PriceAlert[];
+  scoreHistory?: Record<string, number>; // Financial Health Score per month (YYYY-MM)
 };
 
 type RateStatus = 'idle' | 'loading' | 'ok' | 'error';

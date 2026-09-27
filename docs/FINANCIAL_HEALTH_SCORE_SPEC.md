@@ -221,40 +221,19 @@ Round to nearest integer (0-100)
 const ENABLE_HEALTH_SCORE = true; // Set to false to disable feature entirely
 ```
 
-### Data Requirements
+### Data Used (from the app's store)
 
-The score requires:
-- ✅ All active installments (provider, monthly payment, remaining months)
-- ✅ All active loans (amount, monthly payment, rate, remaining months)
-- ✅ Monthly income (with type: salary, business, freelance)
-- ✅ Monthly expenses (tracked)
-- ✅ Savings breakdown (EGP, USD, EUR amounts)
-- ✅ Gold holdings (weight in grams)
-- ✅ User's baseline income over last 3-6 months (to calculate stability)
+- Installments and loans: monthly payment against monthly income (installment load); remaining balances (debt)
+- Savings: cash/bank, USD, EUR and gold 21K/24K, valued at live rates (emergency fund and savings mix)
+- Monthly payments plus this month's spending: monthly outgoings for the emergency-fund months
+- Income sources and job type (Profile → work): income stability
+- Assets vs debt: the same numbers as "What you're worth" on Home
 
-### UI Components Needed
+### UI (built)
 
-1. **Health Score Card**  
-   - Large, bold 0-100 number
-   - Color-coded circle/ring
-   - One-line summary ("Healthy" / "Warning" / etc.)
-   - Shows last updated time
-
-2. **Score Breakdown Sheet**  
-   - Five component scores (bars or circles)
-   - Which component dragged the score down?
-   - What to improve first?
-
-3. **Score Trend Chart**  
-   - Last 12 months of score history
-   - Show when it improved/worsened and why
-   - Motivational: "Up 8 points since June!"
-
-4. **What's Next?**  
-   - Prioritized list of actions:
-     - "Reduce installments by 1M EGP to hit 50% load"
-     - "Save 8K more EGP to reach 3-month emergency fund"
-     - "Add 10g gold to diversify savings"
+1. **Home card**: score, band badge, progress bar, "▲ n since last month"
+2. **Detail sheet** (tap the card): big score, top 3 tips from the weakest parts, all 5 parts with bars and a one-line explanation
+3. Fully translated to Arabic; follows light/dark theme
 
 ### When to Calculate
 
@@ -303,10 +282,10 @@ This feature is behind a **feature flag**. If you want to:
 ## Next Steps
 
 1. ✅ Spec document (this file)
-2. ⏳ Feature flag setup in code
-3. ⏳ Score calculation engine
-4. ⏳ UI components
-5. ⏳ Data integration with existing transaction/savings data
+2. ✅ Feature flag setup in code
+3. ✅ Score calculation engine
+4. ✅ UI components (Home card + detail sheet)
+5. ✅ Data integration with existing transaction/savings data
 6. ⏳ Testing & validation with real Egypt financial patterns
 7. ⏳ Analytics tracking
 

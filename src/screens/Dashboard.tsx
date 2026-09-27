@@ -6,6 +6,7 @@ import { useStore, useTotals, daysUntil, goalValue, ym } from '../store';
 import { Card, Row, Section, Screen, tap, Progress, Check } from '../ui';
 import { t, locale } from '../i18n';
 import Logo from '../Logo';
+import HealthCard from '../features/HealthScore/HealthCard';
 
 type Go = (tab: string, action?: string) => void;
 
@@ -86,6 +87,8 @@ export default function Dashboard({ go }: { go: Go }) {
         </>
       ) : (
         <>
+          <HealthCard onAddIncome={() => go('spend', 'income')} />
+
           <Section>{t('This month')}</Section>
           <Card style={{ padding: 18 }}>
             <Text style={s.leftLabel}>{t(tot.left >= 0 ? 'You still have' : "You're over budget by")}</Text>

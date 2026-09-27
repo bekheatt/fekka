@@ -1,19 +1,5 @@
-/**
- * Financial Health Score Feature
- *
- * Main exports for the Health Score feature
- */
-
+// Financial Health Score — everything the rest of the app needs
 export { FEATURE_FLAGS, isHealthScoreEnabled } from './config';
-export { calculateHealthScore, getHealthScoreRecommendations } from './calculator';
-export { useHealthScore } from './useHealthScore';
-export type {
-  HealthScoreBreakdown,
-  HealthScoreResult,
-  UserFinancialData,
-  Installment,
-  Loan,
-  HealthScoreState,
-  ScoreLabel,
-  ScoreColor,
-} from './types';
+export { calculateHealthScore, bandOf, WEIGHTS } from './calculator';
+export type { HealthScore, Part, Band, Totals } from './calculator';
+export { default as HealthCard, bandColor } from './HealthCard';
