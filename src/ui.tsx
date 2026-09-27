@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, Pressable, TextInput, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, Animated, PanResponder, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -77,7 +77,7 @@ export const Row = ({ icon, color, title, sub, value, valueColor, onDelete, onPr
     </View>
   );
 
-  if (!onDelete) return <Pressable disabled={!onPress} onPress={onPress} style={!last && s.rowLine}>{content}</Pressable>;
+  if (!onDelete) return <Pressable disabled={!onPress} onPress={onPress} style={({ pressed }) => [!last && s.rowLine, pressed && { opacity: 0.6 }]}>{content}</Pressable>;
 
   return (
     <Animated.View
@@ -192,30 +192,36 @@ export const Check = ({ on, onPress, color }: { on: boolean; onPress: () => void
 
 export const num = (t?: string) => parseFloat((t ?? '').replace(/,/g, '')) || 0;
 
-export const Screen = ({ children }: { children: React.ReactNode }) => (
-  <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 6, paddingBottom: 170 }} showsVerticalScrollIndicator={false}>
-    {children}
-  </ScrollView>
-);
+// Screens fade and drift up gently when you switch tabs
+export const Screen = ({ children }: { children: React.ReactNode }) => {
+  const a = useRef(new Animated.Value(0)).current;
+  useEffect(() => { Animated.timing(a, { toValue: 1, duration: 260, useNativeDriver: true }).start(); }, []);
+  return (
+    <Animated.ScrollView style={{ opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }] }}
+      contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 170 }} showsVerticalScrollIndicator={false}>
+      {children}
+    </Animated.ScrollView>
+  );
+};
 
 const s = themed(() => StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 18 },
-  title: { fontSize: 30, fontWeight: '800', color: C.ink, letterSpacing: -0.6 },
+  title: { fontSize: 28, fontWeight: '700', color: C.ink, letterSpacing: -0.4 },
   subtitle: { fontSize: 15, color: C.sub, marginTop: 3 },
-  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, marginBottom: 10, paddingHorizontal: 4 },
-  section: { fontSize: 18, fontWeight: '700', color: C.ink },
-  sectionAction: { fontSize: 15, fontWeight: '600', color: C.primary },
-  card: { backgroundColor: C.card, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 4 },
-  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 13, gap: 12 },
+  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 28, marginBottom: 10, paddingHorizontal: 4 },
+  section: { fontSize: 17, fontWeight: '600', color: C.ink },
+  sectionAction: { fontSize: 15, fontWeight: '500', color: C.accent },
+  card: { backgroundColor: C.card, borderRadius: 22, paddingHorizontal: 16, paddingVertical: 4, shadowColor: '#0F2440', shadowOpacity: 0.04, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 1 },
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, gap: 12 },
   rowLine: { borderBottomWidth: 1, borderColor: C.line },
   deleteWrap: { direction: 'ltr', position: 'absolute', top: 0, bottom: 0, right: -14, left: 0, backgroundColor: C.red, alignItems: 'flex-end', justifyContent: 'center' },
   deleteBtn: { width: ACTION_W + 14, height: '100%', alignItems: 'center', justifyContent: 'center', gap: 3, paddingRight: 14 },
   deleteTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  badge: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  badgeTxt: { fontWeight: '800', fontSize: 16 },
-  rowTitle: { fontSize: 16, fontWeight: '600', color: C.ink },
+  badge: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  badgeTxt: { fontWeight: '700', fontSize: 16 },
+  rowTitle: { fontSize: 16, fontWeight: '500', color: C.ink },
   rowSub: { fontSize: 13, color: C.sub, marginTop: 3 },
-  rowVal: { fontSize: 16, fontWeight: '700', color: C.ink },
+  rowVal: { fontSize: 16, fontWeight: '600', color: C.ink },
   empty: { alignItems: 'center', paddingVertical: 24, paddingHorizontal: 10 },
   emptyIcon: { width: 52, height: 52, borderRadius: 16, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   emptyTxt: { color: C.sub, textAlign: 'center', fontSize: 15, lineHeight: 21 },
@@ -232,8 +238,8 @@ const s = themed(() => StyleSheet.create({
   sheetHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 18, borderBottomWidth: 1, borderColor: C.line },
   sheetTitle: { fontSize: 17, fontWeight: '700', color: C.ink },
   cancel: { fontSize: 16, color: C.sub, width: 50 },
-  saveBtn: { backgroundColor: C.primary, borderRadius: 16, paddingVertical: 17, alignItems: 'center', marginTop: 8 },
-  saveTxt: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  saveBtn: { backgroundColor: C.primary, borderRadius: 18, paddingVertical: 17, alignItems: 'center', marginTop: 8 },
+  saveTxt: { color: '#fff', fontSize: 17, fontWeight: '600' },
   setRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13 },
   setIcon: { width: 34, height: 34, borderRadius: 10, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
   seg: { flexDirection: 'row', backgroundColor: C.soft, borderRadius: 12, padding: 3, marginVertical: 8 },

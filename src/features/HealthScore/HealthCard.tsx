@@ -74,7 +74,7 @@ function Inner({ onAddIncome }: { onAddIncome: () => void }) {
             <Text style={[s.badgeTxt, { color }]}>{t(hs.band)}</Text>
           </View>
         </View>
-        <Progress value={hs.score / 100} color={color} height={10} />
+        <Progress value={hs.score / 100} color={color} height={8} />
         {change !== undefined && change !== 0 && (
           <Text style={[s.trend, { color: change > 0 ? C.green : C.red }]}>
             {t(change > 0 ? '▲ {n} since last month' : '▼ {n} since last month', { n: Math.abs(change) })}
@@ -141,21 +141,21 @@ function Detail({ hs, visible, onClose }: { hs: HealthScore; visible: boolean; o
 
 const s = themed(() => StyleSheet.create({
   card: { backgroundColor: C.card, borderRadius: 20, padding: 16, marginTop: 14 },
-  top: { backgroundColor: C.card, borderRadius: 26, padding: 20, marginBottom: 14 },
+  top: { backgroundColor: C.card, borderRadius: 24, padding: 20, marginBottom: 14, shadowColor: '#0F2440', shadowOpacity: 0.05, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { fontSize: 16, fontWeight: '700', color: C.ink },
+  title: { fontSize: 16, fontWeight: '600', color: C.ink },
   emptyTxt: { color: C.sub, fontSize: 14, marginTop: 8 },
   scoreRow: { flexDirection: 'row', alignItems: 'flex-end', marginTop: 8, marginBottom: 12 },
-  score: { fontSize: 56, fontWeight: '800', letterSpacing: -1.5, lineHeight: 60 },
+  score: { fontSize: 50, fontWeight: '700', letterSpacing: -1, lineHeight: 56 },
   outOf: { fontSize: 17, color: C.sub, fontWeight: '600', marginLeft: 4, marginBottom: 6 },
   badge: { marginLeft: 'auto', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginBottom: 6 },
-  badgeTxt: { fontSize: 14, fontWeight: '700' },
+  badgeTxt: { fontSize: 14, fontWeight: '600' },
   trend: { fontSize: 13, fontWeight: '600', marginTop: 10 },
   sheetHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 18, paddingTop: 22 },
   sheetTitle: { fontSize: 20, fontWeight: '800', color: C.ink },
   done: { fontSize: 17, fontWeight: '700', color: C.primary },
   bigCard: { backgroundColor: C.card, borderRadius: 26, padding: 24, alignItems: 'center', borderWidth: 2 },
-  bigScore: { fontSize: 72, fontWeight: '800', letterSpacing: -2 },
+  bigScore: { fontSize: 68, fontWeight: '700', letterSpacing: -1.5 },
   bigBand: { fontSize: 20, fontWeight: '800', marginTop: -4 },
   bigMsg: { fontSize: 15, color: C.sub, textAlign: 'center', marginTop: 8 },
   section: { fontSize: 13, fontWeight: '700', color: C.sub, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 24, marginLeft: 4 },

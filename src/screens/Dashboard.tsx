@@ -110,13 +110,6 @@ export default function Dashboard({ go }: { go: Go }) {
             </View>
           </Card>
 
-          <View style={s.tiles}>
-            <Tile icon="wallet" color={C.green} label={t('Income')} value={leShort(tot.income)} onPress={() => go('spend')} />
-            <Tile icon="cart" color={C.orange} label={t('Spent')} value={leShort(tot.spent)} onPress={() => go('spend')} />
-            <Tile icon="calendar" color={C.sky} label={t('Monthly payments')} value={leShort(tot.committed)} onPress={() => go('pay')} />
-            <Tile icon="diamond" color={C.accent} label={t('Savings')} value={leShort(tot.assets)} onPress={() => go('save')} />
-          </View>
-
           <Section action={tot.due.length ? t('See all') : undefined} onAction={() => go('pay')}>{t('Next payments')}</Section>
           <Card>
             {tot.due.length === 0
@@ -127,7 +120,7 @@ export default function Dashboard({ go }: { go: Go }) {
                   <Row key={u.id} icon={u.icon} color={u.color} title={u.name}
                     left={<Check on={u.paid} onPress={() => togglePaid(u.kind, u.id)} />} onPress={() => go('pay', `edit:${u.kind}:${u.id}`)}
                     sub={`${u.by} · ${dueLabel(u.day)}`}
-                    value={le(u.amount)} valueColor={daysUntil(u.day) <= 3 ? C.red : undefined} last={i === upcoming.length - 1} />
+                    value={le(u.amount)} valueColor={daysUntil(u.day) <= 3 ? C.orange : undefined} last={i === upcoming.length - 1} />
                 ))}
           </Card>
 
@@ -176,17 +169,9 @@ export default function Dashboard({ go }: { go: Go }) {
 }
 
 const Quick = ({ icon, label, color, onPress }: any) => (
-  <Pressable style={s.qItem} onPress={() => { tap(); onPress(); }}>
+  <Pressable style={({ pressed }) => [s.qItem, pressed && { opacity: 0.6, transform: [{ scale: 0.96 }] }]} onPress={() => { tap(); onPress(); }}>
     <View style={[s.qIcon, { backgroundColor: color + '1F' }]}><Ionicons name={icon} size={24} color={color} /></View>
     <Text style={s.qTxt}>{label}</Text>
-  </Pressable>
-);
-
-const Tile = ({ icon, color, label, value, onPress }: any) => (
-  <Pressable style={({ pressed }) => [s.tile, pressed && { opacity: 0.7 }]} onPress={() => { tap(); onPress(); }}>
-    <View style={[s.tileIcon, { backgroundColor: color + '1F' }]}><Ionicons name={icon} size={18} color={color} /></View>
-    <Text style={s.tileLabel}>{label}</Text>
-    <Text style={s.tileVal} adjustsFontSizeToFit numberOfLines={1}>{value}</Text>
   </Pressable>
 );
 
@@ -204,41 +189,36 @@ const Step = ({ n, title, sub, onPress, last }: any) => (
 const s = themed(() => StyleSheet.create({
   top: { marginTop: 10, marginBottom: 16, flexDirection: 'row', alignItems: 'center' },
   eye: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  hello: { fontSize: 26, fontWeight: '800', color: C.ink, letterSpacing: -0.4 },
+  hello: { fontSize: 24, fontWeight: '700', color: C.ink, letterSpacing: -0.3 },
   date: { fontSize: 15, color: C.sub, marginTop: 3 },
-  hero: { backgroundColor: C.hero, borderRadius: 26, padding: 22 },
-  heroLabel: { color: '#CCE0FF', fontSize: 15, fontWeight: '600' },
-  heroVal: { color: '#fff', fontSize: 38, fontWeight: '800', letterSpacing: -1, marginTop: 6 },
-  heroExplain: { color: '#66A3FF', fontSize: 13, marginTop: 4 },
+  hero: { backgroundColor: C.hero, borderRadius: 24, padding: 22 },
+  heroLabel: { color: '#CCE0FF', fontSize: 15, fontWeight: '500' },
+  heroVal: { color: '#fff', fontSize: 34, fontWeight: '700', letterSpacing: -0.6, marginTop: 6 },
+  heroExplain: { color: '#CCE0FF', opacity: 0.8, fontSize: 13, marginTop: 4 },
   heroRow: { flexDirection: 'row', gap: 10, marginTop: 18 },
-  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 12 },
+  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: 12 },
   pillLabel: { color: '#CCE0FF', fontSize: 12 },
-  pillVal: { color: '#fff', fontSize: 15, fontWeight: '700', marginTop: 2 },
-  quick: { flexDirection: 'row', backgroundColor: C.card, borderRadius: 20, paddingVertical: 14, marginTop: 14 },
+  pillVal: { color: '#fff', fontSize: 15, fontWeight: '600', marginTop: 2 },
+  quick: { flexDirection: 'row', backgroundColor: C.card, borderRadius: 22, paddingVertical: 16, marginTop: 14 },
   qItem: { flex: 1, alignItems: 'center' },
-  qIcon: { width: 50, height: 50, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  qTxt: { fontSize: 13, fontWeight: '600', color: C.ink, marginTop: 7 },
+  qIcon: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
+  qTxt: { fontSize: 13, fontWeight: '500', color: C.ink, marginTop: 8 },
   leftLabel: { color: C.sub, fontSize: 15 },
-  leftVal: { fontSize: 32, fontWeight: '800', letterSpacing: -0.6, marginTop: 4 },
+  leftVal: { fontSize: 30, fontWeight: '700', letterSpacing: -0.4, marginTop: 4 },
   leftSub: { color: C.sub, fontSize: 14, marginTop: 2 },
-  stack: { flexDirection: 'row', height: 14, borderRadius: 7, overflow: 'hidden', backgroundColor: C.soft, marginTop: 16, gap: 2 },
+  stack: { flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', backgroundColor: C.soft, marginTop: 16, gap: 2 },
   legend: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 14 },
   legendItem: { width: '50%', flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
   dot: { width: 10, height: 10, borderRadius: 5 },
   legendLabel: { fontSize: 13, color: C.sub },
-  legendVal: { fontSize: 15, fontWeight: '700', color: C.ink },
-  tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 14 },
-  tile: { width: '47.5%', backgroundColor: C.card, borderRadius: 20, padding: 16 },
-  tileIcon: { width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  tileLabel: { color: C.sub, fontSize: 14 },
-  tileVal: { color: C.ink, fontSize: 20, fontWeight: '800', marginTop: 3 },
+  legendVal: { fontSize: 15, fontWeight: '600', color: C.ink },
   none: { color: C.sub, textAlign: 'center', paddingVertical: 20, fontSize: 15 },
   catHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 7 },
-  catName: { fontSize: 15, fontWeight: '600', color: C.ink },
-  catVal: { fontSize: 15, fontWeight: '700', color: C.ink },
+  catName: { fontSize: 15, fontWeight: '500', color: C.ink },
+  catVal: { fontSize: 15, fontWeight: '600', color: C.ink },
   step: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 16 },
   stepN: { width: 34, height: 34, borderRadius: 17, backgroundColor: C.primary + '1F', alignItems: 'center', justifyContent: 'center' },
   stepNTxt: { color: C.primary, fontWeight: '800', fontSize: 16 },
-  stepTitle: { fontSize: 16, fontWeight: '700', color: C.ink },
+  stepTitle: { fontSize: 16, fontWeight: '600', color: C.ink },
   stepSub: { fontSize: 13, color: C.sub, marginTop: 2 },
 }));

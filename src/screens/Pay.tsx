@@ -107,7 +107,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
             <Row key={u.kind + u.id} icon={u.icon} color={u.color} title={u.name} dim={u.paid}
               left={<Check on={u.paid} onPress={() => togglePaid(u.kind, u.id)} />} onPress={() => edit(u.kind, u.id)}
               sub={`${u.by} · ${u.paid ? t('Paid') : dueLabel(u.day)}`}
-              value={le(u.amount)} valueColor={!u.paid && daysUntil(u.day) <= 3 ? C.red : undefined}
+              value={le(u.amount)} valueColor={!u.paid && daysUntil(u.day) <= 3 ? C.orange : undefined}
               last={i === tot.due.length - 1} />
           ))}
       </Card>

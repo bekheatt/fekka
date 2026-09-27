@@ -2,9 +2,9 @@ import { getLang } from './i18n';
 
 // Fekka blue palette: #003366 #00509E #007ACC #66A3FF #CCE0FF
 const LIGHT = {
-  bg: '#F3F7FD', card: '#FFFFFF', ink: '#0F2440', sub: '#7A8BA6', line: '#E6EEF9', soft: '#EAF2FF',
-  navy: '#003366', primary: '#00509E', accent: '#007ACC', sky: '#66A3FF', pale: '#CCE0FF', hero: '#003366',
-  green: '#2FB57A', red: '#E5534B', orange: '#F29B45', purple: '#66A3FF', gold: '#007ACC', tabBar: '#FFFFFF',
+  bg: '#F6F9FE', card: '#FFFFFF', ink: '#14294A', sub: '#7D8DA8', line: '#EEF3FA', soft: '#EEF4FE',
+  navy: '#003366', primary: '#00509E', accent: '#007ACC', sky: '#66A3FF', pale: '#CCE0FF', hero: '#00509E',
+  green: '#2FB57A', red: '#E0605A', orange: '#F29B45', purple: '#66A3FF', gold: '#007ACC', tabBar: '#FFFFFF',
 };
 const DARK: typeof LIGHT = {
   bg: '#07172B', card: '#0E2340', ink: '#EAF2FF', sub: '#8CA3C2', line: '#18345A', soft: '#15304F',
