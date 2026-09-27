@@ -53,6 +53,8 @@ export default function Dashboard({ go }: { go: Go }) {
         <Logo size={52} />
       </View>
 
+      <HealthCard onAddIncome={() => go('spend', 'income')} />
+
       <View style={s.hero}>
         <Text style={s.heroLabel}>{t("What you're worth")}</Text>
         <Text style={s.heroVal} adjustsFontSizeToFit numberOfLines={1}>{le(tot.netWorth)}</Text>
@@ -87,8 +89,6 @@ export default function Dashboard({ go }: { go: Go }) {
         </>
       ) : (
         <>
-          <HealthCard onAddIncome={() => go('spend', 'income')} />
-
           <Section>{t('This month')}</Section>
           <Card style={{ padding: 18 }}>
             <Text style={s.leftLabel}>{t(tot.left >= 0 ? 'You still have' : "You're over budget by")}</Text>

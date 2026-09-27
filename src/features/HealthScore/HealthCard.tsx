@@ -45,7 +45,7 @@ function Inner({ onAddIncome }: { onAddIncome: () => void }) {
 
   if (!hs) {
     return (
-      <Pressable style={s.card} onPress={() => { tap(); onAddIncome(); }}>
+      <Pressable style={s.top} onPress={() => { tap(); onAddIncome(); }}>
         <View style={s.head}>
           <Ionicons name="pulse" size={18} color={C.primary} />
           <Text style={s.title}>{t('Financial health')}</Text>
@@ -61,7 +61,7 @@ function Inner({ onAddIncome }: { onAddIncome: () => void }) {
 
   return (
     <>
-      <Pressable style={({ pressed }) => [s.card, pressed && { opacity: 0.8 }]} onPress={() => { tap(); setOpen(true); }}>
+      <Pressable style={({ pressed }) => [s.top, pressed && { opacity: 0.8 }]} onPress={() => { tap(); setOpen(true); }}>
         <View style={s.head}>
           <Ionicons name="pulse" size={18} color={color} />
           <Text style={s.title}>{t('Financial health')}</Text>
@@ -141,11 +141,12 @@ function Detail({ hs, visible, onClose }: { hs: HealthScore; visible: boolean; o
 
 const s = themed(() => StyleSheet.create({
   card: { backgroundColor: C.card, borderRadius: 20, padding: 16, marginTop: 14 },
+  top: { backgroundColor: C.card, borderRadius: 26, padding: 20, marginBottom: 14 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { fontSize: 15, fontWeight: '700', color: C.ink },
+  title: { fontSize: 16, fontWeight: '700', color: C.ink },
   emptyTxt: { color: C.sub, fontSize: 14, marginTop: 8 },
   scoreRow: { flexDirection: 'row', alignItems: 'flex-end', marginTop: 8, marginBottom: 12 },
-  score: { fontSize: 44, fontWeight: '800', letterSpacing: -1, lineHeight: 48 },
+  score: { fontSize: 56, fontWeight: '800', letterSpacing: -1.5, lineHeight: 60 },
   outOf: { fontSize: 17, color: C.sub, fontWeight: '600', marginLeft: 4, marginBottom: 6 },
   badge: { marginLeft: 'auto', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginBottom: 6 },
   badgeTxt: { fontSize: 14, fontWeight: '700' },
