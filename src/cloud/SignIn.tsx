@@ -10,6 +10,7 @@ import { t } from '../i18n';
 import { tap } from '../ui';
 import Logo from '../Logo';
 import { appleAvailable, googleAvailable, signInWithApple, signInWithGoogle, wasCancelled, inExpoGo } from './auth';
+import { ask, tell } from './ask';
 
 export default function SignIn() {
   const { set } = useStore();
@@ -23,7 +24,7 @@ export default function SignIn() {
     tap();
     setBusy(which);
     try { await (which === 'apple' ? signInWithApple() : signInWithGoogle()); }
-    catch (e: any) { if (!wasCancelled(e)) Alert.alert(t("Couldn't sign in"), t('Please try again.') + (e?.message ? `\n\n${e.message}` : '')); }
+    catch (e: any) { if (!wasCancelled(e)) tell(t("Couldn't sign in"), t('Please try again.') + (e?.message ? `\n\n${e.message}` : '')); }
     finally { setBusy(null); }
   };
 

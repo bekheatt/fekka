@@ -9,6 +9,7 @@ import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
 import { useCloud } from '../cloud/CloudProvider';
 import { wasCancelled } from '../cloud/auth';
+import { ask, tell } from '../cloud/ask';
 
 export default function Settings({ onBack }: { onBack?: () => void }) {
   const { d, set, reset, redoSetup } = useStore();
@@ -42,11 +43,11 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
     { text: t('Delete'), style: 'destructive', onPress: reset },
   ]);
 
-  const removeAccount = () => Alert.alert(t('Delete your account?'), t('This deletes your Fakka account and everything backed up in it, and removes the data from this phone. It cannot be undone.'), [
+  const removeAccount = () => ask(t('Delete your account?'), t('This deletes your Fakka account and everything backed up in it, and removes the data from this phone. It cannot be undone.'), [
     { text: t('Cancel'), style: 'cancel' },
     { text: t('Delete account'), style: 'destructive', onPress: async () => {
       try { await cloud.deleteAccount(); }
-      catch (e: any) { if (!wasCancelled(e)) Alert.alert(t("Couldn't delete the account"), t('Please try again.')); }
+      catch (e: any) { if (!wasCancelled(e)) tell(t("Couldn't delete the account"), t('Please try again.')); }
     } },
   ]);
 

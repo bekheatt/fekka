@@ -1,11 +1,12 @@
 // Connects sign-in and cloud sync to the app. Wraps the app inside the store Provider.
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { Alert, AppState } from 'react-native';
+import { AppState } from 'react-native';
 import { useStore } from '../store';
 import { t } from '../i18n';
 import { isCloudConfigured } from './config';
 import { Account, useAccount, signOut as authSignOut, deleteAccount as authDelete } from './auth';
 import { downloadDocs, upload, joinDocs, markSynced, hasData, sameData, deleteCloudData } from './sync';
+import { ask, tell } from './ask';
 
 export type SyncStatus = 'off' | 'checking' | 'syncing' | 'synced' | 'error';
 type Ctx = {
@@ -54,10 +55,10 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
         if (!hasData(local)) { await useCloud(); return finish(); }
         if (sameData(local, docs)) { await markSynced(uid, local); return finish(); }
         // Both sides have different data: let the person choose
-        Alert.alert(t('Which data should Fakka keep?'), t('This phone and your account have different data.'), [
+        ask(t('Which data should Fakka keep?'), t('This phone and your account have different data.'), [
           { text: t('Use my account data'), onPress: async () => { await useCloud(); finish(); } },
           { text: t("Keep this phone's data"), onPress: async () => { ready.current = uid; await upload(uid, latest.current, true); finish(); } },
-        ], { cancelable: false });
+        ]);
       } catch { if (alive) setStatus('error'); }
     })();
     return () => { alive = false; };
@@ -78,11 +79,11 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
 
   // Sign out: make sure everything is backed up, then clear this phone (it's a finance app — privacy first)
   const signOut = () => {
-    Alert.alert(t('Sign out?'), t('Your data is backed up to your account and will be removed from this phone. Sign in again to get it back.'), [
+    ask(t('Sign out?'), t('Your data is backed up to your account and will be removed from this phone. Sign in again to get it back.'), [
       { text: t('Cancel'), style: 'cancel' },
       { text: t('Sign out'), style: 'destructive', onPress: async () => {
         try { if (account && ready.current === account.uid) await upload(account.uid, latest.current); }
-        catch { return Alert.alert(t("Couldn't back up"), t('Connect to the internet and try again, so nothing is lost.')); }
+        catch { return tell(t("Couldn't back up"), t('Connect to the internet and try again, so nothing is lost.')); }
         ready.current = null;
         await authSignOut();
         reset();

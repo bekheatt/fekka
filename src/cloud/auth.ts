@@ -62,7 +62,8 @@ function google() {
     return GoogleSignin;
   } catch { return null; }
 }
-export const googleAvailable = () => !!google();
+// On the web version (for testing in a browser), Google sign-in uses Firebase's own popup
+export const googleAvailable = () => Platform.OS === 'web' || !!google();
 
 async function googleCredential() {
   const G = google();
@@ -76,6 +77,10 @@ async function googleCredential() {
 }
 
 export async function signInWithGoogle() {
+  if (Platform.OS === 'web') {
+    const { user } = await FA.signInWithPopup(firebase().auth, new FA.GoogleAuthProvider());
+    return toAccount(user);
+  }
   const { user } = await FA.signInWithCredential(firebase().auth, await googleCredential());
   return toAccount(user);
 }
@@ -97,11 +102,12 @@ export async function deleteAccount(deleteCloudData: (uid: string) => Promise<vo
     await FA.reauthenticateWithCredential(user, credential);
     if (authorizationCode) await FA.revokeAccessToken(auth, authorizationCode).catch(() => {});
   } else if (provider === 'google') {
-    await FA.reauthenticateWithCredential(user, await googleCredential());
+    if (Platform.OS === 'web') await FA.reauthenticateWithPopup(user, new FA.GoogleAuthProvider());
+    else await FA.reauthenticateWithCredential(user, await googleCredential());
   }
   await deleteCloudData(user.uid);
   await user.delete();
   await google()?.revokeAccess?.().catch(() => {});
 }
 
-export const wasCancelled = (e: any) => e?.code === 'ERR_REQUEST_CANCELED' || e?.code === 'ERR_CANCELED' || e?.message === 'cancelled' || e?.code === '-5' || e?.code === 'SIGN_IN_CANCELLED';
+export const wasCancelled = (e: any) => e?.code === 'auth/popup-closed-by-user' || e?.code === 'auth/cancelled-popup-request' || e?.code === 'ERR_REQUEST_CANCELED' || e?.code === 'ERR_CANCELED' || e?.message === 'cancelled' || e?.code === '-5' || e?.code === 'SIGN_IN_CANCELLED';
