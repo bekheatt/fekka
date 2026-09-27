@@ -17,7 +17,11 @@ Only three small spots, so it's easy to remove:
 2. `src/store.tsx`: optional `scoreHistory` field (one score saved per month for the "▲ 4 since last month" trend)
 3. `src/i18n.ts`: Arabic translations under `// financial health score`
 
+## Kill switch
+
+The Health Score is part of the core app. The switch stays as an emergency off button.
+
 ## Turn it off / remove it
 
 - **Hide it:** set `ENABLE_HEALTH_SCORE: false` in `config.ts`. The card disappears and nothing is calculated.
-- **Remove it:** delete this folder and undo the three spots above. Or just don't merge the `feature/financial-health-score` branch.
+- **Remove it:** delete this folder and undo the three spots above.

@@ -1,17 +1,10 @@
 /**
- * Financial Health Score Feature Flag
- *
- * Set ENABLE_HEALTH_SCORE to true to activate the Health Score feature.
- * When false, all Health Score UI and calculations are bypassed.
- *
- * This is a checkpoint feature: if you decide to scrap it, simply:
- * 1. Set ENABLE_HEALTH_SCORE = false
- * 2. All Health Score code becomes inert (no performance impact)
- * 3. Later: rm -rf src/features/HealthScore/ and remove this flag
+ * Financial Health Score: part of the core app (Fakka's flagship).
+ * ENABLE_HEALTH_SCORE stays as an emergency off switch. false hides the card and skips all calculations.
  */
 
 export const FEATURE_FLAGS = {
-  ENABLE_HEALTH_SCORE: true, // Change to false to disable without deleting code
+  ENABLE_HEALTH_SCORE: true,
 };
 
 // Feature flag checker

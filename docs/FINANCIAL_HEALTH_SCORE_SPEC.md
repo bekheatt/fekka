@@ -1,6 +1,6 @@
 # Financial Health Score — Specification Document
 
-**Status:** Checkpoint Feature (Feature Flag: `ENABLE_HEALTH_SCORE`)  
+**Status:** Core feature, Fakka's flagship (merged into main 2026-09-27; kill switch: `ENABLE_HEALTH_SCORE`)  
 **Created:** 2026-09-27  
 **Owner:** Fakka Team
 
