@@ -6,6 +6,7 @@ import { useStore, useTotals, uid, gameyaStatus, ym, daysUntil, isPropertyLoan, 
 import { Header, Section, Card, Row, Empty, Sheet, Field, Chips, num, tap, Screen, Hint, Check, Progress } from '../ui';
 import { t } from '../i18n';
 import { dueLabel } from './Dashboard';
+import InterestCalculator from '../features/InterestCalc/InterestCalculator';
 
 type Mode = 'inst' | 'loan' | 'bill' | 'gameya' | null;
 const HOME_NICKNAMES = ['Primary home', 'Sahel chalet', 'Rental apartment', 'Family house'];
@@ -16,6 +17,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
   const [mode, setMode] = useState<Mode>(null);
   const [f, setF] = useState<any>({});
   const [editId, setEditId] = useState<string | null>(null);
+  const [calc, setCalc] = useState(false);
   const colors = Object.fromEntries(PROVIDERS.map(p => [p.name, p.color]));
   const upd = (k: string) => (v: string) => setF((x: any) => ({ ...x, [k]: v }));
 
@@ -38,6 +40,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
     if (action?.startsWith('edit:')) { const [, k, id] = action.split(':'); edit(k, id); }
     if (action === 'installment') open('inst');
     if (action === 'gameya') open('gameya');
+    if (action === 'calc') setCalc(true);
     if (action) clear();
   }, [action]);
 
@@ -98,6 +101,16 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
         <AddChip icon="people-outline" color="#8E6FE0" label={t("Gam'eya")} onPress={() => open('gameya')} />
         <AddChip icon="business-outline" color={C.primary} label={t('Loan')} onPress={() => open('loan')} />
       </ScrollView>
+
+      <Pressable onPress={() => { tap(); setCalc(true); }} style={({ pressed }) => [s.calc, pressed && { opacity: 0.7 }]}>
+        <View style={s.calcIcon}><Ionicons name="calculator" size={20} color={C.accent} /></View>
+        <View style={{ flex: 1 }}>
+          <Text style={s.calcTitle}>{t('Interest calculator')}</Text>
+          <Text style={s.calcSub}>{t('How much interest will you really pay?')}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={C.sub} />
+      </Pressable>
+      <InterestCalculator visible={calc} onClose={() => setCalc(false)} />
 
       <Section>{`${t('Due this month')} · ${paidCount}/${tot.due.length}`}</Section>
       <Card>
@@ -254,6 +267,10 @@ const s = themed(() => StyleSheet.create({
   btns: { gap: 10, marginTop: 12, paddingRight: 4 },
   btn: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: C.card, borderRadius: 14, paddingVertical: 13, paddingHorizontal: 16 },
   btnTxt: { fontWeight: '700', fontSize: 15, color: C.ink },
+  calc: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 22, padding: 14, marginTop: 12 },
+  calcIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: C.accent + '1F', alignItems: 'center', justifyContent: 'center' },
+  calcTitle: { fontSize: 16, fontWeight: '600', color: C.ink },
+  calcSub: { fontSize: 13, color: C.sub, marginTop: 2 },
   lbl: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 10 },
   ownBox: { backgroundColor: C.soft, borderRadius: 16, padding: 14, marginBottom: 16, gap: 6 },
   ownLabel: { fontSize: 13, color: C.sub, fontWeight: '600' },
