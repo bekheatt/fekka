@@ -8,6 +8,7 @@ import { Header, Section, Card, Screen, Toggle, Segmented, tap } from '../ui';
 import { t } from '../i18n';
 import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
+import { signOutGoogle } from '../auth/google';
 
 export default function Settings({ onBack }: { onBack?: () => void }) {
   const { d, set, reset, redoSetup } = useStore();
@@ -79,11 +80,11 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
             <Text style={s.aboutVal}>{t('Go through the welcome questions again')}</Text>
           </View>
         </Pressable>
-        <Pressable onPress={() => { tap(); set(v => ({ ...v, settings: { ...v.settings, account: undefined } })); }} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]}>
+        <Pressable onPress={() => { tap(); signOutGoogle(); set(v => ({ ...v, settings: { ...v.settings, account: undefined, email: undefined } })); }} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]}>
           <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="log-out-outline" size={18} color={C.primary} /></View>
           <View style={{ flex: 1 }}>
             <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Sign out')}</Text>
-            <Text style={s.aboutVal}>{t('Back to the sign-in screen. Your data stays.')}</Text>
+            <Text style={s.aboutVal}>{d.settings.email ? `${d.settings.email} · ` : ''}{t('Back to the sign-in screen. Your data stays.')}</Text>
           </View>
         </Pressable>
         <Pressable onPress={() => { tap(); wipe(); }} style={s.danger}>

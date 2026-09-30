@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from './fonts';
@@ -8,15 +8,35 @@ import { useStore } from './store';
 import { t } from './i18n';
 import { tap } from './ui';
 import Logo from './Logo';
+import { googleAvailable, signInWithGoogle } from './auth/google';
 
 // Sign-in screen. Apple and Google are look-only for now; they will be
 // wired to Firebase later (see the feature/firebase-auth branch).
+// Alert.alert does nothing in a web browser, so use the browser's own pop-up there
+const say = (title: string, msg: string) =>
+  Platform.OS === 'web' ? window.alert(`${title}\n\n${msg}`) : Alert.alert(title, msg);
+
 export default function Login() {
   const { set } = useStore();
 
   const soon = (who: string) => {
     tap();
-    Alert.alert(t('Coming soon'), t('{who} sign-in is on the way. For now, continue as a guest.', { who }));
+    say(t('Coming soon'), t('{who} sign-in is on the way. For now, continue as a guest.', { who }));
+  };
+
+  const google = async () => {
+    if (!googleAvailable) return soon('Google');
+    tap();
+    try {
+      const u = await signInWithGoogle();
+      set(v => ({ ...v, settings: { ...v.settings, account: 'google', email: u.email, name: v.settings.name || u.name.split(' ')[0] } }));
+    } catch (e: any) {
+      const code = String(e?.code ?? e?.message ?? '');
+      if (code.includes('popup-closed') || code.includes('cancelled-popup')) return;
+      say(t('Sign-in failed'), code.includes('not-configured')
+        ? t('Firebase is not set up yet. Add your keys in src/auth/firebaseConfig.ts.')
+        : code);
+    }
   };
 
   const guest = () => {
@@ -38,7 +58,7 @@ export default function Login() {
           <Text style={[s.btnTxt, { color: '#fff' }]}>{t('Continue with Apple')}</Text>
         </Pressable>
 
-        <Pressable onPress={() => soon('Google')} style={({ pressed }) => [s.btn, s.google, pressed && s.pressed]}>
+        <Pressable onPress={google} style={({ pressed }) => [s.btn, s.google, pressed && s.pressed]}>
           <Ionicons name="logo-google" size={18} color="#4285F4" />
           <Text style={[s.btnTxt, { color: '#1F1F1F' }]}>{t('Continue with Google')}</Text>
         </Pressable>
