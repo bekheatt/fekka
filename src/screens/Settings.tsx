@@ -8,9 +8,25 @@ import { Header, Section, Card, Screen, Toggle, Segmented, tap } from '../ui';
 import { t } from '../i18n';
 import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
+import { saveUserData, signOutCloud } from '../cloud/supabase';
+
+const CLOUD_TEXT = { off: 'Saved on this device', saving: 'Saving to your account…', saved: 'Saved to your account', error: "Couldn't save to your account" } as const;
 
 export default function Settings({ onBack }: { onBack?: () => void }) {
-  const { d, set, reset, redoSetup } = useStore();
+  const { d, set, reset, redoSetup, cloudStatus, cloudError } = useStore();
+
+  // Account: save one last time, then clear this device so the next person can't see your money.
+  // Guest: just go back to the sign-in screen; data stays on this device.
+  const signOut = async () => {
+    tap();
+    if (d.settings.account === 'email' && d.settings.uid) {
+      await saveUserData(d.settings.uid, d).catch(() => {});
+      await signOutCloud();
+      reset();
+    } else {
+      set(v => ({ ...v, settings: { ...v.settings, account: undefined } }));
+    }
+  };
   const st = d.settings;
   const change = (patch: Partial<S>) => set(x => ({ ...x, settings: { ...x.settings, ...patch } }));
 
@@ -79,11 +95,11 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
             <Text style={s.aboutVal}>{t('Go through the welcome questions again')}</Text>
           </View>
         </Pressable>
-        <Pressable onPress={() => { tap(); set(v => ({ ...v, settings: { ...v.settings, account: undefined } })); }} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]}>
+        <Pressable onPress={signOut} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]}>
           <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="log-out-outline" size={18} color={C.primary} /></View>
           <View style={{ flex: 1 }}>
             <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Sign out')}</Text>
-            <Text style={s.aboutVal}>{t('Back to the sign-in screen. Your data stays.')}</Text>
+            <Text style={s.aboutVal}>{st.account === 'email' ? `${st.email ?? ''} · ${t(CLOUD_TEXT[cloudStatus])}${cloudStatus === 'error' && cloudError ? ` (${cloudError})` : ''}` : t('Back to the sign-in screen. Your data stays.')}</Text>
           </View>
         </Pressable>
         <Pressable onPress={() => { tap(); wipe(); }} style={s.danger}>

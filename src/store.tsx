@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveUserData, onCloudUser } from './cloud/supabase';
 import { Appearance, AppState } from 'react-native';
 import { DEFAULT_RATES, PROVIDERS, BILL_TYPES, LOAN_TYPES, applyTheme, isDark, setHidden, le, C } from './theme';
 import * as Notifications from 'expo-notifications';
@@ -17,7 +18,7 @@ export type PriceAlert = { id: string; kind: string; dir: 'above' | 'below'; pri
 export type Income = { id: string; source: string; monthly: number; day?: number; oneOff?: string };
 export type Saving = { id: string; kind: string; qty: number; name?: string; price?: number };
 export type Work = 'employee' | 'freelancer' | 'business' | 'student' | 'retired' | 'other';
-export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; account?: 'guest' | 'google' | 'apple' };
+export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; account?: 'guest' | 'google' | 'apple' | 'email'; email?: string; uid?: string };
 
 export type Data = {
   installments: Installment[]; loans: Loan[]; bills: Bill[]; gameyas: Gameya[]; goals: Goal[];
@@ -34,6 +35,7 @@ const empty = (): Data => ({ installments: [], loans: [], bills: [], gameyas: []
 const KEY = 'fekka.v1';
 const OUNCE = 31.1035;
 
+export type CloudStatus = 'off' | 'saving' | 'saved' | 'error';
 type Ctx = {
   d: Data; set: (fn: (d: Data) => Data) => void;
   refreshRates: () => Promise<void>; rateStatus: RateStatus;
@@ -41,6 +43,8 @@ type Ctx = {
   version: number; // bumps when theme/language changes → app redraws
   reset: () => void;
   redoSetup: () => void;
+  adopt: (saved: object, account: Partial<Settings>) => void;
+  cloudStatus: CloudStatus; cloudError: string;
 };
 const Store = createContext<Ctx>(null as any);
 
@@ -130,6 +134,33 @@ export function Provider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { if (ready) AsyncStorage.setItem(KEY, JSON.stringify(d)); }, [d, ready]);
 
+  // Signed in with an account: also keep a copy in that person's private cloud row (a moment after each change)
+  const [cloudStatus, setCloudStatus] = useState<CloudStatus>('off');
+  const [cloudError, setCloudError] = useState('');
+  useEffect(() => {
+    const uid = d.settings.account === 'email' ? d.settings.uid : undefined;
+    if (!ready || !uid) { setCloudStatus('off'); return; }
+    setCloudStatus('saving');
+    const id = setTimeout(() => {
+      saveUserData(uid, d)
+        .then(() => { setCloudStatus('saved'); setCloudError(''); })
+        .catch((e: any) => { setCloudStatus('error'); setCloudError(String(e?.message ?? e)); });
+    }, 1500);
+    return () => clearTimeout(id);
+  }, [d, ready]);
+
+  // If the online sign-in ends (expired or signed out elsewhere), go back to the sign-in screen
+  useEffect(() => {
+    if (!ready) return;
+    return onCloudUser(u => {
+      setD(x => {
+        if (x.settings.account !== 'email') return x;
+        if (!u) return { ...x, settings: { ...x.settings, account: undefined } };
+        return x.settings.uid === u.uid ? x : { ...x, settings: { ...x.settings, uid: u.uid, email: u.email } };
+      });
+    });
+  }, [ready]);
+
   // Refresh prices (and check price alerts) whenever you come back after 15+ minutes
   useEffect(() => {
     const sub = AppState.addEventListener('change', st => {
@@ -176,11 +207,23 @@ export function Provider({ children }: { children: React.ReactNode }) {
     return { ...x, gameyas: x.gameyas.map(g => g.id !== id ? g : { ...g, paidMonths: flip(g.paidMonths) }) };
   });
 
+  // Replace everything with the data saved in the person's account (after signing in)
+  const adopt = (saved: object, account: Partial<Settings>) => {
+    const base = empty();
+    const loaded: Data = { ...base, ...(saved as Data) };
+    loaded.settings = { ...base.settings, ...(loaded.settings ?? {}), ...account };
+    setLang(loaded.settings.lang);
+    setHidden(!!loaded.settings.hideAmounts);
+    applyTheme(resolveTheme(loaded.settings));
+    setD(loaded);
+    setVersion(v => v + 1);
+  };
+
   const reset = () => { const e = empty(); e.settings = { ...e.settings, lang: d.settings.lang, theme: d.settings.theme }; setD(e); };
   const redoSetup = () => set(x => ({ ...x, settings: { ...x.settings, onboarded: false } }));
 
   if (!ready) return null;
-  return <Store.Provider value={{ d, set, refreshRates, rateStatus, togglePaid, version, reset, redoSetup }}>{children}</Store.Provider>;
+  return <Store.Provider value={{ d, set, refreshRates, rateStatus, togglePaid, version, reset, redoSetup, adopt, cloudStatus, cloudError }}>{children}</Store.Provider>;
 }
 
 export const useStore = () => useContext(Store);
