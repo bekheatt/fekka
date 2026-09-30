@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cloudAvailable, saveUserData } from './cloud/sync';
+import { onGoogleUser } from './auth/google';
 import { Appearance, AppState } from 'react-native';
 import { DEFAULT_RATES, PROVIDERS, BILL_TYPES, LOAN_TYPES, applyTheme, isDark, setHidden, le, C } from './theme';
 import * as Notifications from 'expo-notifications';
@@ -44,6 +45,7 @@ type Ctx = {
   redoSetup: () => void;
   adopt: (json: string, account: Partial<Settings>) => void;
   cloudStatus: 'off' | 'saving' | 'saved' | 'error';
+  cloudError: string;
 };
 const Store = createContext<Ctx>(null as any);
 
@@ -135,12 +137,25 @@ export function Provider({ children }: { children: React.ReactNode }) {
 
   // Signed in with Google: also keep a copy in that person's cloud record (a moment after each change)
   const [cloudStatus, setCloudStatus] = useState<'off' | 'saving' | 'saved' | 'error'>('off');
+  const [cloudError, setCloudError] = useState('');
+
+  // Fill in the account ID from Firebase if it's missing (e.g. signed in before the database existed)
+  useEffect(() => {
+    if (!ready) return;
+    return onGoogleUser(u => {
+      if (!u) return;
+      setD(x => x.settings.account === 'google' && x.settings.uid !== u.uid
+        ? { ...x, settings: { ...x.settings, uid: u.uid, email: u.email || x.settings.email } } : x);
+    });
+  }, [ready]);
   useEffect(() => {
     const uid = d.settings.account === 'google' ? d.settings.uid : undefined;
     if (!ready || !uid || !cloudAvailable) { setCloudStatus('off'); return; }
     setCloudStatus('saving');
     const id = setTimeout(() => {
-      saveUserData(uid, JSON.stringify(d)).then(() => setCloudStatus('saved')).catch(() => setCloudStatus('error'));
+      saveUserData(uid, JSON.stringify(d))
+        .then(() => { setCloudStatus('saved'); setCloudError(''); })
+        .catch((e: any) => { console.error('Fakka cloud save failed:', e); setCloudStatus('error'); setCloudError(String(e?.code ?? e?.message ?? e)); });
     }, 1500);
     return () => clearTimeout(id);
   }, [d, ready]);
@@ -207,7 +222,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
   const redoSetup = () => set(x => ({ ...x, settings: { ...x.settings, onboarded: false } }));
 
   if (!ready) return null;
-  return <Store.Provider value={{ d, set, refreshRates, rateStatus, togglePaid, version, reset, redoSetup, adopt, cloudStatus }}>{children}</Store.Provider>;
+  return <Store.Provider value={{ d, set, refreshRates, rateStatus, togglePaid, version, reset, redoSetup, adopt, cloudStatus, cloudError }}>{children}</Store.Provider>;
 }
 
 export const useStore = () => useContext(Store);

@@ -31,7 +31,9 @@ export default function Login() {
     try {
       const u = await signInWithGoogle();
       const account = { account: 'google' as const, email: u.email, uid: u.uid };
-      const saved = await loadUserData(u.uid);
+      let saved: string | null = null;
+      try { saved = await loadUserData(u.uid); }
+      catch (e: any) { say(t("Couldn't reach your saved data"), String(e?.code ?? e?.message ?? e)); }
       if (saved) adopt(saved, account); // returning user: bring back their data
       // new user: start from what's on this device; it gets saved to their account
       else set(v => ({ ...v, settings: { ...v.settings, ...account, name: v.settings.name || u.name.split(' ')[0] } }));

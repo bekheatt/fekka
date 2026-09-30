@@ -7,3 +7,4 @@ export async function signInWithGoogle(): Promise<GoogleUser> {
   throw new Error('unavailable');
 }
 export async function signOutGoogle() {}
+export function onGoogleUser(_cb: (u: GoogleUser | null) => void): () => void { return () => {}; }

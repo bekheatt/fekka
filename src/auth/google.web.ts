@@ -1,7 +1,7 @@
 // Browser-only test of Google sign-in through Firebase.
 // Expo loads this file instead of google.ts when running on the web,
 // so the phone app never includes any of this code.
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { firebaseReady } from './firebaseConfig';
 import { firebaseApp } from './firebase.web';
 
@@ -20,4 +20,10 @@ export async function signInWithGoogle(): Promise<GoogleUser> {
 
 export async function signOutGoogle() {
   if (firebaseReady()) await signOut(auth()).catch(() => {});
+}
+
+// Tells the app who is signed in to Google in this browser (Firebase remembers it between visits)
+export function onGoogleUser(cb: (u: GoogleUser | null) => void): () => void {
+  if (!firebaseReady()) return () => {};
+  return onAuthStateChanged(auth(), u => cb(u ? { uid: u.uid, name: u.displayName ?? '', email: u.email ?? '' } : null));
 }

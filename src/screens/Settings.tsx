@@ -14,7 +14,7 @@ import { saveUserData } from '../cloud/sync';
 const CLOUD_TEXT = { off: 'Saved on this device', saving: 'Saving to your account…', saved: 'Saved to your account', error: "Couldn't save to your account" } as const;
 
 export default function Settings({ onBack }: { onBack?: () => void }) {
-  const { d, set, reset, redoSetup, cloudStatus } = useStore();
+  const { d, set, reset, redoSetup, cloudStatus, cloudError } = useStore();
 
   // Google: save one last time, then clear this device so the next person can't see your data.
   // Guest: just go back to the sign-in screen, data stays on this device.
@@ -100,7 +100,7 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
           <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="log-out-outline" size={18} color={C.primary} /></View>
           <View style={{ flex: 1 }}>
             <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Sign out')}</Text>
-            <Text style={s.aboutVal}>{st.account === 'google' ? `${st.email ?? ''} · ${t(CLOUD_TEXT[cloudStatus])}` : t('Back to the sign-in screen. Your data stays.')}</Text>
+            <Text style={s.aboutVal}>{st.account === 'google' ? `${st.email ?? ''} · ${t(CLOUD_TEXT[cloudStatus])}${cloudStatus === 'error' && cloudError ? ` (${cloudError})` : ''}` : t('Back to the sign-in screen. Your data stays.')}</Text>
           </View>
         </Pressable>
         <Pressable onPress={() => { tap(); wipe(); }} style={s.danger}>
