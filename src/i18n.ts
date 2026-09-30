@@ -106,7 +106,7 @@ const AR: Record<string, string> = {
   'Coming soon': 'قريبًا', '{who} sign-in is on the way. For now, continue as a guest.': 'تسجيل الدخول بـ {who} جاي قريب. دلوقتي كمّل كضيف.',
   'Understand your money, all in one place.': 'افهم فلوسك، كلها في مكان واحد.', 'Continue with Apple': 'المتابعة باستخدام Apple',
   'Continue with Google': 'المتابعة باستخدام Google', 'or': 'أو', 'Continue as guest': 'كمّل كضيف',
-  'As a guest, everything stays on this phone only.': 'كضيف، كل بياناتك بتفضل على الموبايل ده بس.', 'Sign out': 'تسجيل الخروج', 'Sign-in failed': 'فشل تسجيل الدخول', 'Firebase is not set up yet. Add your keys in src/auth/firebaseConfig.ts.': 'Firebase لسه مش متظبط. حط المفاتيح في src/auth/firebaseConfig.ts.', 'Back to the sign-in screen. Your data stays.': 'رجوع لشاشة الدخول. بياناتك مش هتتمسح.',
+  'As a guest, everything stays on this phone only.': 'كضيف، كل بياناتك بتفضل على الموبايل ده بس.', 'Sign out': 'تسجيل الخروج', 'Saved on this device': 'محفوظ على الجهاز ده', 'Saving to your account…': 'بيتحفظ على حسابك…', 'Saved to your account': 'محفوظ على حسابك', "Couldn't save to your account": 'مقدرناش نحفظ على حسابك', 'Sign-in failed': 'فشل تسجيل الدخول', 'Firebase is not set up yet. Add your keys in src/auth/firebaseConfig.ts.': 'Firebase لسه مش متظبط. حط المفاتيح في src/auth/firebaseConfig.ts.', 'Back to the sign-in screen. Your data stays.': 'رجوع لشاشة الدخول. بياناتك مش هتتمسح.',
   'Restart needed': 'محتاج إعادة تشغيل', 'Close Fakka and open it again to switch the layout direction.': 'اقفل فكّة وافتحها تاني علشان يتغير اتجاه الشاشة.',
   "Your device has no Face ID, fingerprint or passcode set up.": 'جهازك مفيهوش بصمة أو قفل.',
   'Notifications are off for Fakka in your phone settings.': 'الإشعارات مقفولة لفكّة في إعدادات موبايلك.',

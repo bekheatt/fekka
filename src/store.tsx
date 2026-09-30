@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { cloudAvailable, saveUserData } from './cloud/sync';
 import { Appearance, AppState } from 'react-native';
 import { DEFAULT_RATES, PROVIDERS, BILL_TYPES, LOAN_TYPES, applyTheme, isDark, setHidden, le, C } from './theme';
 import * as Notifications from 'expo-notifications';
@@ -17,7 +18,7 @@ export type PriceAlert = { id: string; kind: string; dir: 'above' | 'below'; pri
 export type Income = { id: string; source: string; monthly: number; day?: number; oneOff?: string };
 export type Saving = { id: string; kind: string; qty: number; name?: string; price?: number };
 export type Work = 'employee' | 'freelancer' | 'business' | 'student' | 'retired' | 'other';
-export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; account?: 'guest' | 'google' | 'apple'; email?: string };
+export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; account?: 'guest' | 'google' | 'apple'; email?: string; uid?: string };
 
 export type Data = {
   installments: Installment[]; loans: Loan[]; bills: Bill[]; gameyas: Gameya[]; goals: Goal[];
@@ -41,6 +42,8 @@ type Ctx = {
   version: number; // bumps when theme/language changes → app redraws
   reset: () => void;
   redoSetup: () => void;
+  adopt: (json: string, account: Partial<Settings>) => void;
+  cloudStatus: 'off' | 'saving' | 'saved' | 'error';
 };
 const Store = createContext<Ctx>(null as any);
 
@@ -130,6 +133,18 @@ export function Provider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { if (ready) AsyncStorage.setItem(KEY, JSON.stringify(d)); }, [d, ready]);
 
+  // Signed in with Google: also keep a copy in that person's cloud record (a moment after each change)
+  const [cloudStatus, setCloudStatus] = useState<'off' | 'saving' | 'saved' | 'error'>('off');
+  useEffect(() => {
+    const uid = d.settings.account === 'google' ? d.settings.uid : undefined;
+    if (!ready || !uid || !cloudAvailable) { setCloudStatus('off'); return; }
+    setCloudStatus('saving');
+    const id = setTimeout(() => {
+      saveUserData(uid, JSON.stringify(d)).then(() => setCloudStatus('saved')).catch(() => setCloudStatus('error'));
+    }, 1500);
+    return () => clearTimeout(id);
+  }, [d, ready]);
+
   // Refresh prices (and check price alerts) whenever you come back after 15+ minutes
   useEffect(() => {
     const sub = AppState.addEventListener('change', st => {
@@ -176,11 +191,23 @@ export function Provider({ children }: { children: React.ReactNode }) {
     return { ...x, gameyas: x.gameyas.map(g => g.id !== id ? g : { ...g, paidMonths: flip(g.paidMonths) }) };
   });
 
+  // Replace everything with data loaded from the cloud (after signing in)
+  const adopt = (json: string, account: Partial<Settings>) => {
+    const base = empty();
+    const loaded: Data = { ...base, ...JSON.parse(json) };
+    loaded.settings = { ...base.settings, ...(loaded.settings ?? {}), ...account };
+    setLang(loaded.settings.lang);
+    setHidden(!!loaded.settings.hideAmounts);
+    applyTheme(resolveTheme(loaded.settings));
+    setD(loaded);
+    setVersion(v => v + 1);
+  };
+
   const reset = () => { const e = empty(); e.settings = { ...e.settings, lang: d.settings.lang, theme: d.settings.theme }; setD(e); };
   const redoSetup = () => set(x => ({ ...x, settings: { ...x.settings, onboarded: false } }));
 
   if (!ready) return null;
-  return <Store.Provider value={{ d, set, refreshRates, rateStatus, togglePaid, version, reset, redoSetup }}>{children}</Store.Provider>;
+  return <Store.Provider value={{ d, set, refreshRates, rateStatus, togglePaid, version, reset, redoSetup, adopt, cloudStatus }}>{children}</Store.Provider>;
 }
 
 export const useStore = () => useContext(Store);

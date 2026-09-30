@@ -9,6 +9,7 @@ import { t } from './i18n';
 import { tap } from './ui';
 import Logo from './Logo';
 import { googleAvailable, signInWithGoogle } from './auth/google';
+import { loadUserData } from './cloud/sync';
 
 // Sign-in screen. Apple and Google are look-only for now; they will be
 // wired to Firebase later (see the feature/firebase-auth branch).
@@ -17,7 +18,7 @@ const say = (title: string, msg: string) =>
   Platform.OS === 'web' ? window.alert(`${title}\n\n${msg}`) : Alert.alert(title, msg);
 
 export default function Login() {
-  const { set } = useStore();
+  const { set, adopt } = useStore();
 
   const soon = (who: string) => {
     tap();
@@ -29,7 +30,11 @@ export default function Login() {
     tap();
     try {
       const u = await signInWithGoogle();
-      set(v => ({ ...v, settings: { ...v.settings, account: 'google', email: u.email, name: v.settings.name || u.name.split(' ')[0] } }));
+      const account = { account: 'google' as const, email: u.email, uid: u.uid };
+      const saved = await loadUserData(u.uid);
+      if (saved) adopt(saved, account); // returning user: bring back their data
+      // new user: start from what's on this device; it gets saved to their account
+      else set(v => ({ ...v, settings: { ...v.settings, ...account, name: v.settings.name || u.name.split(' ')[0] } }));
     } catch (e: any) {
       const code = String(e?.code ?? e?.message ?? '');
       if (code.includes('popup-closed') || code.includes('cancelled-popup')) return;
