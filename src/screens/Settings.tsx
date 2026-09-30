@@ -79,6 +79,13 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
             <Text style={s.aboutVal}>{t('Go through the welcome questions again')}</Text>
           </View>
         </Pressable>
+        <Pressable onPress={() => { tap(); set(v => ({ ...v, settings: { ...v.settings, account: undefined } })); }} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]}>
+          <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="log-out-outline" size={18} color={C.primary} /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Sign out')}</Text>
+            <Text style={s.aboutVal}>{t('Back to the sign-in screen. Your data stays.')}</Text>
+          </View>
+        </Pressable>
         <Pressable onPress={() => { tap(); wipe(); }} style={s.danger}>
           <View style={[s.icon, { backgroundColor: C.red + '22' }]}><Ionicons name="trash" size={18} color={C.red} /></View>
           <Text style={[s.dangerTxt]}>{t('Delete all data')}</Text>

@@ -13,6 +13,7 @@ import { scheduleReminders } from './src/notify';
 import Splash from './src/Splash';
 import Lock, { authInProgress } from './src/Lock';
 import Onboarding from './src/Onboarding';
+import Login from './src/Login';
 import Logo from './src/Logo';
 import QuickAdd from './src/QuickAdd';
 import * as Linking from 'expo-linking';
@@ -112,7 +113,8 @@ function Shell() {
       <QuickAdd visible={!!quick} initial={quick ?? undefined} onClose={() => setQuick(null)} />
 
       {!d.settings.onboarded && <View style={StyleSheet.absoluteFill}><Onboarding /></View>}
-      {locked && !splash && d.settings.onboarded && <Lock resume={resume} onUnlock={() => setLocked(false)} />}
+      {!d.settings.account && <View style={StyleSheet.absoluteFill}><Login /></View>}
+      {locked && !splash && d.settings.onboarded && d.settings.account && <Lock resume={resume} onUnlock={() => setLocked(false)} />}
       {covered && !locked && <Cover />}
       {splash && <Splash onDone={() => setSplash(false)} />}
     </View>
