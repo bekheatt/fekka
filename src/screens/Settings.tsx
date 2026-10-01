@@ -8,7 +8,7 @@ import { Header, Section, Card, Screen, Toggle, Segmented, tap } from '../ui';
 import { t } from '../i18n';
 import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
-import { saveUserData, signOutCloud } from '../cloud/supabase';
+import { saveUserData, signOutCloud, deleteMyAccount } from '../cloud/supabase';
 import { hasAccount } from '../store';
 
 const CLOUD_TEXT = { off: 'Saved on this device', saving: 'Saving to your account…', saved: 'Saved to your account', error: "Couldn't save to your account" } as const;
@@ -52,9 +52,23 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
     change({ notify: on });
   };
 
-  const wipe = () => Alert.alert(t('Delete all data'), t('This removes everything you entered. It cannot be undone.'), [
+  // Guest: clear this phone. Account: also delete the account and its data from our server for good.
+  const online = hasAccount(d.settings);
+  const eraseEverything = async () => {
+    if (!online) return reset();
+    try {
+      await deleteMyAccount();
+      reset();
+    } catch (e: any) {
+      Alert.alert(t("Couldn't delete your account"), t('Check your internet connection and try again. Nothing was deleted.'));
+    }
+  };
+  const wipe = () => Alert.alert(t('Delete all data'),
+    online
+      ? t('This permanently deletes your Fakka account and everything in it, from this phone and from our servers. If you sign in again, you will start fresh. It cannot be undone.')
+      : t('This removes everything you entered. It cannot be undone.'), [
     { text: t('Cancel'), style: 'cancel' },
-    { text: t('Delete'), style: 'destructive', onPress: reset },
+    { text: t('Delete'), style: 'destructive', onPress: eraseEverything },
   ]);
 
   return (

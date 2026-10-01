@@ -91,3 +91,11 @@ export async function saveUserData(uid: string, appData: object): Promise<void> 
     .upsert({ user_id: uid, data: appData, updated_at: new Date().toISOString() });
   if (error) throw error;
 }
+
+// Permanently deletes the signed-in person's account and all their saved data from the server.
+// Signing in again afterwards starts a brand-new account.
+export async function deleteMyAccount(): Promise<void> {
+  const { error } = await supabase.rpc('delete_my_account');
+  if (error) throw error;
+  await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+}
