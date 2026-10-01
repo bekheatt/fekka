@@ -43,7 +43,11 @@ export async function signUpEmail(email: string, password: string): Promise<Clou
 // Google: opens Google's sign-in page in a secure browser, then comes back into the app.
 // Returns null if the person closed the page.
 export async function signInGoogle(): Promise<CloudUser | null> {
-  const redirectTo = Linking.createURL('auth-callback');
+  // In Expo Go the app's address contains the laptop's network number (exp://192.168.x.x:8081/...),
+  // which Supabase refuses. The sign-in window only needs the "exp://" part to catch the return,
+  // so we use a fixed address there. Real app builds use fakka:// and are unaffected.
+  const own = Linking.createURL('auth-callback');
+  const redirectTo = own.startsWith('exp://') ? 'exp://fakka/--/auth-callback' : own;
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo, skipBrowserRedirect: true, queryParams: { prompt: 'select_account' } },
