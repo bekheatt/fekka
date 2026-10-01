@@ -132,6 +132,7 @@ const AR: Record<string, string> = {
   "Saving to your account…": "بيتحفظ على حسابك…",
   "Saved to your account": "محفوظ على حسابك",
   "Couldn't save to your account": "مقدرناش نحفظ على حسابك",
+  'Google sign-in is not switched on yet.': 'تسجيل الدخول بجوجل لسه مش متفعّل.',
   'Restart needed': 'محتاج إعادة تشغيل', 'Close Fakka and open it again to switch the layout direction.': 'اقفل فكّة وافتحها تاني علشان يتغير اتجاه الشاشة.',
   "Your device has no Face ID, fingerprint or passcode set up.": 'جهازك مفيهوش بصمة أو قفل.',
   'Notifications are off for Fakka in your phone settings.': 'الإشعارات مقفولة لفكّة في إعدادات موبايلك.',

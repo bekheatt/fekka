@@ -35,6 +35,9 @@ const empty = (): Data => ({ installments: [], loans: [], bills: [], gameyas: []
 const KEY = 'fekka.v1';
 const OUNCE = 31.1035;
 
+// Signed in with a real online account (not a guest)
+export const hasAccount = (s: Settings) => (s.account === 'email' || s.account === 'google') && !!s.uid;
+
 export type CloudStatus = 'off' | 'saving' | 'saved' | 'error';
 type Ctx = {
   d: Data; set: (fn: (d: Data) => Data) => void;
@@ -138,7 +141,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
   const [cloudStatus, setCloudStatus] = useState<CloudStatus>('off');
   const [cloudError, setCloudError] = useState('');
   useEffect(() => {
-    const uid = d.settings.account === 'email' ? d.settings.uid : undefined;
+    const uid = hasAccount(d.settings) ? d.settings.uid : undefined;
     if (!ready || !uid) { setCloudStatus('off'); return; }
     setCloudStatus('saving');
     const id = setTimeout(() => {
@@ -154,7 +157,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
     if (!ready) return;
     return onCloudUser(u => {
       setD(x => {
-        if (x.settings.account !== 'email') return x;
+        if (!hasAccount(x.settings)) return x;
         if (!u) return { ...x, settings: { ...x.settings, account: undefined } };
         return x.settings.uid === u.uid ? x : { ...x, settings: { ...x.settings, uid: u.uid, email: u.email } };
       });

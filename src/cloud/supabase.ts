@@ -5,12 +5,16 @@ import 'react-native-url-polyfill/auto';
 import { AppState, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const SUPABASE_URL = 'https://udvgikxsawdslrddpbms.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_HD7QOMCgLTa1pF55roNwFg_ZYRAIMqp';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { storage: AsyncStorage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false },
+  auth: { storage: AsyncStorage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false, flowType: 'pkce' },
 });
 
 // Keep the sign-in fresh only while the app is open (recommended for phones)
@@ -34,6 +38,29 @@ export async function signUpEmail(email: string, password: string): Promise<Clou
   if (error) throw error;
   if (!data.session || !data.user) return null; // confirmation email sent
   return { uid: data.user.id, email: data.user.email ?? email };
+}
+
+// Google: opens Google's sign-in page in a secure browser, then comes back into the app.
+// Returns null if the person closed the page.
+export async function signInGoogle(): Promise<CloudUser | null> {
+  const redirectTo = Linking.createURL('auth-callback');
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo, skipBrowserRedirect: true, queryParams: { prompt: 'select_account' } },
+  });
+  if (error) throw error;
+  const res = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  if (res.type !== 'success') return null;
+  const url = new URL(res.url);
+  const params = new URLSearchParams(url.hash.replace(/^#/, ''));
+  url.searchParams.forEach((v, k) => params.set(k, v));
+  const problem = params.get('error_description') ?? params.get('error');
+  if (problem) throw new Error(problem);
+  const code = params.get('code');
+  if (!code) throw new Error('Google did not finish signing in. Please try again.');
+  const { data: s, error: e2 } = await supabase.auth.exchangeCodeForSession(code);
+  if (e2) throw e2;
+  return { uid: s.user.id, email: s.user.email ?? '' };
 }
 
 export async function signOutCloud() {

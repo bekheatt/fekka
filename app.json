@@ -29,7 +29,8 @@
           "cameraPermission": "Fakka uses the camera to photograph your receipts. Photos stay on your phone.",
           "photosPermission": "Fakka lets you attach receipt photos. Photos stay on your phone."
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "extra": {
       "supportsRTL": true

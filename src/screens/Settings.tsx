@@ -9,6 +9,7 @@ import { t } from '../i18n';
 import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
 import { saveUserData, signOutCloud } from '../cloud/supabase';
+import { hasAccount } from '../store';
 
 const CLOUD_TEXT = { off: 'Saved on this device', saving: 'Saving to your account…', saved: 'Saved to your account', error: "Couldn't save to your account" } as const;
 
@@ -19,7 +20,7 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
   // Guest: just go back to the sign-in screen; data stays on this device.
   const signOut = async () => {
     tap();
-    if (d.settings.account === 'email' && d.settings.uid) {
+    if (hasAccount(d.settings) && d.settings.uid) {
       await saveUserData(d.settings.uid, d).catch(() => {});
       await signOutCloud();
       reset();
@@ -99,7 +100,7 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
           <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="log-out-outline" size={18} color={C.primary} /></View>
           <View style={{ flex: 1 }}>
             <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Sign out')}</Text>
-            <Text style={s.aboutVal}>{st.account === 'email' ? `${st.email ?? ''} · ${t(CLOUD_TEXT[cloudStatus])}${cloudStatus === 'error' && cloudError ? ` (${cloudError})` : ''}` : t('Back to the sign-in screen. Your data stays.')}</Text>
+            <Text style={s.aboutVal}>{hasAccount(st) ? `${st.email ?? ''} · ${t(CLOUD_TEXT[cloudStatus])}${cloudStatus === 'error' && cloudError ? ` (${cloudError})` : ''}` : t('Back to the sign-in screen. Your data stays.')}</Text>
           </View>
         </Pressable>
         <Pressable onPress={() => { tap(); wipe(); }} style={s.danger}>

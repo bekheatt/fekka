@@ -9,7 +9,7 @@ import { t } from './i18n';
 import { tap } from './ui';
 import Logo from './Logo';
 import { Sheet, Field } from './ui';
-import { signInEmail, signUpEmail, loadUserData } from './cloud/supabase';
+import { signInEmail, signUpEmail, signInGoogle, loadUserData, CloudUser } from './cloud/supabase';
 
 // Alert.alert does nothing in a web browser, so use the browser's own pop-up there
 const say = (title: string, msg: string) =>
@@ -33,6 +33,26 @@ export default function Login() {
   const [pw, setPw] = useState('');
   const [busy, setBusy] = useState(false);
 
+  // After any sign-in: bring back saved data, or start the account from this device's data
+  const signedIn = async (u: CloudUser, kind: 'email' | 'google') => {
+    const account = { account: kind, email: u.email, uid: u.uid };
+    const saved = await loadUserData(u.uid);
+    if (saved) adopt(saved, account);
+    else set(v => ({ ...v, settings: { ...v.settings, ...account } }));
+  };
+
+  const google = async () => {
+    tap();
+    setBusy(true);
+    try {
+      const u = await signInGoogle();
+      if (u) await signedIn(u, 'google');
+    } catch (e: any) {
+      const m = String(e?.message ?? e);
+      say(t('Sign-in failed'), /provider is not enabled/i.test(m) ? t('Google sign-in is not switched on yet.') : friendly(m));
+    } finally { setBusy(false); }
+  };
+
   const submit = async () => {
     if (!email.includes('@')) return say(t('Check your email'), t('Please enter a valid email address.'));
     if (pw.length < 6) return say(t('Check your password'), t('Password must be at least 6 characters.'));
@@ -43,10 +63,7 @@ export default function Login() {
         setMode('in');
         return say(t('Confirm your email'), t('We sent a link to {e}. Tap it, then come back and sign in.', { e: email.trim() }));
       }
-      const account = { account: 'email' as const, email: u.email, uid: u.uid };
-      const saved = await loadUserData(u.uid);
-      if (saved) adopt(saved, account); // returning user: bring back their data
-      else set(v => ({ ...v, settings: { ...v.settings, ...account } })); // new: this device's data becomes theirs
+      await signedIn(u, 'email');
       setEmailOpen(false); setPw('');
     } catch (e: any) {
       say(t('Sign-in failed'), friendly(String(e?.message ?? e)));
@@ -77,7 +94,7 @@ export default function Login() {
           <Text style={[s.btnTxt, { color: '#fff' }]}>{t('Continue with Apple')}</Text>
         </Pressable>
 
-        <Pressable onPress={() => soon('Google')} style={({ pressed }) => [s.btn, s.google, pressed && s.pressed]}>
+        <Pressable onPress={busy ? undefined : google} style={({ pressed }) => [s.btn, s.google, pressed && s.pressed]}>
           <Ionicons name="logo-google" size={18} color="#4285F4" />
           <Text style={[s.btnTxt, { color: '#1F1F1F' }]}>{t('Continue with Google')}</Text>
         </Pressable>
