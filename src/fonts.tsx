@@ -31,4 +31,28 @@ const withFont = (style: any) => {
 };
 
 export const Text = forwardRef<RNText, TextProps>((p, ref) => <RNText ref={ref} {...p} style={withFont(p.style)} />);
-export const TextInput = forwardRef<RNTextInput, TextInputProps>((p, ref) => <RNTextInput ref={ref} {...p} style={withFont(p.style)} />);
+// Number boxes show thousands separators while you type (10,000 vs 100,000).
+// The app reads amounts with num() in ui.tsx, which ignores the commas.
+export const withCommas = (text?: string) => {
+  if (text == null) return text;
+  const clean = String(text)
+    .replace(/[٠-٩]/g, c => String(c.charCodeAt(0) - 0x0660))   // Arabic digits ١٢٣ → 123
+    .replace(/[۰-۹]/g, c => String(c.charCodeAt(0) - 0x06f0))   // Persian-style digits
+    .replace(/٫/g, '.')                                          // Arabic decimal point
+    .replace(/[^\d.]/g, '');
+  if (!clean) return '';
+  const [whole, ...rest] = clean.split('.');
+  const grouped = whole.replace(/^0+(?=\d)/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return rest.length ? `${grouped || '0'}.${rest.join('')}` : grouped;
+};
+const NUMERIC = ['numeric', 'decimal-pad', 'number-pad'];
+
+export const TextInput = forwardRef<RNTextInput, TextInputProps>((p, ref) => {
+  if (!NUMERIC.includes(p.keyboardType as string)) return <RNTextInput ref={ref} {...p} style={withFont(p.style)} />;
+  return (
+    <RNTextInput ref={ref} {...p} style={withFont(p.style)}
+      value={p.value === undefined ? undefined : withCommas(p.value)}
+      defaultValue={p.defaultValue === undefined ? undefined : withCommas(p.defaultValue)}
+      onChangeText={p.onChangeText ? v => p.onChangeText!(withCommas(v) ?? '') : undefined} />
+  );
+});
