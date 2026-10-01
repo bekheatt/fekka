@@ -2,7 +2,7 @@
 // Every save carries the version it was based on; if another phone saved in between,
 // we fetch theirs, merge item by item (see merge.ts) and save the combined result.
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { loadUserData, saveUserData } from './supabase';
+import { loadUserData, loadUserRev, saveUserData } from './supabase';
 import { merge3 } from './merge';
 
 type Meta = { uid: string; rev: number; base: any | null };
@@ -89,6 +89,8 @@ export function push(getLocal: () => any): Promise<any | null> {
 export function pull(getLocal: () => any): Promise<any | null> {
   return serial(async () => {
     if (!meta) return null;
+    const rev = await loadUserRev(meta.uid);   // cheap check first
+    if (rev === null || rev === meta.rev) return null;
     const row = await loadUserData(meta.uid);
     if (!row || row.rev === meta.rev) return null;
     const local = shared(getLocal());

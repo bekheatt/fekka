@@ -88,6 +88,13 @@ export async function loadUserData(uid: string): Promise<Row | null> {
   return data ? { data: data.data, rev: Number(data.rev) } : null;
 }
 
+// Just the version number (tiny), to check cheaply whether another phone saved something
+export async function loadUserRev(uid: string): Promise<number | null> {
+  const { data, error } = await supabase.from('user_data').select('rev').eq('user_id', uid).maybeSingle();
+  if (error) throw error;
+  return data ? Number(data.rev) : null;
+}
+
 // Saves only if no other phone saved since version `baseRev`.
 // Returns the new version number, or -1 if another phone got there first.
 export async function saveUserData(appData: object, baseRev: number): Promise<number> {
