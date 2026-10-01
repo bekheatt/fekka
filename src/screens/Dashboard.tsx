@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { Card, Row, Section, Screen, tap, Progress, Check } from '../ui';
 import { t, locale } from '../i18n';
 import Logo from '../Logo';
 import HealthCard from '../features/HealthScore/HealthCard';
+import AffordSheet from '../features/Afford/AffordSheet';
 
 type Go = (tab: string, action?: string) => void;
 
@@ -18,6 +19,7 @@ export const dueLabel = (day: number) => {
 
 export default function Dashboard({ go }: { go: Go }) {
   const { d, set, togglePaid } = useStore();
+  const [afford, setAfford] = useState(false);
   const tot = useTotals();
   const hour = new Date().getHours();
   const hello = t(hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening');
@@ -55,6 +57,16 @@ export default function Dashboard({ go }: { go: Go }) {
       </View>
 
       <HealthCard onAddIncome={() => go('spend', 'income')} />
+
+      <Pressable onPress={() => { tap(); setAfford(true); }} style={({ pressed }) => [s.afford, pressed && { opacity: 0.7 }]}>
+        <View style={s.affordIcon}><Ionicons name="pricetag" size={20} color={C.accent} /></View>
+        <View style={{ flex: 1 }}>
+          <Text style={s.affordTitle}>{t('Can I afford it?')}</Text>
+          <Text style={s.affordSub}>{t('Check a purchase or installment before you commit')}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={C.sub} />
+      </Pressable>
+      <AffordSheet visible={afford} onClose={() => setAfford(false)} onAddIncome={() => go('spend', 'income')} />
 
       <View style={s.hero}>
         <Text style={s.heroLabel}>{t("What you're worth")}</Text>
@@ -188,6 +200,10 @@ const Step = ({ n, title, sub, onPress, last }: any) => (
 );
 
 const s = themed(() => StyleSheet.create({
+  afford: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 14, padding: 14, marginTop: 12 },
+  affordIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: C.accent + '1F', alignItems: 'center', justifyContent: 'center' },
+  affordTitle: { fontSize: 16, fontWeight: '600', color: C.ink },
+  affordSub: { fontSize: 13, color: C.sub, marginTop: 2 },
   top: { marginTop: 10, marginBottom: 16, flexDirection: 'row', alignItems: 'center' },
   eye: { width: 40, height: 40, borderRadius: 14, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
   hello: { fontSize: 24, fontWeight: '700', color: C.ink, letterSpacing: -0.3 },
