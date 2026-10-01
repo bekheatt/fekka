@@ -8,20 +8,20 @@ import { Header, Section, Card, Screen, Toggle, Segmented, tap } from '../ui';
 import { t } from '../i18n';
 import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
-import { saveUserData, signOutCloud, deleteMyAccount } from '../cloud/supabase';
+import { signOutCloud, deleteMyAccount } from '../cloud/supabase';
 import { hasAccount } from '../store';
 
 const CLOUD_TEXT = { off: 'Saved on this device', saving: 'Saving to your account…', saved: 'Saved to your account', error: "Couldn't save to your account" } as const;
 
 export default function Settings({ onBack }: { onBack?: () => void }) {
-  const { d, set, reset, redoSetup, cloudStatus, cloudError } = useStore();
+  const { d, set, reset, redoSetup, cloudStatus, cloudError, flush } = useStore();
 
   // Account: save one last time, then clear this device so the next person can't see your money.
   // Guest: just go back to the sign-in screen; data stays on this device.
   const signOut = async () => {
     tap();
     if (hasAccount(d.settings) && d.settings.uid) {
-      await saveUserData(d.settings.uid, d).catch(() => {});
+      await flush();
       await signOutCloud();
       reset();
     } else {

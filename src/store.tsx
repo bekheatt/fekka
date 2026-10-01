@@ -1,6 +1,7 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { saveUserData, onCloudUser } from './cloud/supabase';
+import { onCloudUser } from './cloud/supabase';
+import { loadSyncState, startSync, stopSync, push, pull, withDevice } from './cloud/sync';
 import { Appearance, AppState } from 'react-native';
 import { DEFAULT_RATES, PROVIDERS, BILL_TYPES, LOAN_TYPES, applyTheme, isDark, setHidden, le, C } from './theme';
 import * as Notifications from 'expo-notifications';
@@ -48,6 +49,8 @@ type Ctx = {
   redoSetup: () => void;
   adopt: (saved: object, account: Partial<Settings>) => void;
   cloudStatus: CloudStatus; cloudError: string;
+  signInAs: (uid: string, account: Partial<Settings>) => Promise<void>;
+  flush: () => Promise<unknown>;
 };
 const Store = createContext<Ctx>(null as any);
 
@@ -130,27 +133,65 @@ export function Provider({ children }: { children: React.ReactNode }) {
       setHidden(!!loaded.settings.hideAmounts);
       applyTheme(resolveTheme(loaded.settings));
       setD(loaded);
-      setReady(true);
+      loadSyncState(hasAccount(loaded.settings) ? loaded.settings.uid : undefined).finally(() => setReady(true));
       refreshRates();
     });
   }, []);
 
   useEffect(() => { if (ready) AsyncStorage.setItem(KEY, JSON.stringify(d)); }, [d, ready]);
 
-  // Signed in with an account: also keep a copy in that person's private cloud row (a moment after each change)
+  // Signed in with an account: keep this phone and the account's online copy in step.
   const [cloudStatus, setCloudStatus] = useState<CloudStatus>('off');
   const [cloudError, setCloudError] = useState('');
+  const dRef = useRef(d);
+  dRef.current = d;
+  const online = ready && hasAccount(d.settings);
+
+  // Data from another phone arrived: show it (keeping this phone's own settings)
+  const applyRemote = (merged: any) => setD(x => {
+    const next: Data = withDevice({ ...empty(), ...merged }, x);
+    const s = next.settings, p = x.settings;
+    if (s.theme !== p.theme || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
+      setLang(s.lang); setHidden(!!s.hideAmounts); applyTheme(resolveTheme(s));
+      setTimeout(() => setVersion(v => v + 1), 0);
+    }
+    return next;
+  });
+
+  const fail = (e: any) => { setCloudStatus('error'); setCloudError(String(e?.message ?? e)); };
+  const sendChanges = () => push(() => dRef.current)
+    .then(merged => { if (merged) applyRemote(merged); setCloudStatus('saved'); setCloudError(''); })
+    .catch(fail);
+  const getChanges = () => pull(() => dRef.current)
+    .then(merged => { if (merged) applyRemote(merged); return sendChanges(); })
+    .catch(fail);
+
+  // Send changes a moment after each edit
   useEffect(() => {
-    const uid = hasAccount(d.settings) ? d.settings.uid : undefined;
-    if (!ready || !uid) { setCloudStatus('off'); return; }
+    if (!online) { setCloudStatus('off'); return; }
     setCloudStatus('saving');
-    const id = setTimeout(() => {
-      saveUserData(uid, d)
-        .then(() => { setCloudStatus('saved'); setCloudError(''); })
-        .catch((e: any) => { setCloudStatus('error'); setCloudError(String(e?.message ?? e)); });
-    }, 1500);
+    const id = setTimeout(sendChanges, 1500);
     return () => clearTimeout(id);
-  }, [d, ready]);
+  }, [d, online]);
+
+  // Fetch other phones' changes: on opening, when coming back to the app, and every minute while open
+  useEffect(() => {
+    if (!online) return;
+    getChanges();
+    const timer = setInterval(() => { if (AppState.currentState === 'active') getChanges(); }, 60 * 1000);
+    const sub = AppState.addEventListener('change', st => { if (st === 'active') getChanges(); });
+    return () => { clearInterval(timer); sub.remove(); };
+  }, [online]);
+
+  // After signing in: bring back the account's data, or start the account from what's on this phone
+  const signInAs = async (uid: string, account: Partial<Settings>) => {
+    const saved = await startSync(uid);
+    if (saved) adopt(saved, account);
+    else set(v => ({ ...v, settings: { ...v.settings, ...account } }));
+  };
+
+  // Last save before signing out (resolves even when offline)
+  const flush = () => push(() => dRef.current).catch(() => null);
 
   // If the online sign-in ends (expired or signed out elsewhere), go back to the sign-in screen
   useEffect(() => {
@@ -158,7 +199,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
     return onCloudUser(u => {
       setD(x => {
         if (!hasAccount(x.settings)) return x;
-        if (!u) return { ...x, settings: { ...x.settings, account: undefined } };
+        if (!u) { stopSync(); return { ...x, settings: { ...x.settings, account: undefined } }; }
         return x.settings.uid === u.uid ? x : { ...x, settings: { ...x.settings, uid: u.uid, email: u.email } };
       });
     });
@@ -213,7 +254,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
   // Replace everything with the data saved in the person's account (after signing in)
   const adopt = (saved: object, account: Partial<Settings>) => {
     const base = empty();
-    const loaded: Data = { ...base, ...(saved as Data) };
+    const loaded: Data = { ...base, ...(saved as Data), rates: d.rates, ratesUpdated: d.ratesUpdated };
     loaded.settings = { ...base.settings, ...(loaded.settings ?? {}), ...account };
     setLang(loaded.settings.lang);
     setHidden(!!loaded.settings.hideAmounts);
@@ -222,11 +263,11 @@ export function Provider({ children }: { children: React.ReactNode }) {
     setVersion(v => v + 1);
   };
 
-  const reset = () => { const e = empty(); e.settings = { ...e.settings, lang: d.settings.lang, theme: d.settings.theme }; setD(e); };
+  const reset = () => { stopSync(); const e = empty(); e.settings = { ...e.settings, lang: d.settings.lang, theme: d.settings.theme }; setD(e); };
   const redoSetup = () => set(x => ({ ...x, settings: { ...x.settings, onboarded: false } }));
 
   if (!ready) return null;
-  return <Store.Provider value={{ d, set, refreshRates, rateStatus, togglePaid, version, reset, redoSetup, adopt, cloudStatus, cloudError }}>{children}</Store.Provider>;
+  return <Store.Provider value={{ d, set, refreshRates, rateStatus, togglePaid, version, reset, redoSetup, adopt, cloudStatus, cloudError, signInAs, flush }}>{children}</Store.Provider>;
 }
 
 export const useStore = () => useContext(Store);

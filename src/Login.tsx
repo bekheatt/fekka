@@ -9,7 +9,7 @@ import { t } from './i18n';
 import { tap } from './ui';
 import Logo from './Logo';
 import { Sheet, Field } from './ui';
-import { signInEmail, signUpEmail, signInGoogle, loadUserData, CloudUser } from './cloud/supabase';
+import { signInEmail, signUpEmail, signInGoogle, CloudUser } from './cloud/supabase';
 
 // Alert.alert does nothing in a web browser, so use the browser's own pop-up there
 const say = (title: string, msg: string) =>
@@ -26,7 +26,7 @@ const friendly = (m: string) =>
 
 // Sign-in screen. Email sign-in is real (Supabase); Apple and Google are look-only for now.
 export default function Login() {
-  const { set, adopt } = useStore();
+  const { set, signInAs } = useStore();
   const [emailOpen, setEmailOpen] = useState(false);
   const [mode, setMode] = useState<'in' | 'up'>('in');
   const [email, setEmail] = useState('');
@@ -35,10 +35,7 @@ export default function Login() {
 
   // After any sign-in: bring back saved data, or start the account from this device's data
   const signedIn = async (u: CloudUser, kind: 'email' | 'google') => {
-    const account = { account: kind, email: u.email, uid: u.uid };
-    const saved = await loadUserData(u.uid);
-    if (saved) adopt(saved, account);
-    else set(v => ({ ...v, settings: { ...v.settings, ...account } }));
+    await signInAs(u.uid, { account: kind, email: u.email, uid: u.uid });
   };
 
   const google = async () => {

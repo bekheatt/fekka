@@ -79,17 +79,21 @@ export function onCloudUser(cb: (u: CloudUser | null) => void): () => void {
   return () => data.subscription.unsubscribe();
 }
 
-// ---------- The user's data: one private row per person ----------
-export async function loadUserData(uid: string): Promise<object | null> {
-  const { data, error } = await supabase.from('user_data').select('data').eq('user_id', uid).maybeSingle();
+// ---------- The user's data: one private row per person, with a version number ----------
+export type Row = { data: any; rev: number };
+
+export async function loadUserData(uid: string): Promise<Row | null> {
+  const { data, error } = await supabase.from('user_data').select('data, rev').eq('user_id', uid).maybeSingle();
   if (error) throw error;
-  return (data?.data as object) ?? null;
+  return data ? { data: data.data, rev: Number(data.rev) } : null;
 }
 
-export async function saveUserData(uid: string, appData: object): Promise<void> {
-  const { error } = await supabase.from('user_data')
-    .upsert({ user_id: uid, data: appData, updated_at: new Date().toISOString() });
+// Saves only if no other phone saved since version `baseRev`.
+// Returns the new version number, or -1 if another phone got there first.
+export async function saveUserData(appData: object, baseRev: number): Promise<number> {
+  const { data, error } = await supabase.rpc('save_user_data', { p_data: appData, p_base_rev: baseRev });
   if (error) throw error;
+  return Number(data);
 }
 
 // Permanently deletes the signed-in person's account and all their saved data from the server.
