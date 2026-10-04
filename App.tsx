@@ -23,12 +23,13 @@ import Pay from './src/screens/Pay';
 import Save from './src/screens/Save';
 import Profile from './src/screens/Profile';
 
+// 'add' is the round + button in the middle; Profile opens from the avatar on Home
 const TABS = [
-  { key: 'home', label: 'Home', icon: 'grid' },
-  { key: 'spend', label: 'Spend', icon: 'receipt' },
+  { key: 'home', label: 'Home', icon: 'home' },
+  { key: 'spend', label: 'Spend', icon: 'wallet' },
+  { key: 'add', label: '', icon: 'add' },
   { key: 'pay', label: 'Pay', icon: 'calendar' },
   { key: 'save', label: 'Save', icon: 'diamond' },
-  { key: 'profile', label: 'Profile', icon: 'person-circle' },
 ] as const;
 
 function Shell() {
@@ -93,23 +94,25 @@ function Shell() {
         {tab === 'profile' && <Profile />}
       </SafeAreaView>
 
-      <View style={[s.bar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
-        {TABS.map(x => {
-          const on = x.key === tab;
-          return (
-            <Pressable key={x.key} style={s.item} onPress={() => { tap(); go(x.key); }}>
-              <Ionicons name={(on ? x.icon : `${x.icon}-outline`) as any} size={22} color={on ? C.primary : C.sub} />
-              <Text style={[s.label, on && { color: C.primary }]} numberOfLines={1}>{t(x.label)}</Text>
-            </Pressable>
-          );
-        })}
+      <View style={[s.barWrap, { paddingBottom: Math.max(insets.bottom, 12) }]} pointerEvents="box-none">
+        <View style={s.bar}>
+          {TABS.map(x => {
+            if (x.key === 'add') return (
+              <Pressable key="add" onPress={() => { tap(); setQuick({}); }} style={({ pressed }) => [s.plus, pressed && { transform: [{ scale: 0.94 }] }]}>
+                <Ionicons name="add" size={28} color="#fff" />
+              </Pressable>
+            );
+            const on = x.key === tab || (x.key === 'home' && tab === 'profile');
+            return (
+              <Pressable key={x.key} style={s.item} onPress={() => { tap(); go(x.key); }}>
+                <Ionicons name={(on ? x.icon : `${x.icon}-outline`) as any} size={22} color={on ? C.primary : C.sub} />
+                <Text style={[s.label, on && { color: C.primary }]} numberOfLines={1}>{t(x.label)}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
 
-      {d.settings.onboarded && (
-        <Pressable onPress={() => { tap(); setQuick({}); }} style={[s.fab, { bottom: Math.max(insets.bottom, 10) + 66 }]}>
-          <Ionicons name="add" size={32} color="#fff" />
-        </Pressable>
-      )}
       <QuickAdd visible={!!quick} initial={quick ?? undefined} onClose={() => setQuick(null)} />
 
       {!d.settings.onboarded && <View style={StyleSheet.absoluteFill}><Onboarding /></View>}
@@ -144,9 +147,11 @@ export default function App() {
 }
 
 const s = themed(() => StyleSheet.create({
-  bar: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', backgroundColor: C.tabBar, paddingTop: 10, borderTopWidth: 1, borderColor: C.line },
-  item: { flex: 1, alignItems: 'center', gap: 4 },
-  fab: { position: 'absolute', right: 20, width: 60, height: 60, borderRadius: 14, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center',
+  barWrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16 },
+  bar: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.tabBar, borderRadius: 28, paddingVertical: 10, paddingHorizontal: 8,
+    shadowColor: '#14294A', shadowOpacity: 0.1, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 10 },
+  item: { flex: 1, alignItems: 'center', gap: 3 },
+  plus: { width: 54, height: 54, borderRadius: 20, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center', marginHorizontal: 6,
     shadowColor: '#003366', shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   label: { fontSize: 11, fontWeight: '600', color: C.sub },
 }));

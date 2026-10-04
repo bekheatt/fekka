@@ -1,0 +1,321 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fakka Launch</title>
+<style>
+@font-face{font-family:Plex;src:url(f/IBMPlexSans_400Regular.ttf);font-weight:400}
+@font-face{font-family:Plex;src:url(f/IBMPlexSans_500Medium.ttf);font-weight:500}
+@font-face{font-family:Plex;src:url(f/IBMPlexSans_600SemiBold.ttf);font-weight:600}
+@font-face{font-family:Plex;src:url(f/IBMPlexSans_700Bold.ttf);font-weight:700}
+@font-face{font-family:Ion;src:url(f/Ionicons.ttf)}
+:root{--bg:#F6F9FE;--card:#fff;--ink:#14294A;--sub:#7D8DA8;--line:#EEF3FA;--soft:#EEF4FE;--navy:#003366;--primary:#00509E;--accent:#007ACC;--sky:#66A3FF;--pale:#CCE0FF;--green:#2FB57A;--red:#E0605A;--orange:#F29B45;--purple:#8E6FE0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:Plex;color:var(--ink);background:var(--bg)}
+.layer{position:absolute;inset:0;will-change:transform,opacity}
+.i{font-family:Ion;font-style:normal;line-height:1;display:inline-block}
+/* backgrounds */
+#bgNavy{background:radial-gradient(1200px 1200px at 50% 42%,#0B4A86 0%,#003366 55%,#00213F 100%)}
+#bgLight{background:radial-gradient(1100px 1000px at 50% 30%,#FFFFFF 0%,#F6F9FE 45%,#E6EEF9 100%)}
+.ring{position:absolute;left:50%;top:50%;border:3px solid var(--sky);border-radius:50%;transform:translate(-50%,-50%)}
+/* logo */
+.logo{position:absolute;left:50%;top:50%;width:300px;height:300px;margin:-150px 0 0 -150px}
+.glow{position:absolute;inset:0;border-radius:50%;background:var(--accent);opacity:.2}
+.coin{position:absolute;width:186px;height:186px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.coin::after{content:"";position:absolute;width:72%;height:72%;border-radius:50%;border:4px solid currentColor;opacity:.55}
+.c1{left:12px;top:24px;background:var(--pale);border:11px solid var(--sky);color:var(--sky)}
+.c2{left:102px;top:18px;background:var(--sky);border:11px solid var(--accent);color:var(--accent)}
+.c3{left:57px;top:96px;background:#fff;border:11px solid var(--primary);color:var(--primary);box-shadow:0 18px 40px rgba(0,30,60,.45)}
+.c3 b{font-family:Plex;font-weight:700;font-size:96px;color:var(--navy);margin-top:-14px;position:relative;z-index:1}
+.shine{position:absolute;width:56px;height:320px;background:rgba(255,255,255,.75);transform:rotate(25deg);top:-70px;left:-120px;z-index:2}
+.wordmark{position:absolute;left:0;right:0;text-align:center;font-weight:700;color:#fff;letter-spacing:-2px}
+.tagline{position:absolute;left:0;right:0;text-align:center;color:var(--pale);font-weight:500}
+/* headline */
+.hl{position:absolute;left:90px;right:90px;top:720px;font-weight:700;font-size:118px;line-height:1.05;letter-spacing:-4px}
+.hl span{display:inline-block;margin-right:28px}
+.hl .blue{color:var(--primary)}
+/* captions */
+.cap{position:absolute;left:80px;right:80px;top:150px;text-align:center}
+.cap h2{font-weight:700;font-size:72px;letter-spacing:-2.5px;line-height:1.05}
+.cap p{font-weight:500;font-size:34px;color:var(--sub);margin-top:18px}
+/* phone */
+.phone{position:absolute;left:50%;top:440px;width:390px;height:844px;margin-left:-195px;transform-origin:50% 0;border-radius:54px;background:#0A1628;padding:10px;box-shadow:0 60px 120px rgba(20,41,74,.28),0 20px 40px rgba(20,41,74,.18)}
+.scr{position:relative;width:100%;height:100%;border-radius:44px;overflow:hidden;background:var(--bg)}
+.notch{position:absolute;top:10px;left:50%;width:110px;height:32px;margin-left:-55px;background:#0A1628;border-radius:20px;z-index:5}
+.pad{position:absolute;left:0;right:0;top:0;padding:62px 18px 0}
+.card{background:var(--card);border-radius:24px;box-shadow:0 6px 20px rgba(20,41,74,.06);padding:18px}
+.row{display:flex;align-items:center}
+.lbl{font-size:12px;color:var(--sub);font-weight:500}
+.bub{display:flex;align-items:center;justify-content:center;flex:none}
+.tab{position:absolute;left:14px;right:14px;bottom:22px;height:72px;border-radius:26px;background:#fff;box-shadow:0 8px 24px rgba(20,41,74,.1);display:flex;align-items:center;justify-content:space-around;padding:0 10px}
+.tab div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:var(--sub)}
+.tab .on{color:var(--primary)}
+.tab .plus{width:50px;height:50px;border-radius:18px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px}
+.f{background:var(--bg);border-radius:14px;padding:9px 10px;flex:1}
+.prog{height:7px;border-radius:4px;background:var(--soft);overflow:hidden}
+.prog i{display:block;height:100%;border-radius:4px}
+/* end */
+.badges{position:absolute;left:0;right:0;top:1330px;display:flex;justify-content:center;gap:28px}
+.badge{display:flex;align-items:center;gap:18px;background:#000;color:#fff;border:2px solid rgba(255,255,255,.35);border-radius:22px;padding:20px 34px 20px 28px}
+.badge .i{font-size:58px}
+.badge small{display:block;font-size:20px;font-weight:500;opacity:.85}
+.badge strong{display:block;font-size:36px;font-weight:600;letter-spacing:-.5px;line-height:1.1}
+.soon{position:absolute;left:0;right:0;top:1250px;text-align:center;color:var(--pale);font-size:30px;font-weight:500;letter-spacing:4px;text-transform:uppercase}
+</style></head>
+<body><div id="stage">
+
+<!-- ===== Scene 1 & 6: navy ===== -->
+<div class="layer" id="bgNavy">
+  <div class="ring" id="r1" style="width:1300px;height:1300px;opacity:.07"></div>
+  <div class="ring" id="r2" style="width:900px;height:900px;opacity:.12"></div>
+  <div class="logo" id="logo"><div class="glow" id="glow"></div>
+    <div class="coin c1" id="k1"></div><div class="coin c2" id="k2"></div>
+    <div class="coin c3" id="k3"><b>ف</b><div class="shine" id="shine"></div></div>
+  </div>
+  <div class="wordmark" id="wm" style="top:1150px;font-size:150px">Fakka</div>
+  <div class="tagline" id="tg" style="top:1340px;font-size:40px">Your money, made simple</div>
+  <div class="soon" id="soon">Available now</div>
+  <div class="badges" id="badges">
+    <div class="badge" id="b1"><span class="i">&#xf3d8;</span><div><small>Download on the</small><strong>App Store</strong></div></div>
+    <div class="badge" id="b2"><span class="i">&#xf3f6;</span><div><small>Get it on</small><strong>Google Play</strong></div></div>
+  </div>
+</div>
+
+<!-- ===== light world ===== -->
+<div class="layer" id="bgLight">
+  <div class="hl" id="hl"><span>Know</span><span>where</span><span>every</span><span class="blue">pound</span><span class="blue">goes.</span></div>
+
+  <div class="cap" id="cap1"><h2>Your financial health,<br>at a glance.</h2><p>One score. Three things that matter.</p></div>
+  <div class="cap" id="cap2"><h2>Every installment,<br>on time.</h2><p>valU, Souhoola, loans and bills — tracked.</p></div>
+  <div class="cap" id="cap3"><h2>Gold, dollars, cash.<br>All counted.</h2><p>Live prices. Your real worth.</p></div>
+
+  <div class="phone" id="phone"><div class="scr"><div class="notch"></div>
+
+    <!-- HOME -->
+    <div class="pad" id="sHome">
+      <div class="row" style="margin-bottom:16px">
+        <div style="flex:1"><div class="lbl">Sunday, 4 October</div><div style="font-size:22px;font-weight:700;letter-spacing:-.4px">Good evening, Ahmed</div></div>
+        <div class="bub" style="width:38px;height:38px;border-radius:19px;background:#fff;box-shadow:0 4px 12px rgba(20,41,74,.06);margin-right:8px;color:var(--primary)"><span class="i" style="font-size:18px">&#xf2ea;</span></div>
+        <div class="bub" style="width:38px;height:38px;border-radius:19px;background:var(--primary);color:#fff;font-weight:700">A</div>
+      </div>
+      <div class="card" id="hCard">
+        <div class="row" style="gap:16px">
+          <div style="position:relative;width:88px;height:88px">
+            <svg width="88" height="88" viewBox="0 0 88 88" style="transform:rotate(-90deg)"><circle cx="44" cy="44" r="39.5" fill="none" stroke="#EEF4FE" stroke-width="9"/><circle id="ringArc" cx="44" cy="44" r="39.5" fill="none" stroke="#2FB57A" stroke-width="9" stroke-linecap="round" stroke-dasharray="248.2" stroke-dashoffset="248.2"/></svg>
+            <div id="score" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700">0</div>
+          </div>
+          <div style="flex:1"><div class="lbl" style="font-size:13px">Financial health</div><div id="band" style="font-size:22px;font-weight:700;color:var(--green);margin-top:2px">Healthy</div></div>
+          <div style="align-self:flex-start;background:var(--primary);color:#fff;border-radius:8px;padding:3px 8px;font-size:10px;font-weight:700;letter-spacing:.6px"><span class="i" style="font-size:10px">&#xf3c7;</span> PRO</div>
+        </div>
+        <div class="row" style="gap:8px;margin-top:16px">
+          <div class="f" id="fx1"><div class="lbl" style="font-size:11px">Installments</div><div class="row" style="gap:4px;font-weight:600;font-size:15px;margin-top:3px">Okay <span class="i" style="color:var(--green);font-size:13px">&#xf145;</span></div></div>
+          <div class="f" id="fx2"><div class="lbl" style="font-size:11px">Safety net</div><div class="row" style="gap:4px;font-weight:600;font-size:15px;margin-top:3px">Good</div></div>
+          <div class="f" id="fx3"><div class="lbl" style="font-size:11px">Debt</div><div class="row" style="gap:4px;font-weight:600;font-size:15px;margin-top:3px">Good <span class="i" style="color:var(--green);font-size:13px">&#xf145;</span></div></div>
+        </div>
+      </div>
+      <div id="nw" style="margin-top:14px;background:var(--soft);border:1px solid #CCE0FF99;border-radius:24px;padding:18px">
+        <div class="lbl" style="font-size:13px">What you're worth</div>
+        <div id="nwv" style="font-size:32px;font-weight:700;letter-spacing:-.8px;margin-top:2px">L.E 0</div>
+        <div class="row" style="gap:10px;margin-top:12px">
+          <div class="row" style="flex:1;gap:9px;background:#fff;border-radius:16px;padding:9px"><div class="bub" style="width:28px;height:28px;border-radius:10px;background:#2FB57A1F;color:var(--green)"><span class="i" style="font-size:14px">&#xf145;</span></div><div><div class="lbl" style="font-size:10px">You own</div><div style="font-weight:600;font-size:14px">L.E 598K</div></div></div>
+          <div class="row" style="flex:1;gap:9px;background:#fff;border-radius:16px;padding:9px"><div class="bub" style="width:28px;height:28px;border-radius:10px;background:#E0605A1F;color:var(--red)"><span class="i" style="font-size:14px">&#xf12d;</span></div><div><div class="lbl" style="font-size:10px">You owe</div><div style="font-weight:600;font-size:14px">L.E 185K</div></div></div>
+        </div>
+      </div>
+      <div class="row" style="gap:9px;margin-top:14px" id="qa">
+        <div class="card qa" style="flex:1;padding:12px 0 10px;text-align:center;border-radius:20px"><div class="bub" style="margin:0 auto;width:38px;height:38px;border-radius:13px;background:#F29B451F;color:var(--orange)"><span class="i" style="font-size:19px">&#xf520;</span></div><div style="font-size:11px;font-weight:600;margin-top:7px">Expense</div></div>
+        <div class="card qa" style="flex:1;padding:12px 0 10px;text-align:center;border-radius:20px"><div class="bub" style="margin:0 auto;width:38px;height:38px;border-radius:13px;background:#2FB57A1F;color:var(--green)"><span class="i" style="font-size:19px">&#xf103;</span></div><div style="font-size:11px;font-weight:600;margin-top:7px">Income</div></div>
+        <div class="card qa" style="flex:1;padding:12px 0 10px;text-align:center;border-radius:20px"><div class="bub" style="margin:0 auto;width:38px;height:38px;border-radius:13px;background:#66A3FF1F;color:var(--sky)"><span class="i" style="font-size:19px">&#xf1cf;</span></div><div style="font-size:11px;font-weight:600;margin-top:7px">Payment</div></div>
+        <div class="card qa" style="flex:1;padding:12px 0 10px;text-align:center;border-radius:20px"><div class="bub" style="margin:0 auto;width:38px;height:38px;border-radius:13px;background:#8E6FE01F;color:var(--purple)"><span class="i" style="font-size:19px">&#xf4ea;</span></div><div style="font-size:11px;font-weight:600;margin-top:7px">Afford?</div></div>
+      </div>
+    </div>
+
+    <!-- PAY -->
+    <div class="pad" id="sPay">
+      <div style="font-size:26px;font-weight:700;letter-spacing:-.8px;margin-bottom:14px">Payments</div>
+      <div style="background:var(--primary);border-radius:24px;padding:18px;color:#fff">
+        <div style="font-size:12px;color:var(--pale);font-weight:500">Left to pay this month</div>
+        <div id="left" style="font-size:30px;font-weight:700;letter-spacing:-.6px;margin-top:2px">L.E 9,350</div>
+        <div class="row" style="gap:4px;margin-top:12px"><i class="tk" style="flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.25)"></i><i class="tk" style="flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.25)"></i><i class="tk" style="flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.25)"></i></div>
+        <div id="paidTxt" style="font-size:12px;color:var(--pale);font-weight:500;margin-top:10px">0 of 3 paid</div>
+      </div>
+      <div id="instList"></div>
+    </div>
+
+    <!-- SAVE -->
+    <div class="pad" id="sSave">
+      <div style="font-size:26px;font-weight:700;letter-spacing:-.8px;margin-bottom:14px">Savings</div>
+      <div class="card">
+        <div class="lbl" style="font-size:12px">All your savings are worth</div>
+        <div id="sv" style="font-size:30px;font-weight:700;letter-spacing:-.6px;margin-top:2px">L.E 0</div>
+        <div class="row" id="gold" style="gap:4px;font-size:12px;font-weight:500;color:var(--green);margin-top:3px"><span class="i">&#xf145;</span> L.E 9,200 this month from gold</div>
+        <div class="row" style="gap:3px;height:12px;margin-top:14px">
+          <i id="m1" style="height:12px;border-radius:6px;background:#E0AA3E;width:0"></i><i id="m2" style="height:12px;border-radius:6px;background:var(--green);width:0"></i><i id="m3" style="height:12px;border-radius:6px;background:var(--primary);width:0"></i>
+        </div>
+        <div class="row lbl" style="gap:14px;margin-top:10px"><span>● Gold 74%</span><span>● USD 15%</span><span>● Cash 11%</span></div>
+      </div>
+      <div class="card" style="margin-top:14px;padding:4px 16px" id="hold"></div>
+      <div class="row" style="gap:10px;margin-top:14px" id="goals"></div>
+    </div>
+
+    <div class="tab" id="tabbar">
+      <div id="tHome"><span class="i" style="font-size:21px">&#xf382;</span>Home</div>
+      <div><span class="i" style="font-size:21px">&#xf626;</span>Spend</div>
+      <div class="plus"><span class="i">&#xf103;</span></div>
+      <div id="tPay"><span class="i" style="font-size:21px">&#xf1d6;</span>Pay</div>
+      <div id="tSave"><span class="i" style="font-size:21px">&#xf2a2;</span>Save</div>
+    </div>
+  </div></div>
+</div>
+</div>
+
+<script>
+// ---------- build repeated rows ----------
+const INST=[['#16B3A8','&#xf15e;','iPhone 15','valU','L.E 1,850',8,12],['#7B5CE6','&#xf3ac;','MacBook Air','Souhoola','L.E 2,100',3,18],['#E0524F','&#xf1e4;','Car loan','NBE','L.E 5,400',22,36]];
+document.getElementById('instList').innerHTML=INST.map((x,i)=>`
+ <div class="card inst" style="margin-top:12px;padding:15px">
+  <div class="row" style="gap:11px">
+   <div class="bub" style="width:42px;height:42px;border-radius:14px;background:${x[0]}1F;color:${x[0]}"><span class="i" style="font-size:20px">${x[1]}</span></div>
+   <div style="flex:1"><div style="font-weight:600;font-size:15px">${x[2]}</div>
+    <div class="row" style="gap:6px;margin-top:3px"><span style="background:${x[0]}24;color:${x[0]};border-radius:6px;padding:1px 7px;font-size:11px;font-weight:600">${x[3]}</span><span class="lbl">Due in ${3+i*6} days</span></div></div>
+   <div style="text-align:right"><div style="font-weight:600;font-size:15px">${x[4]}</div>
+    <div class="pbtn" style="position:relative;margin-top:4px;height:20px;width:74px;margin-left:auto">
+      <div class="mk" style="position:absolute;inset:0;background:var(--primary);color:#fff;border-radius:8px;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center">Mark paid</div>
+      <div class="pd" style="position:absolute;inset:0;color:var(--green);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:flex-end;gap:3px;opacity:0"><span class="i">&#xf21d;</span>Paid</div>
+    </div></div>
+  </div>
+  <div class="row lbl" style="margin-top:12px"><span style="flex:1"><b class="mo" style="font-weight:500">${x[5]}</b> of ${x[6]} months paid</span></div>
+  <div class="prog" style="margin-top:7px"><i class="pg" style="background:${x[0]};width:${x[5]/x[6]*100}%"></i></div>
+ </div>`).join('');
+const HOLD=[['#E0AA3E','&#xf2a1;','Gold 21K','40 grams','L.E 249,200','+3.8%'],['#2FB57A','&#xf41d;','US Dollar','$1,000','L.E 51,700','+0.4%'],['#00509E','&#xf625;','Cash & bank','Savings account','L.E 37,500','']];
+document.getElementById('hold').innerHTML=HOLD.map((x,i)=>`
+ <div class="row hr" style="gap:11px;padding:11px 0;${i<2?'border-bottom:1px solid #EEF3FA':''}">
+  <div class="bub" style="width:40px;height:40px;border-radius:14px;background:${x[0]}1F;color:${x[0]}"><span class="i" style="font-size:19px">${x[1]}</span></div>
+  <div style="flex:1"><div style="font-weight:600;font-size:14px">${x[2]}</div><div class="lbl" style="margin-top:1px">${x[3]}</div></div>
+  <div style="text-align:right"><div style="font-weight:600;font-size:14px">${x[4]}</div><div style="font-size:11px;font-weight:500;color:var(--green)">${x[5]}</div></div>
+ </div>`).join('');
+const GOALS=[['#F29B45','&#xf607;','Sahel summer','L.E 18K','of 30K',.6],['#E0605A','&#xf36a;','Wedding','L.E 95K','of 400K',.24]];
+document.getElementById('goals').innerHTML=GOALS.map(x=>`
+ <div class="card goal" style="flex:1;padding:14px">
+  <div class="bub" style="width:34px;height:34px;border-radius:12px;background:${x[0]}1F;color:${x[0]}"><span class="i" style="font-size:17px">${x[1]}</span></div>
+  <div style="font-weight:600;font-size:14px;margin-top:9px">${x[2]}</div>
+  <div style="font-size:13px;font-weight:700;margin-top:3px">${x[3]} <span class="lbl">${x[4]}</span></div>
+  <div class="prog" style="margin-top:9px"><i class="gp" style="background:${x[0]};width:0" data-v="${x[5]}"></i></div>
+ </div>`).join('');
+
+// ---------- timing helpers ----------
+const $=id=>document.getElementById(id), $$=s=>[...document.querySelectorAll(s)];
+const cl=x=>Math.max(0,Math.min(1,x));
+const P=(t,a,b)=>cl((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,3);                 // ease out cubic
+const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const eExpo=x=>x===1?1:1-Math.pow(2,-10*x);
+const back=x=>{const c=1.5;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const spring=x=>x>=1?1:1-Math.exp(-6*x)*Math.cos(9*x);   // settles with a small overshoot
+const mix=(a,b,x)=>a+(b-a)*x;
+const fmt=n=>'L.E '+Math.round(n).toLocaleString('en-US');
+const st=(el,o,tf)=>{el.style.opacity=o;if(tf!==undefined)el.style.transform=tf;};
+// in/out envelope: fades/slides in over [a,a+d], out over [b-d2,b]
+const env=(t,a,b,d=.6,d2=.5)=>Math.min(eo(P(t,a,a+d)),1-eio(P(t,b-d2,b)));
+
+const DUR=30;
+window.render=function(t){
+  // ---------- worlds ----------
+  const navy1=1-eio(P(t,3.3,4.1));          // intro navy
+  const navy2=eio(P(t,25.2,26.0));           // outro navy
+  const navyO=Math.max(navy1,navy2);
+  $('bgNavy').style.opacity=1; $('bgLight').style.opacity=1-navyO;
+  $('bgLight').style.zIndex=1; $('bgNavy').style.zIndex=0;
+
+  // rings slowly breathe
+  const br=1+0.03*Math.sin(t*1.3);
+  $('r1').style.transform=`translate(-50%,-50%) scale(${br})`; $('r2').style.transform=`translate(-50%,-50%) scale(${2-br})`;
+
+  // ---------- logo: intro (0-3.6) and outro (25.4-30) ----------
+  const intro=t<12, base=intro?0.25:25.6;
+  const drop=(k,i)=>{const x=spring(P(t,base+i*.18,base+i*.18+1.1));return `translate(0,${mix(-260,0,x)}px) scale(${mix(.55,1,x)})`;};
+  ['k1','k2','k3'].forEach((k,i)=>st($(k),eo(P(t,base+i*.18,base+i*.18+.35)),drop(k,i)));
+  $('shine').style.transform=`rotate(25deg) translateX(${mix(-40,360,eio(P(t,base+1.3,base+2.0)))}px)`;
+  $('glow').style.opacity=.2*eo(P(t,base,base+.8));
+  // logo position: center in intro, higher in outro
+  const ly=intro?mix(0,-170,eio(P(t,1.4,2.2))):-330;
+  const ls=intro?1:0.82;
+  $('logo').style.transform=`translate(0,${ly}px) scale(${ls})`;
+  // wordmark + tagline
+  const wIn=intro?eo(P(t,1.7,2.5)):eo(P(t,26.5,27.2));
+  const tIn=intro?eo(P(t,2.1,2.9)):eo(P(t,26.8,27.5));
+  const wTop=intro?1150-170:830, tTop=intro?1340-170:1020;
+  $('wm').style.top=wTop+'px'; $('tg').style.top=tTop+'px';
+  st($('wm'),wIn,`translateY(${mix(40,0,wIn)}px)`); st($('tg'),tIn,`translateY(${mix(30,0,tIn)}px)`);
+  // store badges
+  const sIn=eo(P(t,27.3,28.0));
+  st($('soon'),sIn,`translateY(${mix(20,0,sIn)}px)`);
+  st($('b1'),eo(P(t,27.6,28.3)),`translateY(${mix(50,0,back(P(t,27.6,28.4)))}px)`);
+  st($('b2'),eo(P(t,27.8,28.5)),`translateY(${mix(50,0,back(P(t,27.8,28.6)))}px)`);
+  $('badges').style.visibility=t>26?'visible':'hidden'; $('soon').style.visibility=t>26?'visible':'hidden';
+
+  // ---------- headline (3.8-7.6) ----------
+  $$('#hl span').forEach((s,i)=>{const a=4.0+i*.22;const x=eo(P(t,a,a+.7));const o=Math.min(x,1-eio(P(t,7.1,7.6)));
+    st(s,o,`translateY(${mix(70,0,x)-30*eio(P(t,7.1,7.6))}px)`);});
+
+  // ---------- phone ----------
+  const pIn=eExpo(P(t,7.4,8.6)), pOut=eio(P(t,24.6,25.4));
+  const drift=Math.sin(t*.35)*6;
+  const ps=2.15*(1-0.04*pOut);
+  st($('phone'),Math.min(eo(P(t,7.4,8.0)),1-pOut),`translateY(${mix(900,0,pIn)+drift+mix(0,60,pOut)}px) scale(${ps}) rotate(${mix(4,0,pIn)}deg)`);
+
+  // screens: home 7.4-14.3, pay 14.3-20.3, save 20.3-25.4
+  const sw=(a)=>eio(P(t,a,a+.6));
+  const toPay=sw(14.0), toSave=sw(20.0);
+  st($('sHome'),1-toPay,`translateX(${-120*toPay}px)`);
+  st($('sPay'),Math.min(toPay,1-toSave),`translateX(${120*(1-toPay)-120*toSave}px)`);
+  st($('sSave'),toSave,`translateX(${120*(1-toSave)}px)`);
+  $('tHome').className=t<14.3?'on':''; $('tPay').className=t>=14.3&&t<20.3?'on':''; $('tSave').className=t>=20.3?'on':'';
+
+  // captions
+  const caps=[['cap1',8.2,14.2],['cap2',14.4,20.2],['cap3',20.4,25.0]];
+  caps.forEach(([id,a,b])=>{const o=env(t,a,b,.7,.45);st($(id),o,`translateY(${mix(30,0,eo(P(t,a,a+.7)))}px)`);});
+
+  // HOME animations
+  const r=eio(P(t,9.0,11.0));
+  $('ringArc').style.strokeDashoffset=248.2*(1-.72*r);
+  $('score').textContent=Math.round(72*r);
+  st($('band'),eo(P(t,10.6,11.2)),`translateX(${mix(-14,0,eo(P(t,10.6,11.2)))}px)`);
+  ['fx1','fx2','fx3'].forEach((id,i)=>{const a=11.2+i*.15;st($(id),eo(P(t,a,a+.5)),`translateY(${mix(16,0,back(P(t,a,a+.6)))}px)`);});
+  $('nwv').textContent=fmt(412600*eExpo(P(t,11.6,13.2)));
+  $$('#qa .qa').forEach((q,i)=>{const a=12.2+i*.1;st(q,eo(P(t,a,a+.5)),`scale(${mix(.85,1,back(P(t,a,a+.6)))})`);});
+
+  // PAY animations: cards in, then ticked paid one by one
+  $$('.inst').forEach((c,i)=>{const a=14.6+i*.14;st(c,eo(P(t,a,a+.5)),`translateY(${mix(40,0,eo(P(t,a,a+.6)))}px)`);});
+  const paidAt=[16.2,17.3,18.4]; let paid=0;
+  $$('.inst').forEach((c,i)=>{const x=eo(P(t,paidAt[i],paidAt[i]+.35));if(t>=paidAt[i]+.2)paid++;
+    const mk=c.querySelector('.mk'),pd=c.querySelector('.pd');
+    st(mk,1-x,`scale(${mix(1,.8,x)})`); st(pd,x,`scale(${mix(.7,1,back(x))})`);
+    const pg=c.querySelector('.pg'); const base=INST[i][5], tot=INST[i][6];
+    pg.style.width=((base+x)/tot*100)+'%'; c.querySelector('.mo').textContent=base+(x>.5?1:0);
+    c.style.boxShadow=x>0&&x<1?`0 6px 20px rgba(47,181,122,${.25*Math.sin(x*Math.PI)})`:'';});
+  const amounts=[1850,2100,5400];
+  let leftV=9350; amounts.forEach((v,i)=>{leftV-=v*eio(P(t,paidAt[i],paidAt[i]+.5));});
+  $('left').textContent=fmt(leftV);
+  $$('.tk').forEach((k,i)=>{k.style.background=t>=paidAt[i]+.15?'#fff':'rgba(255,255,255,.25)';});
+  $('paidTxt').textContent=`${paid} of 3 paid`+(paid===3?' — all done ✓':'');
+
+  // SAVE animations
+  $('sv').textContent=fmt(338400*eExpo(P(t,20.6,22.2)));
+  st($('gold'),eo(P(t,21.8,22.3)));
+  const bw=262*eio(P(t,21.0,22.4));
+  $('m1').style.width=bw*.74+'px'; $('m2').style.width=bw*.15+'px'; $('m3').style.width=bw*.11+'px';
+  $$('.hr').forEach((h,i)=>{const a=21.6+i*.15;st(h,eo(P(t,a,a+.5)),`translateX(${mix(30,0,eo(P(t,a,a+.6)))}px)`);});
+  $$('.goal').forEach((g,i)=>{const a=22.4+i*.15;st(g,eo(P(t,a,a+.5)),`translateY(${mix(30,0,back(P(t,a,a+.6)))}px)`);});
+  $$('.gp').forEach((g,i)=>{g.style.width=(+g.dataset.v*100*eio(P(t,23.0,24.2)))+'%';});
+
+  // fade from black at start / hold end
+  $('stage').style.filter=`brightness(${mix(0,1,eo(P(t,0,.5)))})`;
+};
+window.DUR=DUR;
+// live preview: play in a loop when opened normally
+if(!location.search.includes('capture')){
+  const fit=()=>{const s=Math.min(innerWidth/1080,innerHeight/1920);document.documentElement.style.cssText=`width:100%;height:100%;background:#0a0f1a`;document.body.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0a0f1a`;$('stage').style.transform=`scale(${s})`;$('stage').style.flex='none';};
+  fit(); addEventListener('resize',fit);
+  let t0=performance.now(); const loop=()=>{render(((performance.now()-t0)/1000)%DUR);requestAnimationFrame(loop);};
+  document.fonts.ready.then(loop);
+}
+</script>
+</body></html>

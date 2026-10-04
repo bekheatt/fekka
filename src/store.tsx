@@ -27,6 +27,7 @@ export type Data = {
   rates: Record<string, number>; ratesUpdated?: string; settings: Settings;
   alerts: PriceAlert[];
   scoreHistory?: Record<string, number>; // Financial Health Score per month (YYYY-MM)
+  partHistory?: Record<string, Record<string, number>>; // each score part per month, for the up/down arrows
 };
 
 type RateStatus = 'idle' | 'loading' | 'ok' | 'error';

@@ -84,16 +84,16 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
       <Header title={t('Payments')} subtitle={t("Installments, loans, bills and gam'eya")} />
 
       <View style={s.total}>
-        <Text style={s.totalLabel}>{t('You pay every month')}</Text>
-        <Text style={s.totalVal}>{le(tot.committed)}</Text>
-        <View style={s.split}>
-          <Text style={s.splitTxt}>{t('Installments')} {le(tot.instMonthly)}</Text>
-          <Text style={s.splitTxt}>{t('Loans')} {le(tot.loanMonthly)}</Text>
-        </View>
-        <View style={s.split}>
-          <Text style={s.splitTxt}>{t('Bills')} {le(tot.billsMonthly)}</Text>
-          <Text style={s.splitTxt}>{t("Gam'eya")} {le(tot.gameyaMonthly)}</Text>
-        </View>
+        <Text style={s.totalLabel}>{t('Left to pay this month')}</Text>
+        <Text style={s.totalVal} adjustsFontSizeToFit numberOfLines={1}>{le(tot.unpaid.reduce((x, u) => x + u.amount, 0))}</Text>
+        {tot.due.length > 0 && (
+          <View style={s.ticks}>
+            {tot.due.map((u, i) => <View key={i} style={[s.tick, { backgroundColor: u.paid ? '#fff' : 'rgba(255,255,255,0.25)' }]} />)}
+          </View>
+        )}
+        <Text style={s.totalSub}>
+          {t('{p} of {n} paid · {x} a month in total', { p: paidCount, n: tot.due.length, x: leShort(tot.committed) })}
+        </Text>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.btns}>
@@ -260,15 +260,16 @@ const AddChip = ({ icon, color, label, onPress }: any) => (
 );
 
 const s = themed(() => StyleSheet.create({
-  total: { backgroundColor: C.card, borderRadius: 14, padding: 18 },
-  totalLabel: { color: C.sub, fontSize: 15 },
-  totalVal: { color: C.ink, fontSize: 30, fontWeight: '800', marginTop: 4, letterSpacing: -0.5 },
-  split: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
-  splitTxt: { color: C.sub, fontSize: 13, fontWeight: '600' },
+  total: { backgroundColor: C.primary, borderRadius: 24, padding: 20 },
+  totalLabel: { color: C.pale, fontSize: 13, fontWeight: '500' },
+  totalVal: { color: '#fff', fontSize: 30, fontWeight: '700', marginTop: 4, letterSpacing: -0.5 },
+  ticks: { flexDirection: 'row', gap: 4, marginTop: 14 },
+  tick: { flex: 1, height: 8, borderRadius: 4 },
+  totalSub: { color: C.pale, fontSize: 13, fontWeight: '500', marginTop: 12 },
   btns: { gap: 10, marginTop: 12, paddingRight: 4 },
   btn: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: C.card, borderRadius: 10, paddingVertical: 13, paddingHorizontal: 16 },
   btnTxt: { fontWeight: '700', fontSize: 15, color: C.ink },
-  calc: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 14, padding: 14, marginTop: 12 },
+  calc: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 20, padding: 14, marginTop: 12 },
   calcIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: C.accent + '1F', alignItems: 'center', justifyContent: 'center' },
   calcTitle: { fontSize: 16, fontWeight: '600', color: C.ink },
   calcSub: { fontSize: 13, color: C.sub, marginTop: 2 },

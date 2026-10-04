@@ -8,7 +8,8 @@ import { useStore } from './store';
 import { t } from './i18n';
 import { tap } from './ui';
 import Logo from './Logo';
-import { Sheet, Field } from './ui';
+import { Sheet, Field, Bubble } from './ui';
+import { APP_NAME, TAGLINE } from './brand';
 import { signInEmail, signUpEmail, signInGoogle, CloudUser } from './cloud/supabase';
 
 // Alert.alert does nothing in a web browser, so use the browser's own pop-up there
@@ -79,10 +80,27 @@ export default function Login() {
 
   return (
     <SafeAreaView style={s.wrap}>
-      <View style={s.top}>
-        <Logo size={120} animated />
-        <Text style={s.h1}>{t('Welcome to Fakka')}</Text>
-        <Text style={s.p}>{t('Understand your money, all in one place.')}</Text>
+      <View style={s.brand}>
+        <Logo size={96} animated />
+        <Text style={s.name}>{APP_NAME}</Text>
+        <Text style={s.tag}>{t(TAGLINE)}</Text>
+      </View>
+
+      {/* A peek at what the app tracks */}
+      <View style={s.art} pointerEvents="none">
+        <View style={s.glow} />
+        <Float style={{ top: 6, left: 4, transform: [{ rotate: '4deg' }] }} icon="bag-handle" color="#16B3A8" label={t('valU installment')} value="L.E 1,850" />
+        <Float style={{ top: 78, right: 2, transform: [{ rotate: '-3deg' }] }} icon="diamond" color="#E0AA3E" label={t('Gold 21K · 40g')} value="L.E 249K" />
+        <Float style={{ top: 152, left: 22, transform: [{ rotate: '2deg' }] }} icon="flash" color="#F2B53A" label={t('Electricity')} value={t('Paid ✓')} />
+        <View style={[s.score, { top: 0, right: 14, transform: [{ rotate: '-6deg' }] }]}>
+          <Text style={s.scoreNum}>72</Text>
+          <Text style={s.scoreTxt}>{t('Health')}</Text>
+        </View>
+      </View>
+
+      <View style={s.copy}>
+        <Text style={s.h1}>{t('Know where every\npound goes')}</Text>
+        <Text style={s.p}>{t('Installments, bills, gold and savings —\nall in one calm place.')}</Text>
       </View>
 
       <View style={s.buttons}>
@@ -92,26 +110,20 @@ export default function Login() {
         </Pressable>
 
         <Pressable onPress={busy ? undefined : google} style={({ pressed }) => [s.btn, s.google, pressed && s.pressed]}>
-          <Ionicons name="logo-google" size={18} color="#4285F4" />
-          <Text style={[s.btnTxt, { color: '#1F1F1F' }]}>{t('Continue with Google')}</Text>
+          {busy ? <ActivityIndicator color={C.primary} /> : <Ionicons name="logo-google" size={18} color="#4285F4" />}
+          <Text style={[s.btnTxt, { color: '#14294A' }]}>{t('Continue with Google')}</Text>
         </Pressable>
 
-        <Pressable onPress={() => { tap(); setEmailOpen(true); }} style={({ pressed }) => [s.btn, s.email, pressed && s.pressed]}>
-          <Ionicons name="mail" size={18} color="#fff" />
-          <Text style={[s.btnTxt, { color: '#fff' }]}>{t('Continue with email')}</Text>
-        </Pressable>
-
-        <View style={s.orRow}>
-          <View style={s.orLine} />
-          <Text style={s.orTxt}>{t('or')}</Text>
-          <View style={s.orLine} />
+        <View style={s.links}>
+          <Pressable onPress={guest} hitSlop={8}><Text style={s.link}>{t('Continue as guest')}</Text></Pressable>
+          <Text style={s.sep}>·</Text>
+          <Pressable onPress={() => { tap(); setEmailOpen(true); }} hitSlop={8}><Text style={s.link}>{t('Use email')}</Text></Pressable>
         </View>
 
-        <Pressable onPress={guest} style={({ pressed }) => [s.btn, s.guest, pressed && s.pressed]}>
-          <Text style={[s.btnTxt, { color: C.primary }]}>{t('Continue as guest')}</Text>
-        </Pressable>
-
-        <Text style={s.note}>{t('With an account, your data is saved online and private to you. As a guest, it stays on this phone only.')}</Text>
+        <View style={s.privacy}>
+          <Ionicons name="lock-closed" size={12} color={C.sub} />
+          <Text style={s.note}>{t('Your data stays private and locked to you')}</Text>
+        </View>
       </View>
 
       <Sheet visible={emailOpen} title={t(mode === 'in' ? 'Sign in' : 'Create account')} onClose={() => setEmailOpen(false)}
@@ -130,15 +142,41 @@ export default function Login() {
   );
 }
 
+// Small floating card in the login illustration
+const Float = ({ style, icon, color, label, value }: any) => (
+  <View style={[s.float, style]}>
+    <Bubble icon={icon} color={color} size={34} />
+    <View><Text style={s.floatLabel}>{label}</Text><Text style={s.floatVal}>{value}</Text></View>
+  </View>
+);
+
 const s = themed(() => StyleSheet.create({
+  brand: { alignItems: 'center', marginTop: 18 },
+  name: { fontSize: 26, fontWeight: '700', color: C.navy, letterSpacing: -0.5, marginTop: 6 },
+  tag: { fontSize: 13, color: C.sub, fontWeight: '500', marginTop: 2 },
+  art: { flex: 1, minHeight: 200, maxHeight: 240, marginTop: 12 },
+  glow: { position: 'absolute', alignSelf: 'center', top: 0, width: 230, height: 230, borderRadius: 115, backgroundColor: C.pale, opacity: 0.45 },
+  float: { position: 'absolute', flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: C.card, borderRadius: 18, paddingVertical: 10, paddingHorizontal: 12,
+    shadowColor: '#14294A', shadowOpacity: 0.08, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 4 },
+  floatLabel: { fontSize: 11, color: C.sub, fontWeight: '500' },
+  floatVal: { fontSize: 14, color: C.ink, fontWeight: '600' },
+  score: { position: 'absolute', backgroundColor: C.primary, borderRadius: 18, paddingVertical: 8, paddingHorizontal: 14, alignItems: 'center',
+    shadowColor: '#003366', shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
+  scoreNum: { color: '#fff', fontSize: 22, fontWeight: '700' },
+  scoreTxt: { color: C.pale, fontSize: 11, fontWeight: '500' },
+  copy: { alignItems: 'center', marginTop: 8 },
+  links: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10, paddingTop: 6 },
+  link: { fontSize: 15, fontWeight: '600', color: C.primary },
+  sep: { color: C.sub },
+  privacy: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 8 },
   wrap: { flex: 1, backgroundColor: C.bg, paddingHorizontal: 24 },
   top: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  h1: { fontSize: 28, fontWeight: '700', color: C.ink, marginTop: 26, textAlign: 'center' },
+  h1: { fontSize: 28, fontWeight: '700', color: C.ink, textAlign: 'center', letterSpacing: -0.5, lineHeight: 33 },
   p: { fontSize: 15, color: C.sub, marginTop: 8, textAlign: 'center', lineHeight: 21 },
-  buttons: { paddingBottom: 24, gap: 12 },
-  btn: { height: 54, borderRadius: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
+  buttons: { paddingBottom: 16, paddingTop: 22, gap: 12 },
+  btn: { height: 54, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
   apple: { backgroundColor: '#000' },
-  google: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#DADCE0' },
+  google: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#DCE5F2' },
   guest: { backgroundColor: C.soft },
   email: { backgroundColor: C.primary },
   switchTxt: { fontSize: 14, color: C.primary, textAlign: 'center', fontWeight: '600', marginBottom: 20 },
@@ -147,5 +185,5 @@ const s = themed(() => StyleSheet.create({
   orRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 2 },
   orLine: { flex: 1, height: 1, backgroundColor: C.line },
   orTxt: { fontSize: 13, color: C.sub },
-  note: { fontSize: 12, color: C.sub, textAlign: 'center', marginTop: 2 },
+  note: { fontSize: 12, color: C.sub, textAlign: 'center' },
 }));

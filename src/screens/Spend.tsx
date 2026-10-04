@@ -27,6 +27,15 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
   }, [action]);
 
   const today = new Date().toDateString();
+  // Last 7 days for the little bar chart, and last month's total for the comparison
+  const week = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(); day.setDate(day.getDate() - (6 - i));
+    const ds = day.toDateString();
+    return { label: day.toLocaleDateString(locale(), { weekday: 'narrow' }), v: d.expenses.filter(e => new Date(e.date).toDateString() === ds).reduce((s, e) => s + e.amount, 0) };
+  });
+  const weekMax = Math.max(1, ...week.map(w => w.v));
+  const prevM = (() => { const x = new Date(); x.setDate(1); x.setMonth(x.getMonth() - 1); return ym(x); })();
+  const lastMonth = d.expenses.filter(e => ym(new Date(e.date)) === prevM).reduce((s, e) => s + e.amount, 0);
   const todaySpent = d.expenses.filter(e => new Date(e.date).toDateString() === today).reduce((s, e) => s + e.amount, 0);
 
   const reset = () => { setAmt(''); setNote(''); setOpen(null); setEditId(null); setReceipt(undefined); setBigReceipt(false); };
@@ -49,9 +58,30 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
     <Screen>
       <Header title={t('Spending')} subtitle={t('Track what comes in and goes out')} right={<AddBtn onPress={() => setOpen('exp')} label={t('Expense')} />} />
 
-      <View style={s.sumRow}>
-        <View style={s.sum}><Text style={s.sumLabel}>{t('Today')}</Text><Text style={s.sumVal}>{le(todaySpent)}</Text></View>
-        <View style={s.sum}><Text style={s.sumLabel}>{t('This month')}</Text><Text style={s.sumVal}>{le(tot.spent)}</Text></View>
+      <View style={s.sumCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+          <View style={{ flex: 1 }}>
+            <Text style={s.sumLabel}>{t('Spent this month')}</Text>
+            <Text style={s.sumVal} adjustsFontSizeToFit numberOfLines={1}>{le(tot.spent)}</Text>
+          </View>
+          {lastMonth > 0 && (
+            <View style={[s.trend, { backgroundColor: (tot.spent <= lastMonth ? C.green : C.orange) + '1F' }]}>
+              <Text style={[s.trendTxt, { color: tot.spent <= lastMonth ? C.green : C.orange }]}>
+                {t(tot.spent <= lastMonth ? '{p}% less than last month' : '{p}% more than last month',
+                  { p: Math.round(Math.abs(1 - tot.spent / lastMonth) * 100) })}
+              </Text>
+            </View>
+          )}
+        </View>
+        <View style={s.chart}>
+          {week.map((w, i) => (
+            <View key={i} style={s.col}>
+              <View style={[s.bar, { height: 8 + 64 * (w.v / weekMax), backgroundColor: i === 6 ? C.primary : C.pale }]} />
+              <Text style={[s.day, i === 6 && { color: C.ink }]}>{w.label}</Text>
+            </View>
+          ))}
+        </View>
+        <Text style={s.today}>{t('Today')} · {le(todaySpent)}</Text>
       </View>
 
       <Section>{t('Tap to add a spend')}</Section>
@@ -135,10 +165,17 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
 }
 
 const s = themed(() => StyleSheet.create({
-  sumRow: { flexDirection: 'row', gap: 12 },
-  sum: { flex: 1, backgroundColor: C.card, borderRadius: 14, padding: 16 },
-  sumLabel: { color: C.sub, fontSize: 14 },
-  sumVal: { color: C.ink, fontSize: 21, fontWeight: '800', marginTop: 4 },
+  sumCard: { backgroundColor: C.card, borderRadius: 24, padding: 20,
+    shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 20, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  sumLabel: { color: C.sub, fontSize: 13, fontWeight: '500' },
+  trend: { borderRadius: 99, paddingHorizontal: 10, paddingVertical: 5, marginLeft: 8 },
+  trendTxt: { fontSize: 12, fontWeight: '600' },
+  chart: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 16, height: 92 },
+  col: { flex: 1, alignItems: 'center', gap: 6 },
+  bar: { width: '100%', borderRadius: 8 },
+  day: { fontSize: 11, color: C.sub, fontWeight: '500' },
+  today: { fontSize: 13, color: C.sub, fontWeight: '500', marginTop: 12 },
+  sumVal: { color: C.ink, fontSize: 30, fontWeight: '700', marginTop: 2, letterSpacing: -0.5 },
   quick: { flexDirection: 'row', flexWrap: 'wrap', backgroundColor: C.card, borderRadius: 14, paddingVertical: 8 },
   qItem: { width: '25%', alignItems: 'center', paddingVertical: 10 },
   qIcon: { width: 50, height: 50, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
