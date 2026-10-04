@@ -3,8 +3,11 @@ import { View, Pressable, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, P
 import { Text, TextInput } from './fonts';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { C, themed } from './theme';
+import { C, themed, ds } from './theme';
 import { t } from './i18n';
+
+// Gentle press feedback for buttons: style={({ pressed }) => [s.btn, pressed && pressedStyle]}
+export const pressedStyle = { opacity: 0.85, transform: [{ scale: 0.98 }] };
 
 export const tap = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
 
@@ -32,7 +35,7 @@ export const Panel = ({ children, style }: any) => <View style={[s.card, { paddi
 
 // Rounded tinted square with an icon in it
 export const Bubble = ({ icon, color, size = 40 }: { icon: any; color: string; size?: number }) => (
-  <View style={{ width: size, height: size, borderRadius: size * 0.35, backgroundColor: color + '1F', alignItems: 'center', justifyContent: 'center' }}>
+  <View style={{ width: size, height: size, borderRadius: size * ds(0.35, 0.5), backgroundColor: color + '1F', alignItems: 'center', justifyContent: 'center' }}>
     <Ionicons name={icon} size={size * 0.5} color={color} />
   </View>
 );
@@ -121,12 +124,12 @@ export const Empty = ({ icon, text, button, onPress }: { icon: any; text: string
   <View style={s.empty}>
     <View style={s.emptyIcon}><Ionicons name={icon} size={24} color={C.primary} /></View>
     <Text style={s.emptyTxt}>{text}</Text>
-    {!!button && <Pressable onPress={() => { tap(); onPress?.(); }} style={s.emptyBtn}><Text style={s.emptyBtnTxt}>{button}</Text></Pressable>}
+    {!!button && <Pressable onPress={() => { tap(); onPress?.(); }} style={({ pressed }) => [s.emptyBtn, pressed && pressedStyle]}><Text style={s.emptyBtnTxt}>{button}</Text></Pressable>}
   </View>
 );
 
 export const AddBtn = ({ onPress, label }: { onPress: () => void; label?: string }) => (
-  <Pressable onPress={() => { tap(); onPress(); }} style={s.add} hitSlop={10}>
+  <Pressable onPress={() => { tap(); onPress(); }} style={({ pressed }) => [s.add, pressed && pressedStyle]} hitSlop={10}>
     <Ionicons name="add" size={18} color="#fff" />
     <Text style={s.addTxt}>{label ?? t('Add')}</Text>
   </Pressable>
@@ -137,7 +140,7 @@ export const Chips = ({ options, value, onChange, colors, translate = true }: { 
     {options.map(o => {
       const on = o === value;
       return (
-        <Pressable key={o} onPress={() => { tap(); onChange(o); }} style={[s.chip, on && { backgroundColor: colors?.[o] ?? C.primary }]}>
+        <Pressable key={o} onPress={() => { tap(); onChange(o); }} style={({ pressed }) => [s.chip, on && { backgroundColor: colors?.[o] ?? C.primary }, pressed && { opacity: 0.7 }]}>
           <Text style={[s.chipTxt, on && { color: '#fff' }]}>{translate ? t(o) : o}</Text>
         </Pressable>
       );
@@ -163,7 +166,7 @@ export const Sheet = ({ visible, title, onClose, onSave, children, saveLabel }: 
       </View>
       <ScrollView contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
         {children}
-        <Pressable onPress={() => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); onSave(); }} style={s.saveBtn}>
+        <Pressable onPress={() => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); onSave(); }} style={({ pressed }) => [s.saveBtn, pressed && pressedStyle]}>
           <Text style={s.saveTxt}>{saveLabel ?? t('Save ')}</Text>
         </Pressable>
       </ScrollView>
@@ -227,12 +230,12 @@ export const Screen = ({ children }: { children: React.ReactNode }) => {
 
 const s = themed(() => StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 18 },
-  title: { fontSize: 28, fontWeight: '700', color: C.ink, letterSpacing: -0.4 },
+  title: { fontSize: ds(28, 34), fontWeight: '700', color: C.ink, letterSpacing: -0.4 },
   subtitle: { fontSize: 15, color: C.sub, marginTop: 3 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 26, marginBottom: 12, paddingHorizontal: 4 },
-  section: { fontSize: 17, fontWeight: '600', color: C.ink },
+  section: { fontSize: ds(17, 21), fontWeight: '600', color: C.ink },
   sectionAction: { fontSize: 14, fontWeight: '600', color: C.accent },
-  card: { backgroundColor: C.card, borderRadius: 24, paddingHorizontal: 18, paddingVertical: 4, shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 20, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  card: { backgroundColor: C.card, borderRadius: 24, borderWidth: ds(0, 1), borderColor: 'rgba(0,0,0,0.08)', paddingHorizontal: 18, paddingVertical: 4, shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 20, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 13, gap: 12 },
   rowLine: { borderBottomWidth: 1, borderColor: C.line },
   deleteWrap: { direction: 'ltr', position: 'absolute', top: 0, bottom: 0, right: -14, left: 0, backgroundColor: C.red, alignItems: 'flex-end', justifyContent: 'center' },
@@ -246,23 +249,23 @@ const s = themed(() => StyleSheet.create({
   empty: { alignItems: 'center', paddingVertical: 24, paddingHorizontal: 10 },
   emptyIcon: { width: 52, height: 52, borderRadius: 18, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   emptyTxt: { color: C.sub, textAlign: 'center', fontSize: 15, lineHeight: 21 },
-  emptyBtn: { marginTop: 14, backgroundColor: C.primary, paddingHorizontal: 20, paddingVertical: 11, borderRadius: 14 },
-  emptyBtnTxt: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  add: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.primary, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14 },
-  addTxt: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  emptyBtn: { marginTop: 14, backgroundColor: C.primary, paddingHorizontal: 20, paddingVertical: 11, borderRadius: 12 },
+  emptyBtnTxt: { color: '#fff', fontWeight: '600', fontSize: 15 },
+  add: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.primary, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12 },
+  addTxt: { color: '#fff', fontWeight: '600', fontSize: 15 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
-  chip: { paddingHorizontal: 15, paddingVertical: 10, borderRadius: 14, backgroundColor: C.soft },
+  chip: { paddingHorizontal: 15, paddingVertical: 10, borderRadius: 12, backgroundColor: C.soft },
   chipTxt: { fontWeight: '600', color: C.ink, fontSize: 15 },
   label: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 7 },
   input: { backgroundColor: C.soft, borderRadius: 14, padding: 15, fontSize: 17, color: C.ink },
   hint: { fontSize: 13, color: C.sub, marginTop: 6 },
   sheetHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 18, borderBottomWidth: 1, borderColor: C.line },
-  sheetTitle: { fontSize: 17, fontWeight: '700', color: C.ink },
+  sheetTitle: { fontSize: 17, fontWeight: '600', color: C.ink },
   cancel: { fontSize: 16, color: C.sub, width: 50 },
-  saveBtn: { backgroundColor: C.primary, borderRadius: 16, paddingVertical: 17, alignItems: 'center', marginTop: 8 },
+  saveBtn: { backgroundColor: C.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', marginTop: 8 },
   saveTxt: { color: '#fff', fontSize: 17, fontWeight: '600' },
   setRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13 },
-  setIcon: { width: 34, height: 34, borderRadius: 12, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
+  setIcon: { width: 34, height: 34, borderRadius: 10, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
   seg: { flexDirection: 'row', backgroundColor: C.line, borderRadius: 14, padding: 4, marginVertical: 8 },
   segItem: { flex: 1, paddingVertical: 9, borderRadius: 11, alignItems: 'center' },
   segOn: { backgroundColor: C.card, shadowColor: '#14294A', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },

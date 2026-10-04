@@ -7,3 +7,8 @@ web-build/
 .DS_Store
 ios/
 android/
+
+# Local only
+design-backup/
+brag-output/
+.claude/settings.local.json

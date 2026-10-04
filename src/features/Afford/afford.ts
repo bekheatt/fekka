@@ -33,7 +33,8 @@ export function oneTime(m: Money, price: number): Result {
   // Whatever this month's leftover can't cover comes out of savings
   const fromSavings = Math.max(0, price - Math.max(0, m.leftThisMonth));
   const cashAfter = m.cash - fromSavings;
-  const numbers = { price, surplus, cash: m.cash, cashAfter, cushion, leftThisMonth: m.leftThisMonth, fromSavings };
+  const leftAfter = Math.max(0, m.leftThisMonth - price);  // free money left this month after buying it
+  const numbers = { price, surplus, cash: m.cash, cashAfter, cushion, leftThisMonth: m.leftThisMonth, fromSavings, leftAfter };
   if (m.income <= 0) return { verdict: 'unknown', headline: 'Add your income first', reasons: [], numbers };
 
   const reasons: Result['reasons'] = [];
@@ -74,7 +75,7 @@ export function installment(m: Money, monthly: number, months: number, down = 0)
   const load = m.income > 0 ? m.debtMonthly / m.income : 0;
   const loadAfter = m.income > 0 ? (m.debtMonthly + monthly) / m.income : 0;
   const total = down + monthly * Math.max(0, months);
-  const numbers = { monthly, months, down, total, surplus, surplusAfter, load, loadAfter, cash: m.cash };
+  const numbers = { monthly, months, down, total, surplus, surplusAfter, load, loadAfter, cash: m.cash, cashAfterDown: m.cash - down };
   if (m.income <= 0) return { verdict: 'unknown', headline: 'Add your income first', reasons: [], numbers };
 
   const reasons: Result['reasons'] = [];

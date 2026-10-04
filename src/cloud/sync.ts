@@ -13,7 +13,7 @@ const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
 const remember = () => AsyncStorage.setItem(KEY, JSON.stringify(meta)).catch(() => {});
 
 // Things that belong to this phone only and never travel to other phones
-const DEVICE_SETTINGS = ['account', 'email', 'uid', 'lock', 'notify'] as const;
+const DEVICE_SETTINGS = ['account', 'email', 'uid', 'lock', 'notify', 'smsKey'] as const; // smsKey: the bank-SMS link key, only shown on the phone that made it
 
 // The part of the app data that is shared between phones
 export function shared(d: any) {

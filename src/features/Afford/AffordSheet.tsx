@@ -1,7 +1,7 @@
 // "Can I afford it?" — type a price (or an installment) and get a clear yes / careful / not now,
 // based on your income, monthly commitments, usual spending and savings.
 import React, { useMemo, useState } from 'react';
-import { View, StyleSheet, Pressable, Modal, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, Pressable, Modal, ScrollView, KeyboardAvoidingView, Platform, I18nManager } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../fonts';
 import { C, themed, le } from '../../theme';
@@ -112,6 +112,8 @@ export default function AffordSheet({ visible, onClose, onAddIncome }: { visible
                 </View>
               </View>
 
+              <After r={r} mode={mode} color={look.color()} />
+
               {r.tip && (
                 <View style={[s.card, s.callout]}>
                   <Ionicons name="bulb-outline" size={20} color={C.accent} />
@@ -134,6 +136,48 @@ export default function AffordSheet({ visible, onClose, onAddIncome }: { visible
     </Modal>
   );
 }
+
+// "After you buy it": what's left over, as one big number plus before → after
+const After = ({ r, mode, color }: { r: Result; mode: 'once' | 'inst'; color: string }) => {
+  const n = r.numbers;
+  const once = mode === 'once';
+  const big = once ? n.leftAfter : n.surplusAfter;
+  const short = big < 0;
+  return (
+    <View style={s.card}>
+      <Text style={s.afterTitle}>{t(once ? 'After you buy it' : 'With this installment')}</Text>
+      <Text style={[s.afterBig, { color: short ? C.red : color }]} adjustsFontSizeToFit numberOfLines={1}>{le(Math.abs(big))}</Text>
+      <Text style={s.afterCap}>{t(once ? 'left to spend this month' : short ? 'short every month' : 'left over every month')}</Text>
+      <View style={{ marginTop: 14 }}>
+        {once ? (
+          <>
+            <Change label={t('Left this month')} from={Math.max(0, n.leftThisMonth)} to={n.leftAfter} last={n.fromSavings <= 0} />
+            {n.fromSavings > 0 && <Change label={t('Savings')} sub={t('{x} would come from your savings', { x: le(n.fromSavings) })} from={n.cash} to={n.cashAfter} last />}
+          </>
+        ) : (
+          <>
+            <Change label={t('Left over each month')} from={n.surplus} to={n.surplusAfter} last={n.down <= 0} />
+            {n.down > 0 && <Change label={t('Savings')} sub={t('After the down payment')} from={n.cash} to={n.cashAfterDown} last />}
+          </>
+        )}
+      </View>
+    </View>
+  );
+};
+
+const Change = ({ label, sub, from, to, last }: { label: string; sub?: string; from: number; to: number; last?: boolean }) => (
+  <View style={[s.line, !last && { borderBottomWidth: 1, borderColor: C.line }]}>
+    <View style={{ flex: 1 }}>
+      <Text style={s.lineLabel}>{label}</Text>
+      {!!sub && <Text style={s.lineSub}>{sub}</Text>}
+    </View>
+    <View style={s.change}>
+      <Text style={s.changeFrom}>{le(from)}</Text>
+      <Ionicons name="arrow-forward" size={13} color={C.sub} style={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />
+      <Text style={[s.lineVal, to < 0 && { color: C.red }]}>{le(to)}</Text>
+    </View>
+  </View>
+);
 
 const Line = ({ label, value, sub, last }: { label: string; value: string; sub?: string; last?: boolean }) => (
   <View style={[s.line, !last && { borderBottomWidth: 1, borderColor: C.line }]}>
@@ -168,5 +212,10 @@ const s = themed(() => StyleSheet.create({
   lineLabel: { fontSize: 15, fontWeight: '500', color: C.ink },
   lineSub: { fontSize: 12, color: C.sub, marginTop: 3 },
   lineVal: { fontSize: 16, fontWeight: '600', color: C.ink },
+  afterTitle: { fontSize: 13, fontWeight: '600', color: C.sub, textTransform: 'uppercase', letterSpacing: 0.3 },
+  afterBig: { fontSize: 34, fontWeight: '700', letterSpacing: -0.6, marginTop: 6 },
+  afterCap: { fontSize: 14, color: C.sub, marginTop: 2 },
+  change: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  changeFrom: { fontSize: 14, color: C.sub, textDecorationLine: 'line-through' },
   foot: { fontSize: 12, color: C.sub, textAlign: 'center', marginTop: 4 },
 }));

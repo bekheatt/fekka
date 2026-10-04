@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
-import { C, le, leShort, EXPENSE_CATS, themed, isHidden } from '../theme';
+import { C, le, leShort, EXPENSE_CATS, themed, isHidden, ds } from '../theme';
 import { useStore, useTotals, daysUntil, goalValue, ym } from '../store';
 import { Card, Row, Section, Screen, tap, Progress, Check, Bubble, SplitBar } from '../ui';
 import { t, locale } from '../i18n';
 import Logo from '../Logo';
 import HealthCard from '../features/HealthScore/HealthCard';
 import AffordSheet from '../features/Afford/AffordSheet';
+import { tourRef } from '../features/Tour/Tour';
 
 type Go = (tab: string, action?: string) => void;
 
@@ -50,18 +51,18 @@ export default function Dashboard({ go }: { go: Go }) {
           <Text style={s.date}>{dateStr}</Text>
           <Text style={s.hello} numberOfLines={1}>{hello}{first ? `, ${first}` : ''}</Text>
         </View>
-        <Pressable onPress={() => { tap(); set(x => ({ ...x, settings: { ...x.settings, hideAmounts: !x.settings.hideAmounts } })); }} hitSlop={10} style={s.eye}>
+        <Pressable onPress={() => { tap(); set(x => ({ ...x, settings: { ...x.settings, hideAmounts: !x.settings.hideAmounts } })); }} hitSlop={10} style={s.eye} ref={tourRef('eye')} collapsable={false}>
           <Ionicons name={isHidden() ? 'eye-off-outline' : 'eye-outline'} size={20} color={C.primary} />
         </Pressable>
-        <Pressable onPress={() => { tap(); go('profile'); }} hitSlop={6} style={s.avatar}>
+        <Pressable onPress={() => { tap(); go('profile'); }} hitSlop={6} style={s.avatar} ref={tourRef('avatar')} collapsable={false}>
           {first ? <Text style={s.avatarTxt}>{first[0].toUpperCase()}</Text> : <Ionicons name="person" size={18} color="#fff" />}
         </Pressable>
       </View>
 
-      <HealthCard onAddIncome={() => go('spend', 'income')} />
+      <View ref={tourRef('health')} collapsable={false}><HealthCard onAddIncome={() => go('spend', 'income')} /></View>
       <AffordSheet visible={afford} onClose={() => setAfford(false)} onAddIncome={() => go('spend', 'income')} />
 
-      <View style={s.hero}>
+      <View style={s.hero} ref={tourRef('worth')} collapsable={false}>
         <Text style={s.heroLabel}>{t("What you're worth")}</Text>
         <Text style={s.heroVal} adjustsFontSizeToFit numberOfLines={1}>{le(tot.netWorth)}</Text>
         <View style={s.heroRow}>
@@ -76,7 +77,7 @@ export default function Dashboard({ go }: { go: Go }) {
         </View>
       </View>
 
-      <View style={s.quick}>
+      <View style={s.quick} ref={tourRef('quick')} collapsable={false}>
         <Quick icon="remove" label={t('Expense')} color={C.orange} onPress={() => go('spend', 'expense')} />
         <Quick icon="add" label={t('Income')} color={C.green} onPress={() => go('spend', 'income')} />
         <Quick icon="calendar" label={t('Payment')} color={C.sky} onPress={() => go('pay', 'installment')} />
@@ -197,13 +198,14 @@ const s = themed(() => StyleSheet.create({
   avatarTxt: { color: '#fff', fontSize: 17, fontWeight: '700' },
   hello: { fontSize: 24, fontWeight: '700', color: C.ink, letterSpacing: -0.4, marginTop: 2 },
   date: { fontSize: 13, color: C.sub, fontWeight: '500' },
-  hero: { backgroundColor: C.soft, borderRadius: 24, padding: 20, borderWidth: 1, borderColor: C.pale + '99' },
-  heroLabel: { color: C.sub, fontSize: 13, fontWeight: '500' },
-  heroVal: { color: C.ink, fontSize: 34, fontWeight: '700', letterSpacing: -0.8, marginTop: 4 },
+  // New design: the net-worth hero is a near-black tile (DESIGN.md product-tile-dark)
+  hero: { backgroundColor: ds(C.soft, C.hero), borderRadius: 24, padding: 20, borderWidth: ds(1, 0), borderColor: C.pale + '99' },
+  heroLabel: { color: ds(C.sub, '#CCCCCC'), fontSize: 13, fontWeight: '500' },
+  heroVal: { color: ds(C.ink, '#FFFFFF'), fontSize: 34, fontWeight: '700', letterSpacing: -0.8, marginTop: 4 },
   heroRow: { flexDirection: 'row', gap: 10, marginTop: 14 },
-  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: C.card, borderRadius: 16, padding: 10 },
-  pillLabel: { color: C.sub, fontSize: 11, fontWeight: '500' },
-  pillVal: { color: C.ink, fontSize: 15, fontWeight: '600', marginTop: 1 },
+  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: ds(C.card, 'rgba(255,255,255,0.08)'), borderRadius: 16, padding: 10 },
+  pillLabel: { color: ds(C.sub, '#CCCCCC'), fontSize: 11, fontWeight: '500' },
+  pillVal: { color: ds(C.ink, '#FFFFFF'), fontSize: 15, fontWeight: '600', marginTop: 1 },
   quick: { flexDirection: 'row', gap: 10, marginTop: 14 },
   qItem: { flex: 1, alignItems: 'center', backgroundColor: C.card, borderRadius: 20, paddingTop: 14, paddingBottom: 12,
     shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 16, shadowOffset: { width: 0, height: 5 }, elevation: 2 },
@@ -223,7 +225,7 @@ const s = themed(() => StyleSheet.create({
   catVal: { fontSize: 15, fontWeight: '600', color: C.ink },
   step: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 16 },
   stepN: { width: 34, height: 34, borderRadius: 17, backgroundColor: C.primary + '1F', alignItems: 'center', justifyContent: 'center' },
-  stepNTxt: { color: C.primary, fontWeight: '800', fontSize: 16 },
+  stepNTxt: { color: C.primary, fontWeight: '700', fontSize: 16 },
   stepTitle: { fontSize: 16, fontWeight: '600', color: C.ink },
   stepSub: { fontSize: 13, color: C.sub, marginTop: 2 },
 }));

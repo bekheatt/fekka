@@ -7,7 +7,7 @@ import * as Haptics from 'expo-haptics';
 import { C, EXPENSE_CATS, themed } from './theme';
 import { useStore, uid } from './store';
 import { t } from './i18n';
-import { tap } from './ui';
+import { tap, pressedStyle } from './ui';
 import { pickReceipt, deleteReceipt } from './receipts';
 
 // Fast "on the go" expense entry: big keypad, one tap category, optional receipt photo.
@@ -104,7 +104,7 @@ export default function QuickAdd({ visible, onClose, initial }: { visible: boole
           ))}
         </View>
 
-        <Pressable onPress={save} disabled={!parseFloat(amt)} style={[s.save, { backgroundColor: color }, !parseFloat(amt) && { opacity: 0.4 }]}>
+        <Pressable onPress={save} disabled={!parseFloat(amt)} style={({ pressed }) => [s.save, { backgroundColor: color }, !parseFloat(amt) && { opacity: 0.4 }, pressed && pressedStyle]}>
           <Text style={s.saveTxt}>{t('Save expense')}</Text>
         </Pressable>
       </SafeAreaView>
@@ -116,21 +116,21 @@ const s = themed(() => StyleSheet.create({
   wrap: { flex: 1, backgroundColor: C.card },
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 18 },
   cancel: { fontSize: 16, color: C.sub, width: 50 },
-  title: { fontSize: 17, fontWeight: '700', color: C.ink },
+  title: { fontSize: 17, fontWeight: '600', color: C.ink },
   amountBox: { alignItems: 'center', paddingVertical: 10, paddingHorizontal: 24 },
   cur: { fontSize: 16, fontWeight: '700', color: C.sub },
-  amount: { fontSize: 60, fontWeight: '800', letterSpacing: -1.5 },
+  amount: { fontSize: 60, fontWeight: '700', letterSpacing: -1.5 },
   cats: { gap: 8, paddingHorizontal: 18, paddingVertical: 10 },
-  cat: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, backgroundColor: C.soft },
+  cat: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, backgroundColor: C.soft },
   catTxt: { fontWeight: '600', color: C.ink, fontSize: 15 },
   noteRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 18, marginTop: 4 },
-  note: { flex: 1, backgroundColor: C.soft, borderRadius: 10, padding: 13, fontSize: 16, color: C.ink },
-  camBtn: { width: 46, height: 46, borderRadius: 10, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
-  thumb: { width: 46, height: 46, borderRadius: 10 },
+  note: { flex: 1, backgroundColor: C.soft, borderRadius: 14, padding: 13, fontSize: 16, color: C.ink },
+  camBtn: { width: 46, height: 46, borderRadius: 12, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
+  thumb: { width: 46, height: 46, borderRadius: 12 },
   thumbX: { position: 'absolute', top: -5, right: -5, width: 18, height: 18, borderRadius: 9, backgroundColor: C.red, alignItems: 'center', justifyContent: 'center' },
   pad: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 18, marginTop: 'auto' },
   key: { width: '33.33%', height: 62, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
   keyTxt: { fontSize: 28, fontWeight: '600', color: C.ink },
-  save: { marginHorizontal: 18, marginTop: 8, marginBottom: 10, borderRadius: 12, paddingVertical: 18, alignItems: 'center' },
-  saveTxt: { color: '#fff', fontSize: 17, fontWeight: '800' },
+  save: { marginHorizontal: 18, marginTop: 8, marginBottom: 10, borderRadius: 16, paddingVertical: 16, alignItems: 'center' },
+  saveTxt: { color: '#fff', fontSize: 17, fontWeight: '600' },
 }));

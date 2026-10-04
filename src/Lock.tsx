@@ -56,7 +56,7 @@ export default function Lock({ onUnlock, resume = 0 }: { onUnlock: () => void; r
 
 const s = StyleSheet.create({
   wrap: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#003366', alignItems: 'center', justifyContent: 'center', zIndex: 90 },
-  title: { color: '#fff', fontSize: 22, fontWeight: '800', marginTop: 24 },
-  btn: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#007ACC', paddingHorizontal: 28, paddingVertical: 15, borderRadius: 10, marginTop: 30 },
-  btnTxt: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  title: { color: '#fff', fontSize: 22, fontWeight: '700', marginTop: 24 },
+  btn: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#007ACC', paddingHorizontal: 28, paddingVertical: 15, borderRadius: 16, marginTop: 30 },
+  btnTxt: { color: '#fff', fontSize: 17, fontWeight: '600' },
 });

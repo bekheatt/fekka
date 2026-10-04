@@ -110,3 +110,35 @@ export async function deleteMyAccount(): Promise<void> {
   if (error) throw error;
   await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
 }
+
+// ---------- Bank SMS auto-logging (see supabase/functions/sms-ingest) ----------
+// The iPhone Shortcut sends each bank message to this address with the person's own key.
+export const smsEndpoint = (key: string) => `${SUPABASE_URL}/functions/v1/sms-ingest?key=${key}`;
+
+// Makes a new personal key (the old one stops working) and returns it. Only shown once; kept on this phone.
+export async function newSmsKey(): Promise<string> {
+  const { data, error } = await supabase.rpc('new_sms_key');
+  if (error) throw error;
+  return String(data);
+}
+
+// Turns auto-logging off: the Shortcut's link stops working
+export async function removeSmsKey(): Promise<void> {
+  const { error } = await supabase.rpc('remove_sms_key');
+  if (error) throw error;
+}
+
+// Transactions the server read from bank messages, waiting to be kept or discarded
+export type InboxRow = { id: string; fingerprint: string; received_at: string; tx: { kind: 'expense' | 'income'; amount: number; currency: string; party: string | null; channel: string; date: string | null } };
+
+export async function loadInbox(): Promise<InboxRow[]> {
+  const { data, error } = await supabase.from('sms_inbox').select('id, fingerprint, received_at, tx').order('received_at', { ascending: true }).limit(300);
+  if (error) throw error;
+  return (data ?? []) as InboxRow[];
+}
+
+export async function clearInbox(ids: string[]): Promise<void> {
+  if (!ids.length) return;
+  const { error } = await supabase.from('sms_inbox').delete().in('id', ids);
+  if (error) throw error;
+}

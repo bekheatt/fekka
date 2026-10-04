@@ -7,6 +7,10 @@ import { C, le, EXPENSE_CATS, themed } from '../theme';
 import { useStore, useTotals, uid, ym } from '../store';
 import { Header, Section, Card, Row, Empty, AddBtn, Sheet, Field, num, tap, Screen, Hint, Segmented } from '../ui';
 import { t, locale } from '../i18n';
+import SmsImport from '../features/SmsImport/SmsImport';
+
+const isTransferIncome = (i: { transfer?: boolean; src?: string; source: string }) =>
+  i.transfer ?? (!!i.src && /transfer|تحويل/i.test(i.source));
 
 export default function Spend({ action, clear }: { action?: string; clear: () => void }) {
   const { d, set } = useStore();
@@ -19,6 +23,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
   const [editId, setEditId] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<string | undefined>();
   const [bigReceipt, setBigReceipt] = useState(false);
+  const [sms, setSms] = useState(false);
 
   useEffect(() => {
     if (action === 'expense') setOpen('exp');
@@ -43,7 +48,10 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
   const snap = async (from: 'camera' | 'library') => { const uri = await pickReceipt(from); if (uri) setReceipt(uri); };
   const editIncome = (i: any) => { setEditId(i.id); setOnce(!!i.oneOff); setAmt(String(i.monthly)); setNote(i.source); setOpen('inc'); };
   const m = ym();
-  const incomes = d.incomes.filter(i => !i.oneOff || ym(new Date(i.oneOff)) === m);
+  // Monthly income, plus one-time income from this month or the last 31 days (so a transfer on the 30th still shows on the 4th)
+  const recent = Date.now() - 31 * 864e5;
+  const incomes = d.incomes.filter(i => !i.oneOff || ym(new Date(i.oneOff)) === m || new Date(i.oneOff).getTime() >= recent)
+    .sort((a, b) => (b.oneOff ? new Date(b.oneOff).getTime() : Infinity) - (a.oneOff ? new Date(a.oneOff).getTime() : Infinity));
   const save = () => {
     const v = num(amt);
     if (!v) return reset();
@@ -84,6 +92,16 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
         <Text style={s.today}>{t('Today')} · {le(todaySpent)}</Text>
       </View>
 
+      <Pressable onPress={() => { tap(); setSms(true); }} style={({ pressed }) => [s.smsRow, pressed && { opacity: 0.7 }]}>
+        <View style={s.smsIcon}><Ionicons name="chatbubble-ellipses" size={18} color={C.primary} /></View>
+        <View style={{ flex: 1 }}>
+          <Text style={s.smsTitle}>{t('Import from bank SMS')}</Text>
+          <Text style={s.smsSub}>{t('Bank cards, InstaPay and wallets')}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={C.sub} />
+      </Pressable>
+      <SmsImport visible={sms} onClose={() => setSms(false)} />
+
       <Section>{t('Tap to add a spend')}</Section>
       <View style={s.quick}>
         {EXPENSE_CATS.map(c => (
@@ -99,8 +117,8 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
         {incomes.length === 0
           ? <Empty icon="wallet-outline" text={t('Add your salary or any monthly income')} button={t('Add income')} onPress={() => setOpen('inc')} />
           : incomes.map((i, idx) => (
-            <Row key={i.id} icon={i.oneOff ? 'cash' : 'trending-up'} color={C.green} title={i.source}
-              sub={i.oneOff ? `${t('One-time')} · ${new Date(i.oneOff).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })}` : t('Every month')}
+            <Row key={i.id} icon={isTransferIncome(i) ? 'swap-horizontal' : i.oneOff ? 'cash' : 'trending-up'} color={C.green} title={i.source}
+              sub={i.oneOff ? `${t(isTransferIncome(i) ? 'Transfer' : 'One-time')} · ${new Date(i.oneOff).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })}${ym(new Date(i.oneOff)) !== m ? ` · ${t('last month')}` : ''}` : t('Every month')}
               value={le(i.monthly)} valueColor={C.green} onPress={() => editIncome(i)}
               last={idx === incomes.length - 1}
               onDelete={() => set(x => ({ ...x, incomes: x.incomes.filter(y => y.id !== i.id) }))} />
@@ -112,7 +130,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
         {d.expenses.length === 0
           ? <Empty icon="receipt-outline" text={t('Nothing yet. Tap a category above to log your first spend.')} />
           : d.expenses.slice(0, 30).map((e, idx, arr) => {
-            const c = EXPENSE_CATS.find(x => x.name === e.cat) ?? EXPENSE_CATS[6];
+            const c = EXPENSE_CATS.find(x => x.name === e.cat) ?? EXPENSE_CATS[EXPENSE_CATS.length - 1];
             return <Row key={e.id} icon={c.icon} color={c.color} title={e.note || t(e.cat)}
               sub={`${t(e.cat)} · ${new Date(e.date).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })}${e.receipt ? ' · 🧾' : ''}`} value={le(e.amount)} onPress={() => editExpense(e)}
               last={idx === arr.length - 1}
@@ -176,18 +194,22 @@ const s = themed(() => StyleSheet.create({
   day: { fontSize: 11, color: C.sub, fontWeight: '500' },
   today: { fontSize: 13, color: C.sub, fontWeight: '500', marginTop: 12 },
   sumVal: { color: C.ink, fontSize: 30, fontWeight: '700', marginTop: 2, letterSpacing: -0.5 },
-  quick: { flexDirection: 'row', flexWrap: 'wrap', backgroundColor: C.card, borderRadius: 14, paddingVertical: 8 },
+  quick: { flexDirection: 'row', flexWrap: 'wrap', backgroundColor: C.card, borderRadius: 24, paddingVertical: 8 },
   qItem: { width: '25%', alignItems: 'center', paddingVertical: 10 },
-  qIcon: { width: 50, height: 50, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  qIcon: { width: 50, height: 50, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   qTxt: { fontSize: 13, fontWeight: '600', marginTop: 7, color: C.ink },
+  smsRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 20, padding: 14, marginTop: 14 },
+  smsIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
+  smsTitle: { fontSize: 15, fontWeight: '600', color: C.ink },
+  smsSub: { fontSize: 13, color: C.sub, marginTop: 2 },
   lbl: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 10 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, backgroundColor: C.soft },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, backgroundColor: C.soft },
   chipTxt: { fontWeight: '600', color: C.ink, fontSize: 15 },
-  big: { fontSize: 30, fontWeight: '800' },
-  receipt: { width: '100%', height: 180, borderRadius: 10, backgroundColor: C.soft },
+  big: { fontSize: 30, fontWeight: '700' },
+  receipt: { width: '100%', height: 180, borderRadius: 16, backgroundColor: C.soft },
   rmReceipt: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'center', paddingVertical: 10 },
   receiptBtns: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-  receiptBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: C.soft, borderRadius: 10, paddingVertical: 14 },
-  receiptBtnTxt: { color: C.primary, fontWeight: '700', fontSize: 15 },
+  receiptBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: C.soft, borderRadius: 12, paddingVertical: 14 },
+  receiptBtnTxt: { color: C.primary, fontWeight: '600', fontSize: 15 },
 }));

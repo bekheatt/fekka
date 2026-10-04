@@ -99,7 +99,7 @@ export default function Onboarding() {
         const idea = GOAL_IDEAS.find(g => t(g.name) === x.goal.name);
         n.goals = [...n.goals, { id: uid(), name: x.goal.name.trim() || t('Goal'), icon: idea?.icon ?? 'star', unit: 'egp', target: num(x.goal.target), saved: 0 }];
       }
-      n.settings = { ...n.settings, name: x.name.trim(), work: w, onboarded: true, lock: lockOk || n.settings.lock };
+      n.settings = { ...n.settings, name: x.name.trim(), work: w, onboarded: true, toured: false, lock: lockOk || n.settings.lock };
       return n;
     });
   };
@@ -397,13 +397,13 @@ const s = themed(() => StyleSheet.create({
   bar: { flex: 1, height: 6, borderRadius: 3, backgroundColor: C.soft, overflow: 'hidden' },
   barFill: { height: '100%', backgroundColor: C.accent, borderRadius: 3 },
   skip: { color: C.sub, fontSize: 15, fontWeight: '600' },
-  h1: { fontSize: 28, fontWeight: '800', color: C.ink, letterSpacing: -0.5 },
+  h1: { fontSize: 28, fontWeight: '700', color: C.ink, letterSpacing: -0.5 },
   p: { fontSize: 16, color: C.sub, marginTop: 8, lineHeight: 22 },
   langRow: { flexDirection: 'row', gap: 10, marginTop: 28, alignSelf: 'stretch' },
   lang: { flex: 1, paddingVertical: 15, borderRadius: 12, backgroundColor: C.card, alignItems: 'center' },
   langOn: { backgroundColor: C.primary },
   langTxt: { fontSize: 16, fontWeight: '700', color: C.ink },
-  bigInput: { fontSize: 30, fontWeight: '800', color: C.ink, borderBottomWidth: 2, borderColor: C.accent, paddingVertical: 10 },
+  bigInput: { fontSize: 30, fontWeight: '700', color: C.ink, borderBottomWidth: 2, borderColor: C.accent, paddingVertical: 10 },
   workGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   work: { width: '47.5%', backgroundColor: C.card, borderRadius: 14, padding: 16, minHeight: 130 },
   workOn: { backgroundColor: C.primary },
@@ -413,7 +413,7 @@ const s = themed(() => StyleSheet.create({
   lbl: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 7 },
   smallLbl: { fontSize: 13, fontWeight: '600', color: C.sub, marginBottom: 6 },
   input: { backgroundColor: C.card, borderRadius: 10, padding: 14, fontSize: 17, color: C.ink },
-  inputBig: { fontSize: 28, fontWeight: '800' },
+  inputBig: { fontSize: 28, fontWeight: '700' },
   hint: { fontSize: 13, color: C.sub, marginTop: 6 },
   pair: { flexDirection: 'row', gap: 10 },
   multi: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
@@ -429,8 +429,8 @@ const s = themed(() => StyleSheet.create({
   summary: { backgroundColor: C.card, borderRadius: 14, paddingHorizontal: 16, alignSelf: 'stretch', marginTop: 24, marginBottom: 14 },
   sumRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 15 },
   sumLbl: { fontSize: 15, color: C.sub },
-  sumVal: { fontSize: 16, fontWeight: '800' },
+  sumVal: { fontSize: 16, fontWeight: '700' },
   footer: { padding: 20, paddingTop: 10 },
-  next: { backgroundColor: C.primary, borderRadius: 12, paddingVertical: 18, alignItems: 'center' },
-  nextTxt: { color: '#fff', fontSize: 17, fontWeight: '800' },
+  next: { backgroundColor: C.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center' },
+  nextTxt: { color: '#fff', fontSize: 17, fontWeight: '600' },
 }));

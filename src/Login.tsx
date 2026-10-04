@@ -89,7 +89,7 @@ export default function Login() {
       {/* A peek at what the app tracks */}
       <View style={s.art} pointerEvents="none">
         <View style={s.glow} />
-        <Float style={{ top: 6, left: 4, transform: [{ rotate: '4deg' }] }} icon="bag-handle" color="#16B3A8" label={t('valU installment')} value="L.E 1,850" />
+        <Float style={{ top: 6, left: 4, transform: [{ rotate: '4deg' }] }} icon="phone-portrait" color="#2F8BE6" label={t('Phone installment')} value="L.E 1,850" />
         <Float style={{ top: 78, right: 2, transform: [{ rotate: '-3deg' }] }} icon="diamond" color="#E0AA3E" label={t('Gold 21K · 40g')} value="L.E 249K" />
         <Float style={{ top: 152, left: 22, transform: [{ rotate: '2deg' }] }} icon="flash" color="#F2B53A" label={t('Electricity')} value={t('Paid ✓')} />
         <View style={[s.score, { top: 0, right: 14, transform: [{ rotate: '-6deg' }] }]}>

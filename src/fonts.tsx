@@ -10,6 +10,7 @@ import {
   IBMPlexSansArabic_400Regular, IBMPlexSansArabic_500Medium, IBMPlexSansArabic_600SemiBold, IBMPlexSansArabic_700Bold,
 } from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { getLang } from './i18n';
+import { isApple } from './theme';
 
 export const FONTS = {
   IBMPlexSans_400Regular, IBMPlexSans_500Medium, IBMPlexSans_600SemiBold, IBMPlexSans_700Bold,
@@ -24,9 +25,17 @@ const WEIGHT: Record<string, string> = {
 export const fontFor = (weight?: TextStyle['fontWeight']) =>
   (getLang() === 'ar' ? 'IBMPlexSansArabic_' : 'IBMPlexSans_') + (WEIGHT[String(weight ?? '400')] ?? '400Regular');
 
+// 'apple' design (DESIGN.md): English uses the system font (SF Pro on iPhone) with the 400 / 600 weight
+// ladder — 500 reads as a caption (400), 700+ becomes 600. Arabic keeps IBM Plex Sans Arabic.
+const APPLE_WEIGHT: Record<string, TextStyle['fontWeight']> = { '500': '400', '700': '600', bold: '600', '800': '600', '900': '600' };
+
 const withFont = (style: any) => {
   const flat = StyleSheet.flatten(style) ?? {};
   if (flat.fontFamily) return style; // an explicit family (e.g. icons) wins
+  if (isApple() && getLang() !== 'ar') {
+    const w = APPLE_WEIGHT[String(flat.fontWeight ?? '400')];
+    return w ? [style, { fontWeight: w }] : style;
+  }
   return [style, { fontFamily: fontFor(flat.fontWeight), fontWeight: 'normal' as const }];
 };
 

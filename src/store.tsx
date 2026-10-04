@@ -13,19 +13,24 @@ export type Loan = { id: string; type: string; lender: string; monthly: number; 
 export type Bill = { id: string; cat: string; name: string; amount: number; dueDay: number; paidMonths?: string[] };
 export type Gameya = { id: string; name: string; monthly: number; members: number; myTurn: number; start: string; dueDay: number; paidMonths?: string[] };
 export type Goal = { id: string; name: string; icon: string; unit: string; target: number; saved: number; deadline?: string; history?: { date: string; amount: number }[] };
-export type Expense = { id: string; cat: string; amount: number; note: string; date: string; receipt?: string };
+export type Expense = { id: string; cat: string; amount: number; note: string; date: string; receipt?: string; src?: string }; // src = fingerprint of the bank SMS it came from
 export type PriceAlert = { id: string; kind: string; dir: 'above' | 'below'; price: number; active: boolean; firedAt?: string };
 // oneOff = ISO date for a single payment (freelance job, bonus, Eid money); otherwise it repeats monthly
-export type Income = { id: string; source: string; monthly: number; day?: number; oneOff?: string };
+export type Income = { id: string; source: string; monthly: number; day?: number; oneOff?: string; src?: string; transfer?: boolean }; // transfer = arrived by InstaPay / wallet / bank transfer
 export type Saving = { id: string; kind: string; qty: number; name?: string; price?: number };
 export type Work = 'employee' | 'freelancer' | 'business' | 'student' | 'retired' | 'other';
-export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; account?: 'guest' | 'google' | 'apple' | 'email'; email?: string; uid?: string };
+export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; design?: 'classic' | 'apple'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; account?: 'guest' | 'google' | 'apple' | 'email'; email?: string; uid?: string;
+  smsKey?: string;       // personal key in the iPhone Shortcut link (this phone only)
+  smsAutoKeep?: boolean; // add transactions from bank messages without asking
+  toured?: boolean;      // false = show the first-run tour on Home (new users, or 'Replay tour')
+};
 
 export type Data = {
   installments: Installment[]; loans: Loan[]; bills: Bill[]; gameyas: Gameya[]; goals: Goal[];
   expenses: Expense[]; incomes: Income[]; savings: Saving[];
   rates: Record<string, number>; ratesUpdated?: string; settings: Settings;
   alerts: PriceAlert[];
+  merchantCats?: Record<string, string>; // category you picked for a shop, remembered for the next bank SMS
   scoreHistory?: Record<string, number>; // Financial Health Score per month (YYYY-MM)
   partHistory?: Record<string, Record<string, number>>; // each score part per month, for the up/down arrows
 };
@@ -81,6 +86,7 @@ export function gameyaStatus(g: Gameya) {
 export const ALERT_NAMES: Record<string, string> = { gold21: 'Gold 21K', gold24: 'Gold 24K', usd: 'US Dollar', eur: 'Euro' };
 
 const resolveTheme = (s: Settings) => (s.theme === 'system' ? (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light') : s.theme);
+const paint = (s: Settings) => applyTheme(resolveTheme(s), s.design ?? 'classic');
 
 // Free sources, no key needed: open.er-api.com (USD/EUR→EGP), api.gold-api.com (gold $/oz)
 async function fetchLiveRates() {
@@ -130,9 +136,11 @@ export function Provider({ children }: { children: React.ReactNode }) {
       loaded.settings = { ...base.settings, ...(loaded.settings ?? {}) };
       // People who used Fakka before onboarding existed skip it
       if (!hadSettings) loaded.settings.onboarded = [loaded.incomes, loaded.expenses, loaded.installments, loaded.loans, loaded.savings].some(a => a.length > 0);
+      // Transfers logged from bank SMS before the Transfers category existed
+      loaded.expenses = loaded.expenses.map(e => (e.src && e.cat === 'Other' && /^(Transfer|تحويل)/.test(e.note) ? { ...e, cat: 'Transfers' } : e));
       setLang(loaded.settings.lang);
       setHidden(!!loaded.settings.hideAmounts);
-      applyTheme(resolveTheme(loaded.settings));
+      paint(loaded.settings);
       setD(loaded);
       loadSyncState(hasAccount(loaded.settings) ? loaded.settings.uid : undefined).finally(() => setReady(true));
       refreshRates();
@@ -152,8 +160,8 @@ export function Provider({ children }: { children: React.ReactNode }) {
   const applyRemote = (merged: any) => setD(x => {
     const next: Data = withDevice({ ...empty(), ...merged }, x);
     const s = next.settings, p = x.settings;
-    if (s.theme !== p.theme || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
-      setLang(s.lang); setHidden(!!s.hideAmounts); applyTheme(resolveTheme(s));
+    if (s.theme !== p.theme || s.design !== p.design || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
+      setLang(s.lang); setHidden(!!s.hideAmounts); paint(s);
       setTimeout(() => setVersion(v => v + 1), 0);
     }
     return next;
@@ -232,10 +240,10 @@ export function Provider({ children }: { children: React.ReactNode }) {
     const next = fn(prev);
     if (next.settings !== prev.settings) {
       const s = next.settings, p = prev.settings;
-      if (s.theme !== p.theme || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
+      if (s.theme !== p.theme || s.design !== p.design || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
         setLang(s.lang);
         setHidden(!!s.hideAmounts);
-        applyTheme(resolveTheme(s));
+        paint(s);
         setTimeout(() => setVersion(v => v + 1), 0);
       }
     }
@@ -259,12 +267,12 @@ export function Provider({ children }: { children: React.ReactNode }) {
     loaded.settings = { ...base.settings, ...(loaded.settings ?? {}), ...account };
     setLang(loaded.settings.lang);
     setHidden(!!loaded.settings.hideAmounts);
-    applyTheme(resolveTheme(loaded.settings));
+    paint(loaded.settings);
     setD(loaded);
     setVersion(v => v + 1);
   };
 
-  const reset = () => { stopSync(); const e = empty(); e.settings = { ...e.settings, lang: d.settings.lang, theme: d.settings.theme }; setD(e); };
+  const reset = () => { stopSync(); const e = empty(); e.settings = { ...e.settings, lang: d.settings.lang, theme: d.settings.theme, design: d.settings.design }; setD(e); };
   const redoSetup = () => set(x => ({ ...x, settings: { ...x.settings, onboarded: false } }));
 
   if (!ready) return null;

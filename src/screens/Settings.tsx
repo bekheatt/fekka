@@ -11,6 +11,7 @@ import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
 import { signOutCloud, deleteMyAccount } from '../cloud/supabase';
 import { hasAccount } from '../store';
+import AutoLogSetup from '../features/SmsImport/AutoLogSetup';
 
 const CLOUD_TEXT = { off: 'Saved on this device', saving: 'Saving to your account…', saved: 'Saved to your account', error: "Couldn't save to your account" } as const;
 
@@ -30,6 +31,7 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
     }
   };
   const st = d.settings;
+  const [autoLog, setAutoLog] = React.useState(false);
   const change = (patch: Partial<S>) => set(x => ({ ...x, settings: { ...x.settings, ...patch } }));
 
   const setLanguage = (lang: 'en' | 'ar') => {
@@ -89,6 +91,9 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
         <Text style={[s.lbl, { marginTop: 10 }]}>{t('Theme')}</Text>
         <Segmented value={st.theme} onChange={k => change({ theme: k as any })}
           options={[{ key: 'system', label: t('System') }, { key: 'light', label: t('Light') }, { key: 'dark', label: t('Dark') }]} />
+        <Text style={[s.lbl, { marginTop: 10 }]}>{t('Design')}</Text>
+        <Segmented value={st.design ?? 'classic'} onChange={k => change({ design: k as any })}
+          options={[{ key: 'classic', label: t('Classic') }, { key: 'apple', label: t('New') }]} />
       </Card>
 
       <Section>{t('Security')}</Section>
@@ -102,8 +107,28 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
         <Toggle icon="notifications" title={t('Payment reminders')} sub={t('The day before and on the due day, at 10 AM')} value={st.notify} onChange={setNotify} last />
       </Card>
 
+      <Section>{t('Bank messages')}</Section>
+      <Card>
+        <Pressable onPress={() => { tap(); setAutoLog(true); }} style={s.danger}>
+          <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="chatbubble-ellipses" size={18} color={C.primary} /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Automatic logging')}</Text>
+            <Text style={s.aboutVal}>{st.smsKey ? t(st.smsAutoKeep ? 'On · adds them automatically' : 'On · asks you first') : t('Add bank SMS without opening the app')}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={C.sub} />
+        </Pressable>
+      </Card>
+      <AutoLogSetup visible={autoLog} onClose={() => setAutoLog(false)} />
+
       <Section>{t('Data')}</Section>
       <Card>
+        <Pressable onPress={() => { tap(); change({ toured: false }); }} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]}>
+          <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="compass-outline" size={18} color={C.primary} /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Replay the tour')}</Text>
+            <Text style={s.aboutVal}>{t('A quick walk through the app')}</Text>
+          </View>
+        </Pressable>
         <Pressable onPress={() => { tap(); redoSetup(); }} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]}>
           <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="refresh" size={18} color={C.primary} /></View>
           <View style={{ flex: 1 }}>
@@ -129,6 +154,7 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
         <View style={s.about}><Text style={s.aboutLabel}>{t('Version')}</Text><Text style={s.aboutVal}>1.1.0</Text></View>
         <View style={[s.about, { borderTopWidth: 1, borderColor: C.line }]}><Text style={s.aboutLabel}>{APP_NAME} · {APP_NAME_AR}</Text><Text style={s.aboutVal}>{t('Made for Egypt 🇪🇬')}</Text></View>
       </Card>
+      <Text style={s.legal}>{t('valU, Souhoola, Klivvr, Sympl, Contact, Aman, Forsa, Halan, Premium, InstaPay and the bank names shown are trademarks of their owners. {app} is not affiliated with or endorsed by them.', { app: APP_NAME })}</Text>
     </Screen>
   );
 }
@@ -143,4 +169,5 @@ const s = themed(() => StyleSheet.create({
   about: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 14 },
   aboutLabel: { color: C.ink, fontSize: 15 },
   aboutVal: { color: C.sub, fontSize: 15 },
+  legal: { color: C.sub, fontSize: 12, lineHeight: 17, textAlign: 'center', marginTop: 12, paddingHorizontal: 12 },
 }));

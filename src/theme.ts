@@ -12,20 +12,73 @@ const DARK: typeof LIGHT = {
   green: '#3CCB8C', red: '#F06A62', orange: '#F5A85C', purple: '#66A3FF', gold: '#007ACC', tabBar: '#0B1D36',
 };
 
+// ── Design switch (Settings → Appearance → Design) ──────────────────────────────
+// 'classic' = the original Fekka look. 'apple' = DESIGN.md: one Action Blue accent, parchment canvas,
+// near-black tiles, no shadows, 18px cards, pill controls, SF Pro (system font).
+// To keep only one design later: delete the other palette pair, the toApple() pass and every ds() branch.
+export type Design = 'classic' | 'apple';
+const APPLE_LIGHT: typeof LIGHT = {
+  bg: '#F5F5F7', card: '#FFFFFF', ink: '#1D1D1F', sub: '#7A7A7A', line: '#E0E0E0', soft: '#F5F5F7',
+  navy: '#000000', primary: '#0066CC', accent: '#0066CC', sky: '#2997FF', pale: '#D2D2D7', hero: '#1D1D1F',
+  green: '#248A3D', red: '#D70015', orange: '#C93400', purple: '#2997FF', gold: '#0066CC', tabBar: '#FFFFFF',
+};
+const APPLE_DARK: typeof LIGHT = {
+  bg: '#000000', card: '#1D1D1F', ink: '#FFFFFF', sub: '#A1A1A6', line: '#333336', soft: '#272729',
+  navy: '#000000', primary: '#2997FF', accent: '#2997FF', sky: '#2997FF', pale: '#CCCCCC', hero: '#272729',
+  green: '#30D158', red: '#FF453A', orange: '#FF9F0A', purple: '#2997FF', gold: '#2997FF', tabBar: '#1D1D1F',
+};
+const PALETTES = { classic: { light: LIGHT, dark: DARK }, apple: { light: APPLE_LIGHT, dark: APPLE_DARK } };
+
 export const C = { ...LIGHT };
 let mode: 'light' | 'dark' = 'light';
+let design: Design = 'classic';
 export const isDark = () => mode === 'dark';
+export const isApple = () => design === 'apple';
+// Pick a value for the current design: ds(classicValue, appleValue)
+export const ds = <T,>(classic: T, apple: T): T => (design === 'apple' ? apple : classic);
+
+// DESIGN.md rules applied to every themed style sheet, so all screens follow it without per-screen rewrites:
+// no shadows on chrome, radius grammar of 8 / 18 / pill / circle, 17px body, tight display tracking.
+const toApple = (st: any) => {
+  if (!st || typeof st !== 'object') return st;
+  const o = { ...st };
+  if ('shadowOpacity' in o || 'elevation' in o) { o.shadowOpacity = 0; o.elevation = 0; }
+  const r = o.borderRadius;
+  if (typeof r === 'number') {
+    const w = o.width, h = o.height;
+    const sized = typeof w === 'number' && typeof h === 'number';
+    if (sized && r >= Math.min(w, h) / 2 - 1) { /* already a circle */ }
+    else if (sized && w === h) o.borderRadius = w / 2;                       // icon tiles → circles
+    else if (r >= 18 || (r >= 11 && (o.padding ?? 0) >= 18)) o.borderRadius = 18; // cards / panels
+    else if (r >= 11) o.borderRadius = 999;                                   // buttons, chips, inputs → pills
+    else if (r >= 7) o.borderRadius = 8;                                      // compact utility
+  }
+  if (typeof o.fontSize === 'number') {
+    if (o.fontSize === 15 || o.fontSize === 16) o.fontSize = 17;             // body runs at 17
+    else if (o.fontSize === 13) o.fontSize = 14;                             // captions at 14
+    if (o.fontSize >= 24) o.letterSpacing = Math.min(o.letterSpacing ?? 0, -0.374);
+  }
+  return o;
+};
 
 // Style sheets that rebuild themselves when the theme changes
 const sheets: { cache: any; fn: () => any }[] = [];
+const build = (fn: () => any) => {
+  const sheet = fn();
+  if (design !== 'apple') return sheet;
+  const out: any = {};
+  for (const k in sheet) out[k] = toApple(sheet[k]);
+  return out;
+};
 export function themed<T extends object>(fn: () => T): T {
   const entry = { cache: null as any, fn };
   sheets.push(entry);
-  return new Proxy({} as T, { get: (_, k) => { if (!entry.cache) entry.cache = fn(); return entry.cache[k]; } });
+  return new Proxy({} as T, { get: (_, k) => { if (!entry.cache) entry.cache = build(fn); return entry.cache[k]; } });
 }
-export function applyTheme(m: 'light' | 'dark') {
+export function applyTheme(m: 'light' | 'dark', d: Design = design) {
   mode = m;
-  Object.assign(C, m === 'dark' ? DARK : LIGHT);
+  design = d;
+  Object.assign(C, PALETTES[d][m]);
   sheets.forEach(s => { s.cache = null; });
 }
 
@@ -47,10 +100,12 @@ export const leShort = (n: number) => {
   return (n < 0 ? '-' : '') + cur() + s;
 };
 
+// Installment companies, by name only. Colours come from Fakka's own palette (not the companies' brand
+// colours) so nothing suggests a partnership. See the trademark note in Settings → About.
 export const PROVIDERS = [
-  { name: 'valU', color: '#16B3A8' }, { name: 'Souhoola', color: '#7B5CE6' }, { name: 'Klivvr', color: '#3A5A80' },
-  { name: 'Sympl', color: '#F26D6D' }, { name: 'Contact', color: '#E0524F' }, { name: 'Aman', color: '#EFAA2E' },
-  { name: 'Forsa', color: '#3D8BE8' }, { name: 'Halan', color: '#2DB36F' }, { name: 'Premium', color: '#A04848' },
+  { name: 'valU', color: '#00509E' }, { name: 'Souhoola', color: '#2F8BE6' }, { name: 'Klivvr', color: '#5B6B8C' },
+  { name: 'Sympl', color: '#3A7CA5' }, { name: 'Contact', color: '#6C7FD8' }, { name: 'Aman', color: '#4A9C8C' },
+  { name: 'Forsa', color: '#8A6FB0' }, { name: 'Halan', color: '#5E8C61' }, { name: 'Premium', color: '#C07A3E' },
   { name: 'Other', color: '#7A8BA6' },
 ];
 
@@ -78,6 +133,7 @@ export const EXPENSE_CATS = [
   { name: 'Shopping', icon: 'bag-handle', color: '#8E6FE0' },
   { name: 'Health', icon: 'medkit', color: '#E5534B' },
   { name: 'Fun', icon: 'game-controller', color: '#2FB57A' },
+  { name: 'Transfers', icon: 'swap-horizontal', color: '#E0605A' }, // money you sent: InstaPay, wallets, bank transfers (red; received ones show green)
   { name: 'Other', icon: 'ellipsis-horizontal', color: '#7A8BA6' },
 ] as const;
 
