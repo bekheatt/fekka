@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
-import { C, le, leShort, EXPENSE_CATS, themed, isHidden, ds } from '../theme';
+import { C, le, leShort, EXPENSE_CATS, themed, isHidden } from '../theme';
 import { useStore, useTotals, daysUntil, goalValue, ym } from '../store';
 import { Card, Row, Section, Screen, tap, Progress, Check, Bubble, SplitBar } from '../ui';
 import { t, locale } from '../i18n';
@@ -198,14 +198,13 @@ const s = themed(() => StyleSheet.create({
   avatarTxt: { color: '#fff', fontSize: 17, fontWeight: '700' },
   hello: { fontSize: 24, fontWeight: '700', color: C.ink, letterSpacing: -0.4, marginTop: 2 },
   date: { fontSize: 13, color: C.sub, fontWeight: '500' },
-  // New design: the net-worth hero is a near-black tile (DESIGN.md product-tile-dark)
-  hero: { backgroundColor: ds(C.soft, C.hero), borderRadius: 24, padding: 20, borderWidth: ds(1, 0), borderColor: C.pale + '99' },
-  heroLabel: { color: ds(C.sub, '#CCCCCC'), fontSize: 13, fontWeight: '500' },
-  heroVal: { color: ds(C.ink, '#FFFFFF'), fontSize: 34, fontWeight: '700', letterSpacing: -0.8, marginTop: 4 },
+  hero: { backgroundColor: C.soft, borderRadius: 24, padding: 20, borderWidth: 1, borderColor: C.pale + '99' },
+  heroLabel: { color: C.sub, fontSize: 13, fontWeight: '500' },
+  heroVal: { color: C.ink, fontSize: 34, fontWeight: '700', letterSpacing: -0.8, marginTop: 4 },
   heroRow: { flexDirection: 'row', gap: 10, marginTop: 14 },
-  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: ds(C.card, 'rgba(255,255,255,0.08)'), borderRadius: 16, padding: 10 },
-  pillLabel: { color: ds(C.sub, '#CCCCCC'), fontSize: 11, fontWeight: '500' },
-  pillVal: { color: ds(C.ink, '#FFFFFF'), fontSize: 15, fontWeight: '600', marginTop: 1 },
+  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: C.card, borderRadius: 16, padding: 10 },
+  pillLabel: { color: C.sub, fontSize: 11, fontWeight: '500' },
+  pillVal: { color: C.ink, fontSize: 15, fontWeight: '600', marginTop: 1 },
   quick: { flexDirection: 'row', gap: 10, marginTop: 14 },
   qItem: { flex: 1, alignItems: 'center', backgroundColor: C.card, borderRadius: 20, paddingTop: 14, paddingBottom: 12,
     shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 16, shadowOffset: { width: 0, height: 5 }, elevation: 2 },

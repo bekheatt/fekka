@@ -91,9 +91,6 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
         <Text style={[s.lbl, { marginTop: 10 }]}>{t('Theme')}</Text>
         <Segmented value={st.theme} onChange={k => change({ theme: k as any })}
           options={[{ key: 'system', label: t('System') }, { key: 'light', label: t('Light') }, { key: 'dark', label: t('Dark') }]} />
-        <Text style={[s.lbl, { marginTop: 10 }]}>{t('Design')}</Text>
-        <Segmented value={st.design ?? 'classic'} onChange={k => change({ design: k as any })}
-          options={[{ key: 'classic', label: t('Classic') }, { key: 'apple', label: t('New') }]} />
       </Card>
 
       <Section>{t('Security')}</Section>

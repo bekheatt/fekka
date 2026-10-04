@@ -1,1 +1,1 @@
-{ "extends": "expo/tsconfig.base", "compilerOptions": { "strict": true }, "exclude": ["node_modules", "design-backup", "brag-output", "supabase"] }
+{ "extends": "expo/tsconfig.base", "compilerOptions": { "strict": true }, "exclude": ["node_modules", "brag-output", "supabase"] }

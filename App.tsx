@@ -6,7 +6,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { Provider, useStore, hasAccount } from './src/store';
-import { C, isDark, themed, ds } from './src/theme';
+import { C, isDark, themed } from './src/theme';
 import { t, locale } from './src/i18n';
 import { tap } from './src/ui';
 import { scheduleReminders } from './src/notify';
@@ -173,7 +173,7 @@ function Shell() {
         <View style={s.bar}>
           {TABS.map(x => {
             if (x.key === 'add') return (
-              <Pressable key="add" ref={tourRef('add')} collapsable={false} onPress={() => { tap(); setQuick({}); }} style={({ pressed }) => [s.plus, pressed && { transform: [{ scale: ds(0.94, 0.95) }] }]}>
+              <Pressable key="add" ref={tourRef('add')} collapsable={false} onPress={() => { tap(); setQuick({}); }} style={({ pressed }) => [s.plus, pressed && { transform: [{ scale: 0.94 }] }]}>
                 <Ionicons name="add" size={28} color="#fff" />
               </Pressable>
             );
@@ -226,7 +226,7 @@ export default function App() {
 
 const s = themed(() => StyleSheet.create({
   barWrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16 },
-  bar: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.tabBar, borderRadius: 28, borderWidth: ds(0, 1), borderColor: ds('transparent', isDark() ? '#333336' : '#E0E0E0'), paddingVertical: 10, paddingHorizontal: 8,
+  bar: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.tabBar, borderRadius: 28, paddingVertical: 10, paddingHorizontal: 8,
     shadowColor: '#14294A', shadowOpacity: 0.1, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 10 },
   item: { flex: 1, alignItems: 'center', gap: 3 },
   plus: { width: 54, height: 54, borderRadius: 20, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center', marginHorizontal: 6,
