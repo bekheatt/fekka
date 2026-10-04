@@ -27,6 +27,26 @@ export const Section = ({ children, action, onAction }: { children: string; acti
 
 export const Card = ({ children, style }: any) => <View style={[s.card, style]}>{children}</View>;
 
+// Padded card for summaries (the big numbers at the top of each screen)
+export const Panel = ({ children, style }: any) => <View style={[s.card, { padding: 20, paddingVertical: 20 }, style]}>{children}</View>;
+
+// Rounded tinted square with an icon in it
+export const Bubble = ({ icon, color, size = 40 }: { icon: any; color: string; size?: number }) => (
+  <View style={{ width: size, height: size, borderRadius: size * 0.35, backgroundColor: color + '1F', alignItems: 'center', justifyContent: 'center' }}>
+    <Ionicons name={icon} size={size * 0.5} color={color} />
+  </View>
+);
+
+// Thin multi-colour bar (budget split, savings split)
+export const SplitBar = ({ parts, height = 10 }: { parts: { v: number; c: string }[]; height?: number }) => {
+  const shown = parts.filter(p => p.v > 0);
+  return (
+    <View style={{ flexDirection: 'row', height, gap: 3, borderRadius: height / 2, overflow: 'hidden', backgroundColor: shown.length ? 'transparent' : C.soft }}>
+      {shown.map((p, i) => <View key={i} style={{ flex: p.v, backgroundColor: p.c, borderRadius: height / 2 }} />)}
+    </View>
+  );
+};
+
 // Swipe left to reveal Delete (like Mail). Swipe far to delete instantly.
 const ACTION_W = 88;
 export const Row = ({ icon, color, title, sub, value, valueColor, onDelete, onPress, left, last, dim }: any) => {
@@ -172,7 +192,7 @@ export const Segmented = ({ options, value, onChange }: { options: { key: string
   <View style={s.seg}>
     {options.map(o => (
       <Pressable key={o.key} onPress={() => { tap(); onChange(o.key); }} style={[s.segItem, value === o.key && s.segOn]}>
-        <Text style={[s.segTxt, value === o.key && { color: '#fff' }]}>{o.label}</Text>
+        <Text style={[s.segTxt, value === o.key && { color: C.ink }]}>{o.label}</Text>
       </Pressable>
     ))}
   </View>
@@ -209,44 +229,44 @@ const s = themed(() => StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 18 },
   title: { fontSize: 28, fontWeight: '700', color: C.ink, letterSpacing: -0.4 },
   subtitle: { fontSize: 15, color: C.sub, marginTop: 3 },
-  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 28, marginBottom: 10, paddingHorizontal: 4 },
+  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 26, marginBottom: 12, paddingHorizontal: 4 },
   section: { fontSize: 17, fontWeight: '600', color: C.ink },
-  sectionAction: { fontSize: 15, fontWeight: '500', color: C.accent },
-  card: { backgroundColor: C.card, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 4, shadowColor: '#0F2440', shadowOpacity: 0.04, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 1 },
-  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, gap: 12 },
+  sectionAction: { fontSize: 14, fontWeight: '600', color: C.accent },
+  card: { backgroundColor: C.card, borderRadius: 24, paddingHorizontal: 18, paddingVertical: 4, shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 20, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 13, gap: 12 },
   rowLine: { borderBottomWidth: 1, borderColor: C.line },
   deleteWrap: { direction: 'ltr', position: 'absolute', top: 0, bottom: 0, right: -14, left: 0, backgroundColor: C.red, alignItems: 'flex-end', justifyContent: 'center' },
   deleteBtn: { width: ACTION_W + 14, height: '100%', alignItems: 'center', justifyContent: 'center', gap: 3, paddingRight: 14 },
   deleteTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  badge: { width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  badge: { width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   badgeTxt: { fontWeight: '700', fontSize: 16 },
-  rowTitle: { fontSize: 16, fontWeight: '500', color: C.ink },
+  rowTitle: { fontSize: 15, fontWeight: '600', color: C.ink },
   rowSub: { fontSize: 13, color: C.sub, marginTop: 3 },
-  rowVal: { fontSize: 16, fontWeight: '600', color: C.ink },
+  rowVal: { fontSize: 15, fontWeight: '600', color: C.ink },
   empty: { alignItems: 'center', paddingVertical: 24, paddingHorizontal: 10 },
-  emptyIcon: { width: 52, height: 52, borderRadius: 12, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+  emptyIcon: { width: 52, height: 52, borderRadius: 18, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   emptyTxt: { color: C.sub, textAlign: 'center', fontSize: 15, lineHeight: 21 },
-  emptyBtn: { marginTop: 14, backgroundColor: C.primary, paddingHorizontal: 20, paddingVertical: 11, borderRadius: 10 },
+  emptyBtn: { marginTop: 14, backgroundColor: C.primary, paddingHorizontal: 20, paddingVertical: 11, borderRadius: 14 },
   emptyBtnTxt: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  add: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.primary, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10 },
+  add: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.primary, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14 },
   addTxt: { color: '#fff', fontWeight: '700', fontSize: 15 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
-  chip: { paddingHorizontal: 15, paddingVertical: 10, borderRadius: 10, backgroundColor: C.soft },
+  chip: { paddingHorizontal: 15, paddingVertical: 10, borderRadius: 14, backgroundColor: C.soft },
   chipTxt: { fontWeight: '600', color: C.ink, fontSize: 15 },
   label: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 7 },
-  input: { backgroundColor: C.soft, borderRadius: 10, padding: 15, fontSize: 17, color: C.ink },
+  input: { backgroundColor: C.soft, borderRadius: 14, padding: 15, fontSize: 17, color: C.ink },
   hint: { fontSize: 13, color: C.sub, marginTop: 6 },
   sheetHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 18, borderBottomWidth: 1, borderColor: C.line },
   sheetTitle: { fontSize: 17, fontWeight: '700', color: C.ink },
   cancel: { fontSize: 16, color: C.sub, width: 50 },
-  saveBtn: { backgroundColor: C.primary, borderRadius: 12, paddingVertical: 17, alignItems: 'center', marginTop: 8 },
+  saveBtn: { backgroundColor: C.primary, borderRadius: 16, paddingVertical: 17, alignItems: 'center', marginTop: 8 },
   saveTxt: { color: '#fff', fontSize: 17, fontWeight: '600' },
   setRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13 },
-  setIcon: { width: 34, height: 34, borderRadius: 8, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
-  seg: { flexDirection: 'row', backgroundColor: C.soft, borderRadius: 10, padding: 3, marginVertical: 8 },
-  segItem: { flex: 1, paddingVertical: 9, borderRadius: 8, alignItems: 'center' },
-  segOn: { backgroundColor: C.primary },
-  segTxt: { fontWeight: '600', color: C.ink, fontSize: 14 },
+  setIcon: { width: 34, height: 34, borderRadius: 12, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
+  seg: { flexDirection: 'row', backgroundColor: C.line, borderRadius: 14, padding: 4, marginVertical: 8 },
+  segItem: { flex: 1, paddingVertical: 9, borderRadius: 11, alignItems: 'center' },
+  segOn: { backgroundColor: C.card, shadowColor: '#14294A', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
+  segTxt: { fontWeight: '600', color: C.sub, fontSize: 14 },
   check: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: C.sub, alignItems: 'center', justifyContent: 'center' },
   footHint: { color: C.sub, fontSize: 13, textAlign: 'center', marginTop: 16 },
 }));

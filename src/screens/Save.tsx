@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { C, le, SAVING_TYPES, GOAL_ICONS, themed, isHidden, MASK } from '../theme';
 import { askPermission } from '../notify';
 import { useStore, useTotals, uid, savingValue, goalValue, ym, monthsBetween, Goal, ALERT_NAMES } from '../store';
-import { Header, Section, Card, Row, Empty, AddBtn, Sheet, Field, Chips, num, Screen, Hint, tap, Progress, Segmented } from '../ui';
+import { Header, Section, Card, Row, Empty, AddBtn, Sheet, Field, Chips, num, Screen, Hint, tap, Progress, Segmented, SplitBar } from '../ui';
 import { t, locale } from '../i18n';
 
 const OTHER = 'Other…';
@@ -105,6 +105,11 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
     ? new Date(d.ratesUpdated).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
     : null;
 
+  // How your savings are split (gold / dollars / cash …) for the bar at the top
+  const mix = SAVING_TYPES.map(st => ({ key: st.key, name: st.name, c: st.color,
+    v: d.savings.filter(x => x.kind === st.key).reduce((a, x) => a + savingValue(x, d.rates), 0) })).filter(m => m.v > 0);
+  const mixTotal = Math.max(1, mix.reduce((a, m) => a + m.v, 0));
+
   return (
     <Screen>
       <Header title={t('Savings')} subtitle={t('Gold, foreign currency and more')} right={<AddBtn onPress={() => { setF({}); setOpen('hold'); }} />} />
@@ -112,6 +117,17 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
       <View style={s.hero}>
         <Text style={s.heroLabel}>{t('All your savings are worth')}</Text>
         <Text style={s.heroVal} adjustsFontSizeToFit numberOfLines={1}>{le(tot.holdings + tot.goalsSaved)}</Text>
+        {mix.length > 0 && <>
+          <View style={{ marginTop: 14 }}><SplitBar parts={mix} height={12} /></View>
+          <View style={s.mixRow}>
+            {mix.map(m => (
+              <View key={m.key} style={s.mixItem}>
+                <View style={[s.mixDot, { backgroundColor: m.c }]} />
+                <Text style={s.mixTxt}>{t(m.name)} {Math.round((m.v / mixTotal) * 100)}%</Text>
+              </View>
+            ))}
+          </View>
+        </>}
       </View>
 
       {/* Goals */}
@@ -292,9 +308,14 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
 }
 
 const s = themed(() => StyleSheet.create({
-  hero: { backgroundColor: C.accent, borderRadius: 14, padding: 22 },
-  heroLabel: { color: C.pale, fontWeight: '600', fontSize: 15 },
-  heroVal: { color: '#fff', fontSize: 36, fontWeight: '800', letterSpacing: -1, marginTop: 6 },
+  hero: { backgroundColor: C.card, borderRadius: 24, padding: 20,
+    shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 20, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  heroLabel: { color: C.sub, fontWeight: '500', fontSize: 13 },
+  mixRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 10 },
+  mixItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  mixDot: { width: 8, height: 8, borderRadius: 4 },
+  mixTxt: { fontSize: 12, color: C.sub, fontWeight: '500' },
+  heroVal: { color: C.ink, fontSize: 30, fontWeight: '700', letterSpacing: -0.5, marginTop: 4 },
   goal: { paddingBottom: 14, marginBottom: 10 },
   goalFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, gap: 10 },
   goalHint: { flex: 1, color: C.sub, fontSize: 13 },

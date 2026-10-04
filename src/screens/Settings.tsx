@@ -1,4 +1,5 @@
 import React from 'react';
+import { APP_NAME, APP_NAME_AR } from '../brand';
 import { View, StyleSheet, Pressable, Alert, I18nManager } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
@@ -126,7 +127,7 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
       <Section>{t('About')}</Section>
       <Card>
         <View style={s.about}><Text style={s.aboutLabel}>{t('Version')}</Text><Text style={s.aboutVal}>1.1.0</Text></View>
-        <View style={[s.about, { borderTopWidth: 1, borderColor: C.line }]}><Text style={s.aboutLabel}>Fakka · فكّة</Text><Text style={s.aboutVal}>{t('Made for Egypt 🇪🇬')}</Text></View>
+        <View style={[s.about, { borderTopWidth: 1, borderColor: C.line }]}><Text style={s.aboutLabel}>{APP_NAME} · {APP_NAME_AR}</Text><Text style={s.aboutVal}>{t('Made for Egypt 🇪🇬')}</Text></View>
       </Card>
     </Screen>
   );

@@ -1,4 +1,5 @@
 // Simple translation: English text is the key, Arabic is looked up here.
+import { APP_NAME, APP_NAME_AR } from './brand';
 let lang: 'en' | 'ar' = 'en';
 export const setLang = (l: 'en' | 'ar') => { lang = l; };
 export const getLang = () => lang;
@@ -7,6 +8,9 @@ export const locale = () => (lang === 'ar' ? 'ar-EG' : 'en-GB');
 export function t(s: string, v?: Record<string, string | number>) {
   let out = lang === 'ar' ? AR[s] ?? s : s;
   if (v) for (const k in v) out = out.split(`{${k}}`).join(String(v[k]));
+  // Texts are written with "Fakka"/"فكّة"; swap in the current name from brand.json
+  if (APP_NAME !== 'Fakka') out = out.split('Fakka').join(APP_NAME);
+  if (APP_NAME_AR !== 'فكّة') out = out.split('فكّة').join(APP_NAME_AR);
   return out;
 }
 

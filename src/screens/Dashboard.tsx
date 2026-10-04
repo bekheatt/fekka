@@ -4,7 +4,7 @@ import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, EXPENSE_CATS, themed, isHidden } from '../theme';
 import { useStore, useTotals, daysUntil, goalValue, ym } from '../store';
-import { Card, Row, Section, Screen, tap, Progress, Check } from '../ui';
+import { Card, Row, Section, Screen, tap, Progress, Check, Bubble, SplitBar } from '../ui';
 import { t, locale } from '../i18n';
 import Logo from '../Logo';
 import HealthCard from '../features/HealthScore/HealthCard';
@@ -47,48 +47,40 @@ export default function Dashboard({ go }: { go: Go }) {
     <Screen>
       <View style={s.top}>
         <View style={{ flex: 1 }}>
-          <Text style={s.hello}>{hello}{first ? `, ${first}` : ''}</Text>
           <Text style={s.date}>{dateStr}</Text>
+          <Text style={s.hello} numberOfLines={1}>{hello}{first ? `, ${first}` : ''}</Text>
         </View>
         <Pressable onPress={() => { tap(); set(x => ({ ...x, settings: { ...x.settings, hideAmounts: !x.settings.hideAmounts } })); }} hitSlop={10} style={s.eye}>
-          <Ionicons name={isHidden() ? 'eye-off' : 'eye'} size={20} color={C.primary} />
+          <Ionicons name={isHidden() ? 'eye-off-outline' : 'eye-outline'} size={20} color={C.primary} />
         </Pressable>
-        <Logo size={52} />
+        <Pressable onPress={() => { tap(); go('profile'); }} hitSlop={6} style={s.avatar}>
+          {first ? <Text style={s.avatarTxt}>{first[0].toUpperCase()}</Text> : <Ionicons name="person" size={18} color="#fff" />}
+        </Pressable>
       </View>
 
       <HealthCard onAddIncome={() => go('spend', 'income')} />
-
-      <Pressable onPress={() => { tap(); setAfford(true); }} style={({ pressed }) => [s.afford, pressed && { opacity: 0.7 }]}>
-        <View style={s.affordIcon}><Ionicons name="pricetag" size={20} color={C.accent} /></View>
-        <View style={{ flex: 1 }}>
-          <Text style={s.affordTitle}>{t('Can I afford it?')}</Text>
-          <Text style={s.affordSub}>{t('Check a purchase or installment before you commit')}</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={18} color={C.sub} />
-      </Pressable>
       <AffordSheet visible={afford} onClose={() => setAfford(false)} onAddIncome={() => go('spend', 'income')} />
 
       <View style={s.hero}>
         <Text style={s.heroLabel}>{t("What you're worth")}</Text>
         <Text style={s.heroVal} adjustsFontSizeToFit numberOfLines={1}>{le(tot.netWorth)}</Text>
-        <Text style={s.heroExplain}>{t('Everything you own minus everything you owe')}</Text>
         <View style={s.heroRow}>
           <View style={s.heroPill}>
-            <Ionicons name="arrow-up-circle" size={18} color={C.green} />
+            <Bubble icon="arrow-up" color={C.green} size={30} />
             <View><Text style={s.pillLabel}>{t('You own')}</Text><Text style={s.pillVal}>{leShort(tot.assets)}</Text></View>
           </View>
           <View style={s.heroPill}>
-            <Ionicons name="arrow-down-circle" size={18} color={C.red} />
+            <Bubble icon="arrow-down" color={C.red} size={30} />
             <View><Text style={s.pillLabel}>{t('You owe')}</Text><Text style={s.pillVal}>{leShort(tot.debt)}</Text></View>
           </View>
         </View>
       </View>
 
       <View style={s.quick}>
-        <Quick icon="remove-circle" label={t('Expense')} color={C.orange} onPress={() => go('spend', 'expense')} />
-        <Quick icon="add-circle" label={t('Income')} color={C.green} onPress={() => go('spend', 'income')} />
+        <Quick icon="remove" label={t('Expense')} color={C.orange} onPress={() => go('spend', 'expense')} />
+        <Quick icon="add" label={t('Income')} color={C.green} onPress={() => go('spend', 'income')} />
         <Quick icon="calendar" label={t('Payment')} color={C.sky} onPress={() => go('pay', 'installment')} />
-        <Quick icon="flag" label={t('Goal')} color={C.accent} onPress={() => go('save', 'goal')} />
+        <Quick icon="pricetag" label={t('Afford?')} color="#8E6FE0" onPress={() => setAfford(true)} />
       </View>
 
       {isNew ? (
@@ -103,27 +95,25 @@ export default function Dashboard({ go }: { go: Go }) {
       ) : (
         <>
           <Section>{t('This month')}</Section>
-          <Card style={{ padding: 18 }}>
+          <Card style={{ padding: 20 }}>
             <Text style={s.leftLabel}>{t(tot.left >= 0 ? 'You still have' : "You're over budget by")}</Text>
-            <Text style={[s.leftVal, { color: tot.left >= 0 ? C.ink : C.red }]}>{le(Math.abs(tot.left))}</Text>
-            <Text style={s.leftSub}>{t('out of {x} income', { x: le(tot.income) })}</Text>
-            <View style={s.stack}>
-              {segs.filter(x => x.v > 0).map(x => <View key={x.label} style={{ flex: x.v / base, backgroundColor: x.c }} />)}
+            <View style={s.leftRow}>
+              <Text style={[s.leftVal, { color: tot.left >= 0 ? C.ink : C.red }]}>{le(Math.abs(tot.left))}</Text>
+              <Text style={s.leftSub}>{t('of {x}', { x: le(tot.income) })}</Text>
             </View>
+            <View style={{ marginTop: 16 }}><SplitBar parts={segs.map(x => ({ v: x.v, c: x.c }))} /></View>
             <View style={s.legend}>
               {segs.map(x => (
                 <View key={x.label} style={s.legendItem}>
                   <View style={[s.dot, { backgroundColor: x.c }]} />
-                  <View>
-                    <Text style={s.legendLabel}>{t(x.label)}</Text>
-                    <Text style={s.legendVal}>{le(x.v)}</Text>
-                  </View>
+                  <Text style={s.legendLabel}>{t(x.label === 'Installments' ? 'Payments' : x.label)}</Text>
+                  <Text style={s.legendVal}>{le(x.v)}</Text>
                 </View>
               ))}
             </View>
           </Card>
 
-          <Section action={tot.due.length ? t('See all') : undefined} onAction={() => go('pay')}>{t('Next payments')}</Section>
+          <Section action={tot.due.length ? t('See all') : undefined} onAction={() => go('pay')}>{t('Coming up')}</Section>
           <Card>
             {tot.due.length === 0
               ? <Text style={s.none}>{t('No payments added yet')}</Text>
@@ -182,8 +172,8 @@ export default function Dashboard({ go }: { go: Go }) {
 }
 
 const Quick = ({ icon, label, color, onPress }: any) => (
-  <Pressable style={({ pressed }) => [s.qItem, pressed && { opacity: 0.6, transform: [{ scale: 0.96 }] }]} onPress={() => { tap(); onPress(); }}>
-    <View style={[s.qIcon, { backgroundColor: color + '1F' }]}><Ionicons name={icon} size={24} color={color} /></View>
+  <Pressable style={({ pressed }) => [s.qItem, pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] }]} onPress={() => { tap(); onPress(); }}>
+    <Bubble icon={icon} color={color} size={40} />
     <Text style={s.qTxt}>{label}</Text>
   </Pressable>
 );
@@ -200,35 +190,33 @@ const Step = ({ n, title, sub, onPress, last }: any) => (
 );
 
 const s = themed(() => StyleSheet.create({
-  afford: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.card, borderRadius: 14, padding: 14, marginTop: 12 },
-  affordIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: C.accent + '1F', alignItems: 'center', justifyContent: 'center' },
-  affordTitle: { fontSize: 16, fontWeight: '600', color: C.ink },
-  affordSub: { fontSize: 13, color: C.sub, marginTop: 2 },
-  top: { marginTop: 10, marginBottom: 16, flexDirection: 'row', alignItems: 'center' },
-  eye: { width: 40, height: 40, borderRadius: 14, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  hello: { fontSize: 24, fontWeight: '700', color: C.ink, letterSpacing: -0.3 },
-  date: { fontSize: 15, color: C.sub, marginTop: 3 },
-  hero: { backgroundColor: C.hero, borderRadius: 14, padding: 22 },
-  heroLabel: { color: '#CCE0FF', fontSize: 15, fontWeight: '500' },
-  heroVal: { color: '#fff', fontSize: 34, fontWeight: '700', letterSpacing: -0.6, marginTop: 6 },
-  heroExplain: { color: '#CCE0FF', opacity: 0.8, fontSize: 13, marginTop: 4 },
-  heroRow: { flexDirection: 'row', gap: 10, marginTop: 18 },
-  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 12, padding: 12 },
-  pillLabel: { color: '#CCE0FF', fontSize: 12 },
-  pillVal: { color: '#fff', fontSize: 15, fontWeight: '600', marginTop: 2 },
-  quick: { flexDirection: 'row', backgroundColor: C.card, borderRadius: 14, paddingVertical: 16, marginTop: 14 },
-  qItem: { flex: 1, alignItems: 'center' },
-  qIcon: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  qTxt: { fontSize: 13, fontWeight: '500', color: C.ink, marginTop: 8 },
-  leftLabel: { color: C.sub, fontSize: 15 },
-  leftVal: { fontSize: 30, fontWeight: '700', letterSpacing: -0.4, marginTop: 4 },
-  leftSub: { color: C.sub, fontSize: 14, marginTop: 2 },
-  stack: { flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', backgroundColor: C.soft, marginTop: 16, gap: 2 },
-  legend: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 14 },
-  legendItem: { width: '50%', flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
-  dot: { width: 10, height: 10, borderRadius: 5 },
-  legendLabel: { fontSize: 13, color: C.sub },
-  legendVal: { fontSize: 15, fontWeight: '600', color: C.ink },
+  top: { marginTop: 10, marginBottom: 18, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  eye: { width: 42, height: 42, borderRadius: 21, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  avatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center' },
+  avatarTxt: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  hello: { fontSize: 24, fontWeight: '700', color: C.ink, letterSpacing: -0.4, marginTop: 2 },
+  date: { fontSize: 13, color: C.sub, fontWeight: '500' },
+  hero: { backgroundColor: C.soft, borderRadius: 24, padding: 20, borderWidth: 1, borderColor: C.pale + '99' },
+  heroLabel: { color: C.sub, fontSize: 13, fontWeight: '500' },
+  heroVal: { color: C.ink, fontSize: 34, fontWeight: '700', letterSpacing: -0.8, marginTop: 4 },
+  heroRow: { flexDirection: 'row', gap: 10, marginTop: 14 },
+  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: C.card, borderRadius: 16, padding: 10 },
+  pillLabel: { color: C.sub, fontSize: 11, fontWeight: '500' },
+  pillVal: { color: C.ink, fontSize: 15, fontWeight: '600', marginTop: 1 },
+  quick: { flexDirection: 'row', gap: 10, marginTop: 14 },
+  qItem: { flex: 1, alignItems: 'center', backgroundColor: C.card, borderRadius: 20, paddingTop: 14, paddingBottom: 12,
+    shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 16, shadowOffset: { width: 0, height: 5 }, elevation: 2 },
+  qTxt: { fontSize: 12, fontWeight: '600', color: C.ink, marginTop: 8 },
+  leftLabel: { color: C.sub, fontSize: 13, fontWeight: '500' },
+  leftRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 4, flexWrap: 'wrap' },
+  leftVal: { fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
+  leftSub: { color: C.sub, fontSize: 14, fontWeight: '500' },
+  legend: { marginTop: 14, gap: 10 },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  legendLabel: { flex: 1, fontSize: 13, color: C.sub, fontWeight: '500' },
+  legendVal: { fontSize: 13, fontWeight: '600', color: C.ink },
   none: { color: C.sub, textAlign: 'center', paddingVertical: 20, fontSize: 15 },
   catHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 7 },
   catName: { fontSize: 15, fontWeight: '500', color: C.ink },

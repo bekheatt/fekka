@@ -4,6 +4,7 @@ import { C } from './theme';
 import { fontFor } from './fonts';
 import Logo from './Logo';
 import { t } from './i18n';
+import { APP_NAME } from './brand';
 
 export default function Splash({ onDone }: { onDone: () => void }) {
   const text = useRef(new Animated.Value(0)).current;
@@ -24,7 +25,7 @@ export default function Splash({ onDone }: { onDone: () => void }) {
       <View style={[s.ring, { width: 520, height: 520, borderRadius: 260, opacity: 0.08 }]} />
       <View style={[s.ring, { width: 360, height: 360, borderRadius: 180, opacity: 0.12 }]} />
       <Logo size={140} animated />
-      <Animated.Text style={[s.name, { fontFamily: fontFor('700') }, rise]}>Fakka</Animated.Text>
+      <Animated.Text style={[s.name, { fontFamily: fontFor('700') }, rise]}>{APP_NAME}</Animated.Text>
       <Animated.Text style={[s.tag, { fontFamily: fontFor('400') }, rise]}>{t('Every pound, in its place.')}</Animated.Text>
     </Animated.View>
   );

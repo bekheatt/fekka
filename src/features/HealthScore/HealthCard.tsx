@@ -9,6 +9,7 @@ import { Progress, tap } from '../../ui';
 import { t } from '../../i18n';
 import { calculateHealthScore, Band, HealthScore } from './calculator';
 import { isHealthScoreEnabled } from './config';
+import Ring from '../../Ring';
 
 export const bandColor = (b: Band) =>
   b === 'Excellent' || b === 'Healthy' ? C.green : b === 'Fair' ? '#E0AA3E' : b === 'Warning' ? C.orange : C.red;
@@ -44,6 +45,15 @@ function Inner({ onAddIncome }: { onAddIncome: () => void }) {
     if (hs && d.scoreHistory?.[m] !== hs.score) set(x => ({ ...x, scoreHistory: { ...(x.scoreHistory ?? {}), [m]: hs.score } }));
   }, [hs?.score, m]);
 
+  // Same for each part, so each box can show if it went up or down
+  const partsKey = hs ? hs.parts.map(p => p.score).join(',') : '';
+  useEffect(() => {
+    if (!hs) return;
+    const now = Object.fromEntries(hs.parts.map(p => [p.key, p.score]));
+    const saved = d.partHistory?.[m];
+    if (!saved || hs.parts.some(p => saved[p.key] !== p.score)) set(x => ({ ...x, partHistory: { ...(x.partHistory ?? {}), [m]: now } }));
+  }, [partsKey, m]);
+
   if (!hs) {
     return (
       <Pressable style={s.top} onPress={() => { tap(); onAddIncome(); }}>
@@ -60,27 +70,52 @@ function Inner({ onAddIncome }: { onAddIncome: () => void }) {
   const prev = previousScore(d.scoreHistory, m);
   const change = prev === undefined ? undefined : hs.score - prev;
 
+  // Three boxes under the ring, each with an arrow vs last month
+  const lastKey = Object.keys(d.partHistory ?? {}).filter(k => k < m).sort().pop();
+  const lastParts = lastKey ? d.partHistory![lastKey] : undefined;
+  const BOXES = [{ key: 'load', label: 'Installments' }, { key: 'emergency', label: 'Safety net' }, { key: 'networth', label: 'Debt' }];
+  const word = (n: number) => (n >= 80 ? 'Good' : n >= 60 ? 'Okay' : 'Weak');
+
   return (
     <>
-      <Pressable style={({ pressed }) => [s.top, pressed && { opacity: 0.8 }]} onPress={() => { tap(); setOpen(true); }}>
-        <View style={s.head}>
-          <Ionicons name="pulse" size={18} color={color} />
-          <Text style={s.title}>{t('Financial health')}</Text>
-          <Ionicons name="chevron-forward" size={18} color={C.sub} style={{ marginLeft: 'auto' }} />
-        </View>
-        <View style={s.scoreRow}>
-          <Text style={[s.score, { color }]}>{hs.score}</Text>
-          <Text style={s.outOf}>/100</Text>
-          <View style={[s.badge, { backgroundColor: color + '1F' }]}>
-            <Text style={[s.badgeTxt, { color }]}>{t(hs.band)}</Text>
+      <Pressable style={({ pressed }) => [s.top, pressed && { opacity: 0.9 }]} onPress={() => { tap(); setOpen(true); }}>
+        <View style={s.ringRow}>
+          <Ring size={88} stroke={9} value={hs.score / 100} color={color} track={C.soft}>
+            <Text style={s.ringNum}>{hs.score}</Text>
+          </Ring>
+          <View style={{ flex: 1 }}>
+            <Text style={s.label}>{t('Financial health')}</Text>
+            <Text style={[s.band, { color }]}>{t(hs.band)}</Text>
+            {change !== undefined && change !== 0 && (
+              <Text style={[s.trend, { color: change > 0 ? C.green : C.red }]}>
+                {change > 0 ? '▲' : '▼'} {Math.abs(change)}
+              </Text>
+            )}
+          </View>
+          <View style={s.pro}>
+            <Ionicons name="lock-closed" size={11} color="#fff" />
+            <Text style={s.proTxt}>PRO</Text>
           </View>
         </View>
-        <Progress value={hs.score / 100} color={color} height={8} />
-        {change !== undefined && change !== 0 && (
-          <Text style={[s.trend, { color: change > 0 ? C.green : C.red }]}>
-            {t(change > 0 ? '▲ {n} since last month' : '▼ {n} since last month', { n: Math.abs(change) })}
-          </Text>
-        )}
+        <View style={s.factors}>
+          {BOXES.map(f => {
+            const p = hs.parts.find(x => x.key === f.key);
+            if (!p) return null;
+            const before = lastParts?.[f.key];
+            const diff = before === undefined ? 0 : p.score - before;
+            return (
+              <View key={f.key} style={s.factor}>
+                <Text style={s.factorLabel} numberOfLines={1}>{t(f.label)}</Text>
+                <View style={s.factorRow}>
+                  <Text style={s.factorVal}>{t(word(p.score))}</Text>
+                  {diff !== 0 && (
+                    <Ionicons name={diff > 0 ? 'arrow-up' : 'arrow-down'} size={14} color={diff > 0 ? C.green : C.red} />
+                  )}
+                </View>
+              </View>
+            );
+          })}
+        </View>
       </Pressable>
       <Detail hs={hs} visible={open} onClose={() => setOpen(false)} />
     </>
@@ -142,7 +177,25 @@ function Detail({ hs, visible, onClose }: { hs: HealthScore; visible: boolean; o
 
 const s = themed(() => StyleSheet.create({
   card: { backgroundColor: C.card, borderRadius: 14, padding: 16, marginTop: 14 },
-  top: { backgroundColor: C.card, borderRadius: 14, padding: 20, marginBottom: 14, shadowColor: '#0F2440', shadowOpacity: 0.05, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  top: { backgroundColor: C.card, borderRadius: 24, padding: 20, marginBottom: 14, shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 20, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  ringRow: { flexDirection: 'row', alignItems: 'center', gap: 18 },
+  ringNum: { fontSize: 28, fontWeight: '700', color: C.ink, letterSpacing: -0.5 },
+  label: { fontSize: 13, color: C.sub, fontWeight: '500' },
+  band: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3, marginTop: 2 },
+  ringOf: { fontSize: 12, color: C.sub, fontWeight: '500' },
+  pill: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99 },
+  pillTxt: { fontSize: 12, fontWeight: '600' },
+  headline: { fontSize: 16, fontWeight: '600', color: C.ink, lineHeight: 21 },
+  factors: { flexDirection: 'row', gap: 8, marginTop: 18 },
+  factor: { flex: 1, backgroundColor: C.bg, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 10 },
+  factorLabel: { fontSize: 11, color: C.sub, fontWeight: '500' },
+  factorRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
+  factorDot: { width: 7, height: 7, borderRadius: 4 },
+  factorVal: { fontSize: 15, fontWeight: '600', color: C.ink },
+  cta: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: C.soft, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginTop: 14 },
+  ctaTxt: { flex: 1, fontSize: 14, fontWeight: '600', color: C.primary },
+  pro: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.primary, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
+  proTxt: { color: '#fff', fontSize: 10, fontWeight: '700', letterSpacing: 0.6 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { fontSize: 16, fontWeight: '600', color: C.ink },
   emptyTxt: { color: C.sub, fontSize: 14, marginTop: 8 },
@@ -151,7 +204,7 @@ const s = themed(() => StyleSheet.create({
   outOf: { fontSize: 17, color: C.sub, fontWeight: '600', marginLeft: 4, marginBottom: 6 },
   badge: { marginLeft: 'auto', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, marginBottom: 6 },
   badgeTxt: { fontSize: 14, fontWeight: '600' },
-  trend: { fontSize: 13, fontWeight: '600', marginTop: 10 },
+  trend: { fontSize: 13, fontWeight: '600', marginTop: 4 },
   sheetHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 18, paddingTop: 22 },
   sheetTitle: { fontSize: 20, fontWeight: '800', color: C.ink },
   done: { fontSize: 17, fontWeight: '700', color: C.primary },
