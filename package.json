@@ -8,7 +8,6 @@
     "ios": "expo start --ios"
   },
   "dependencies": {
-    "@expo-google-fonts/ibm-plex-sans": "^0.4.1",
     "@expo-google-fonts/ibm-plex-sans-arabic": "^0.4.2",
     "@expo-google-fonts/outfit": "^0.4.3",
     "@expo/vector-icons": "^15.0.2",

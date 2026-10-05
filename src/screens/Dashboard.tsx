@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
-import { C, le, leShort, EXPENSE_CATS, themed, isHidden, isRefined } from '../theme';
+import { C, le, leShort, EXPENSE_CATS, themed, isHidden } from '../theme';
 import { useStore, useTotals, daysUntil, goalValue, ym } from '../store';
-import { Card, Row, Section, Screen, tap, Progress, Check, Bubble, SplitBar, pressedStyle } from '../ui';
+import { Card, Row, Section, Screen, tap, Progress, Check, SplitBar, pressedStyle } from '../ui';
 import { t, locale } from '../i18n';
 import Logo from '../Logo';
 import HealthCard from '../features/HealthScore/HealthCard';
@@ -68,61 +68,31 @@ export default function Dashboard({ go }: { go: Go }) {
 
       <AffordSheet visible={afford} onClose={() => setAfford(false)} onAddIncome={() => go('spend', 'income')} />
 
-      {isRefined() ? (
-        <>
-          {/* New design: net worth as the headline, no box */}
-          <View style={n.worth} ref={tourRef('worth')} collapsable={false}>
-            <Text style={n.worthLabel}>{t("What you're worth")}</Text>
-            <Text style={n.worthVal} adjustsFontSizeToFit numberOfLines={1}>{le(tot.netWorth)}</Text>
-            <View style={n.stats}>
-              <Ionicons name="arrow-up" size={14} color={C.green} />
-              <Text style={n.statLabel}>{t('You own')}</Text>
-              <Text style={n.statVal}>{leShort(tot.assets)}</Text>
-              <View style={n.divider} />
-              <Ionicons name="arrow-down" size={14} color={C.red} />
-              <Text style={n.statLabel}>{t('You owe')}</Text>
-              <Text style={n.statVal}>{leShort(tot.debt)}</Text>
-            </View>
-          </View>
+      {/* Net worth as the headline, no box */}
+      <View style={n.worth} ref={tourRef('worth')} collapsable={false}>
+        <Text style={n.worthLabel}>{t("What you're worth")}</Text>
+        <Text style={n.worthVal} adjustsFontSizeToFit numberOfLines={1}>{le(tot.netWorth)}</Text>
+        <View style={n.stats}>
+          <Ionicons name="arrow-up" size={14} color={C.green} />
+          <Text style={n.statLabel}>{t('You own')}</Text>
+          <Text style={n.statVal}>{leShort(tot.assets)}</Text>
+          <View style={n.divider} />
+          <Ionicons name="arrow-down" size={14} color={C.red} />
+          <Text style={n.statLabel}>{t('You owe')}</Text>
+          <Text style={n.statVal}>{leShort(tot.debt)}</Text>
+        </View>
+      </View>
 
-          <View ref={tourRef('quick')} collapsable={false}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={n.pills}>
-              <Pill icon="remove" label={t('Expense')} primary onPress={() => go('spend', 'expense')} />
-              <Pill icon="add" label={t('Income')} onPress={() => go('spend', 'income')} />
-              <Pill icon="calendar-outline" label={t('Payment')} onPress={() => go('pay', 'installment')} />
-              <Pill icon="pricetag-outline" label={t('Afford?')} onPress={() => setAfford(true)} />
-            </ScrollView>
-          </View>
+      <View ref={tourRef('quick')} collapsable={false}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={n.pills}>
+          <Pill icon="remove" label={t('Expense')} primary onPress={() => go('spend', 'expense')} />
+          <Pill icon="add" label={t('Income')} onPress={() => go('spend', 'income')} />
+          <Pill icon="calendar-outline" label={t('Payment')} onPress={() => go('pay', 'installment')} />
+          <Pill icon="pricetag-outline" label={t('Afford?')} onPress={() => setAfford(true)} />
+        </ScrollView>
+      </View>
 
-          <View ref={tourRef('health')} collapsable={false}><HealthCard onAddIncome={() => go('spend', 'income')} /></View>
-        </>
-      ) : (
-        <>
-          <View ref={tourRef('health')} collapsable={false}><HealthCard onAddIncome={() => go('spend', 'income')} /></View>
-
-          <View style={s.hero} ref={tourRef('worth')} collapsable={false}>
-            <Text style={s.heroLabel}>{t("What you're worth")}</Text>
-            <Text style={s.heroVal} adjustsFontSizeToFit numberOfLines={1}>{le(tot.netWorth)}</Text>
-            <View style={s.heroRow}>
-              <View style={s.heroPill}>
-                <Bubble icon="arrow-up" color={C.green} size={30} />
-                <View><Text style={s.pillLabel}>{t('You own')}</Text><Text style={s.pillVal}>{leShort(tot.assets)}</Text></View>
-              </View>
-              <View style={s.heroPill}>
-                <Bubble icon="arrow-down" color={C.red} size={30} />
-                <View><Text style={s.pillLabel}>{t('You owe')}</Text><Text style={s.pillVal}>{leShort(tot.debt)}</Text></View>
-              </View>
-            </View>
-          </View>
-
-          <View style={s.quick} ref={tourRef('quick')} collapsable={false}>
-            <Quick icon="remove" label={t('Expense')} color={C.orange} onPress={() => go('spend', 'expense')} />
-            <Quick icon="add" label={t('Income')} color={C.green} onPress={() => go('spend', 'income')} />
-            <Quick icon="calendar" label={t('Payment')} color={C.sky} onPress={() => go('pay', 'installment')} />
-            <Quick icon="pricetag" label={t('Afford?')} color="#8E6FE0" onPress={() => setAfford(true)} />
-          </View>
-        </>
-      )}
+      <View ref={tourRef('health')} collapsable={false}><HealthCard onAddIncome={() => go('spend', 'income')} /></View>
 
       {isNew ? (
         <>
@@ -212,14 +182,7 @@ export default function Dashboard({ go }: { go: Go }) {
   );
 }
 
-const Quick = ({ icon, label, color, onPress }: any) => (
-  <Pressable style={({ pressed }) => [s.qItem, pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] }]} onPress={() => { tap(); onPress(); }}>
-    <Bubble icon={icon} color={color} size={40} />
-    <Text style={s.qTxt}>{label}</Text>
-  </Pressable>
-);
-
-// New design: quick actions as pills; the first one is the main action
+// Quick actions as pills; the first one is the main action
 const Pill = ({ icon, label, primary, onPress }: { icon: any; label: string; primary?: boolean; onPress: () => void }) => (
   <Pressable onPress={() => { tap(); onPress(); }} style={({ pressed }) => [n.pill, primary && n.pillPrimary, pressed && pressedStyle]}>
     <Ionicons name={icon} size={16} color={primary ? '#fff' : C.ink} />
@@ -246,17 +209,6 @@ const s = themed(() => StyleSheet.create({
   avatarTxt: { color: '#fff', fontSize: 17, fontWeight: '700' },
   hello: { fontSize: 24, fontWeight: '700', color: C.ink, letterSpacing: -0.4 },
   date: { fontSize: 13, color: C.sub, fontWeight: '500', marginTop: 3 },
-  hero: { backgroundColor: C.soft, borderRadius: 24, padding: 20, borderWidth: 1, borderColor: C.pale + '99' },
-  heroLabel: { color: C.sub, fontSize: 13, fontWeight: '500' },
-  heroVal: { color: C.ink, fontSize: 34, fontWeight: '700', letterSpacing: -0.8, marginTop: 4 },
-  heroRow: { flexDirection: 'row', gap: 10, marginTop: 14 },
-  heroPill: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: C.card, borderRadius: 16, padding: 10 },
-  pillLabel: { color: C.sub, fontSize: 11, fontWeight: '500' },
-  pillVal: { color: C.ink, fontSize: 15, fontWeight: '600', marginTop: 1 },
-  quick: { flexDirection: 'row', gap: 10, marginTop: 14 },
-  qItem: { flex: 1, alignItems: 'center', backgroundColor: C.card, borderRadius: 20, paddingTop: 14, paddingBottom: 12,
-    shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 16, shadowOffset: { width: 0, height: 5 }, elevation: 2 },
-  qTxt: { fontSize: 12, fontWeight: '600', color: C.ink, marginTop: 8 },
   leftLabel: { color: C.sub, fontSize: 13, fontWeight: '500' },
   leftRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 4, flexWrap: 'wrap' },
   leftVal: { fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
@@ -277,7 +229,7 @@ const s = themed(() => StyleSheet.create({
   stepSub: { fontSize: 13, color: C.sub, marginTop: 2 },
 }));
 
-// New design only
+// Home's top section
 const n = themed(() => StyleSheet.create({
   worth: { marginTop: 4, paddingVertical: 6 },
   worthLabel: { fontSize: 13, color: C.sub, fontWeight: '500' },

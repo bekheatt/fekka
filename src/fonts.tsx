@@ -1,22 +1,17 @@
-// IBM Plex everywhere: English uses IBM Plex Sans, Arabic uses IBM Plex Sans Arabic (which also has Latin
-// letters and numbers, so mixed text stays in one family). Custom fonts ship one file per weight, so these
+// English uses Outfit, Arabic uses IBM Plex Sans Arabic (which also has Latin letters and numbers, so mixed
+// Arabic text stays in one family). Custom fonts ship one file per weight, so these
 // wrappers turn fontWeight into the right font file instead of letting the phone fake bold.
 import React, { forwardRef } from 'react';
 import { Text as RNText, TextInput as RNTextInput, StyleSheet, TextProps, TextInputProps, TextStyle } from 'react-native';
-import {
-  IBMPlexSans_400Regular, IBMPlexSans_500Medium, IBMPlexSans_600SemiBold, IBMPlexSans_700Bold,
-} from '@expo-google-fonts/ibm-plex-sans';
 import {
   IBMPlexSansArabic_400Regular, IBMPlexSansArabic_500Medium, IBMPlexSansArabic_600SemiBold, IBMPlexSansArabic_700Bold,
 } from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold, Outfit_700Bold } from '@expo-google-fonts/outfit';
 import { getLang } from './i18n';
-import { isRefined } from './theme';
 
 export const FONTS = {
-  IBMPlexSans_400Regular, IBMPlexSans_500Medium, IBMPlexSans_600SemiBold, IBMPlexSans_700Bold,
   IBMPlexSansArabic_400Regular, IBMPlexSansArabic_500Medium, IBMPlexSansArabic_600SemiBold, IBMPlexSansArabic_700Bold,
-  Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold, Outfit_700Bold, // English in the New design
+  Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold, Outfit_700Bold,
 };
 
 const WEIGHT: Record<string, string> = {
@@ -25,7 +20,7 @@ const WEIGHT: Record<string, string> = {
 };
 
 export const fontFor = (weight?: TextStyle['fontWeight']) =>
-  (getLang() === 'ar' ? 'IBMPlexSansArabic_' : isRefined() ? 'Outfit_' : 'IBMPlexSans_') + (WEIGHT[String(weight ?? '400')] ?? '400Regular');
+  (getLang() === 'ar' ? 'IBMPlexSansArabic_' : 'Outfit_') + (WEIGHT[String(weight ?? '400')] ?? '400Regular');
 
 const withFont = (style: any) => {
   const flat = StyleSheet.flatten(style) ?? {};

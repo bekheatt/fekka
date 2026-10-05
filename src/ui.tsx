@@ -3,7 +3,7 @@ import { View, Pressable, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, P
 import { Text, TextInput } from './fonts';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { C, themed, ds, isRefined } from './theme';
+import { C, themed } from './theme';
 import { t } from './i18n';
 
 // Gentle press feedback for buttons: style={({ pressed }) => [s.btn, pressed && pressedStyle]}
@@ -33,9 +33,9 @@ export const Card = ({ children, style }: any) => <View style={[s.card, style]}>
 // Padded card for summaries (the big numbers at the top of each screen)
 export const Panel = ({ children, style }: any) => <View style={[s.card, { padding: 20, paddingVertical: 20 }, style]}>{children}</View>;
 
-// Rounded tinted square with an icon in it
+// Tinted circle with an icon in it
 export const Bubble = ({ icon, color, size = 40 }: { icon: any; color: string; size?: number }) => (
-  <View style={{ width: size, height: size, borderRadius: size * ds(0.35, 0.5), backgroundColor: color + '1F', alignItems: 'center', justifyContent: 'center' }}>
+  <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color + '1F', alignItems: 'center', justifyContent: 'center' }}>
     <Ionicons name={icon} size={size * 0.5} color={color} />
   </View>
 );
@@ -220,15 +220,14 @@ export const num = (t?: string) => parseFloat((t ?? '').replace(/,/g, '')) || 0;
 export const Screen = ({ children }: { children: React.ReactNode }) => {
   const a = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    if (!isRefined()) { Animated.timing(a, { toValue: 1, duration: 260, useNativeDriver: true }).start(); return; }
     AccessibilityInfo.isReduceMotionEnabled().then(still => {
       if (still) a.setValue(1);
       else Animated.timing(a, { toValue: 1, duration: 360, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
     });
   }, []);
   return (
-    <Animated.ScrollView style={{ opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [ds(8, 14), 0] }) }] }}
-      contentContainerStyle={{ paddingHorizontal: ds(20, 22), paddingTop: ds(6, 10), paddingBottom: 170 }} showsVerticalScrollIndicator={false}>
+    <Animated.ScrollView style={{ opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }}
+      contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 10, paddingBottom: 170 }} showsVerticalScrollIndicator={false}>
       {children}
     </Animated.ScrollView>
   );
@@ -238,8 +237,8 @@ const s = themed(() => StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 18 },
   title: { fontSize: 28, fontWeight: '700', color: C.ink, letterSpacing: -0.4 },
   subtitle: { fontSize: 15, color: C.sub, marginTop: 3 },
-  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: ds(26, 30), marginBottom: 12, paddingHorizontal: ds(4, 2) },
-  section: { fontSize: 17, fontWeight: ds('600', '700'), color: C.ink },
+  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 30, marginBottom: 12, paddingHorizontal: 2 },
+  section: { fontSize: 17, fontWeight: '700', color: C.ink },
   sectionAction: { fontSize: 14, fontWeight: '600', color: C.accent },
   card: { backgroundColor: C.card, borderRadius: 24, paddingHorizontal: 18, paddingVertical: 4, shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 20, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 13, gap: 12 },

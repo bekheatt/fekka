@@ -1,55 +1,35 @@
 import { getLang } from './i18n';
 
-// Fekka blue palette: #003366 #00509E #007ACC #66A3FF #CCE0FF
+// Fekka "Ink & Electric": cool white, navy-tinted text, one electric-blue accent (statement cards too)
 const LIGHT = {
-  bg: '#F6F9FE', card: '#FFFFFF', ink: '#14294A', sub: '#7D8DA8', line: '#EEF3FA', soft: '#EEF4FE',
-  navy: '#003366', primary: '#00509E', accent: '#007ACC', sky: '#66A3FF', pale: '#CCE0FF', hero: '#00509E',
-  green: '#2FB57A', red: '#E0605A', orange: '#F29B45', purple: '#66A3FF', gold: '#007ACC', tabBar: '#FFFFFF',
+  bg: '#EEEFF2', card: '#FFFFFF', ink: '#121726', sub: '#6E7480', line: '#E2E4E9', soft: '#F3F4F6',
+  navy: '#2B3BFF', primary: '#2B3BFF', accent: '#2B3BFF', sky: '#8E97FF', pale: '#D8DBFF', hero: '#2B3BFF',
+  green: '#14A06B', red: '#E5484D', orange: '#F2994A', purple: '#8E97FF', gold: '#2B3BFF', tabBar: '#FFFFFF',
 };
 const DARK: typeof LIGHT = {
-  bg: '#07172B', card: '#0E2340', ink: '#EAF2FF', sub: '#8CA3C2', line: '#18345A', soft: '#15304F',
-  navy: '#003366', primary: '#2F8BE6', accent: '#007ACC', sky: '#66A3FF', pale: '#CCE0FF', hero: '#00509E',
-  green: '#3CCB8C', red: '#F06A62', orange: '#F5A85C', purple: '#66A3FF', gold: '#007ACC', tabBar: '#0B1D36',
+  bg: '#0B0D12', card: '#151821', ink: '#EEF0F6', sub: '#8A909C', line: '#252A35', soft: '#1C2029',
+  navy: '#3B4BFF', primary: '#4D5BFF', accent: '#4D5BFF', sky: '#9AA2FF', pale: '#D3D7FF', hero: '#3B4BFF',
+  green: '#2BC48A', red: '#F2555A', orange: '#F5A55C', purple: '#9AA2FF', gold: '#4D5BFF', tabBar: '#151821',
 };
 
 export const C = { ...LIGHT };
 let mode: 'light' | 'dark' = 'light';
 export const isDark = () => mode === 'dark';
 
-// ── Design switch (Settings → Appearance → Design) ──────────────────────────────
-// 'classic' = the original Fekka look.
-// 'refined' (shown as "New") = "Ink & Electric": cool white with electric-blue statement cards and accent,
-// navy-tinted text (a nod to Classic), the Outfit typeface, flat hairline cards, round badges and pill controls.
-// To keep one design later: delete the other palette pair, toNew() and every ds() branch.
-export type Design = 'classic' | 'refined';
-let design: Design = 'classic';
-export const isRefined = () => design === 'refined';
-// Pick a value for the current design: ds(classicValue, newValue)
-export const ds = <T,>(classic: T, fresh: T): T => (design === 'refined' ? fresh : classic);
-
-const NEW_LIGHT: typeof LIGHT = {
-  bg: '#EEEFF2', card: '#FFFFFF', ink: '#121726', sub: '#6E7480', line: '#E2E4E9', soft: '#F3F4F6',
-  navy: '#2B3BFF', primary: '#2B3BFF', accent: '#2B3BFF', sky: '#8E97FF', pale: '#D8DBFF', hero: '#2B3BFF',
-  green: '#14A06B', red: '#E5484D', orange: '#F2994A', purple: '#8E97FF', gold: '#2B3BFF', tabBar: '#FFFFFF',
-};
-const NEW_DARK: typeof LIGHT = {
-  bg: '#0B0D12', card: '#151821', ink: '#EEF0F6', sub: '#8A909C', line: '#252A35', soft: '#1C2029',
-  navy: '#3B4BFF', primary: '#4D5BFF', accent: '#4D5BFF', sky: '#9AA2FF', pale: '#D3D7FF', hero: '#3B4BFF',
-  green: '#2BC48A', red: '#F2555A', orange: '#F5A55C', purple: '#9AA2FF', gold: '#4D5BFF', tabBar: '#151821',
-};
-
+// Shared style rules, applied to every themed style sheet so all screens follow one system:
+// type scale, spacing, shapes (round badges, pill controls, 24px panels) and flat hairline cards.
 // Bigger contrast between small text and display numbers
 const TYPE: Record<number, number> = { 10: 12, 11: 12, 17: 18, 19: 20, 20: 22, 22: 24, 24: 28, 26: 30, 28: 34, 30: 36, 32: 38, 34: 42 };
 const SPACING = ['padding', 'paddingVertical', 'paddingHorizontal', 'paddingTop', 'paddingBottom', 'marginTop', 'marginBottom', 'gap', 'rowGap'];
 
-const toNew = (st: any) => {
+const polish = (st: any) => {
   if (!st || typeof st !== 'object') return st;
   const o = { ...st };
   // Type: display sizes jump up and tighten; titles get a little tracking off
   if (typeof o.fontSize === 'number') {
     const size = TYPE[o.fontSize] ?? o.fontSize;
     o.fontSize = size;
-    if (String(o.fontWeight) === '700' || o.fontWeight === 'bold') o.fontWeight = '600'; // one step lighter than Classic
+    if (String(o.fontWeight) === '700' || o.fontWeight === 'bold') o.fontWeight = '600'; // semi-bold is the heaviest weight
     if (size >= 28) { o.fontWeight = '600'; o.letterSpacing = -Math.round(size * 0.03 * 10) / 10; }
     else if (size >= 18) o.letterSpacing = Math.min(o.letterSpacing ?? 0, -0.3);
     if (typeof o.lineHeight === 'number' && typeof st.fontSize === 'number') o.lineHeight = Math.round(o.lineHeight * size / st.fontSize + 1);
@@ -79,9 +59,8 @@ const toNew = (st: any) => {
 const sheets: { cache: any; fn: () => any }[] = [];
 const build = (fn: () => any) => {
   const sheet = fn();
-  if (design !== 'refined') return sheet;
   const out: any = {};
-  for (const k in sheet) out[k] = toNew(sheet[k]);
+  for (const k in sheet) out[k] = polish(sheet[k]);
   return out;
 };
 export function themed<T extends object>(fn: () => T): T {
@@ -89,10 +68,9 @@ export function themed<T extends object>(fn: () => T): T {
   sheets.push(entry);
   return new Proxy({} as T, { get: (_, k) => { if (!entry.cache) entry.cache = build(fn); return entry.cache[k]; } });
 }
-export function applyTheme(m: 'light' | 'dark', d: Design = design) {
+export function applyTheme(m: 'light' | 'dark') {
   mode = m;
-  design = d;
-  Object.assign(C, d === 'refined' ? (m === 'dark' ? NEW_DARK : NEW_LIGHT) : (m === 'dark' ? DARK : LIGHT));
+  Object.assign(C, m === 'dark' ? DARK : LIGHT);
   sheets.forEach(s => { s.cache = null; });
 }
 

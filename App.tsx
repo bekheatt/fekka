@@ -6,7 +6,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { Provider, useStore, hasAccount } from './src/store';
-import { C, isDark, themed, isRefined } from './src/theme';
+import { C, isDark, themed } from './src/theme';
 import { t, locale } from './src/i18n';
 import { tap } from './src/ui';
 import { scheduleReminders } from './src/notify';
@@ -172,16 +172,15 @@ function Shell() {
       <View style={[s.barWrap, { paddingBottom: Math.max(insets.bottom, 12) }]} pointerEvents="box-none">
         <View style={s.bar}>
           {TABS.map(x => {
-            const fresh = isRefined(); // New design: Classic's bar with a soft blue pill behind the active icon
             if (x.key === 'add') return (
-              <Pressable key="add" ref={tourRef('add')} collapsable={false} onPress={() => { tap(); setQuick({}); }} style={({ pressed }) => [s.plus, fresh && { borderRadius: 20 }, pressed && { transform: [{ scale: 0.94 }] }]}>
+              <Pressable key="add" ref={tourRef('add')} collapsable={false} onPress={() => { tap(); setQuick({}); }} style={({ pressed }) => [s.plus, { borderRadius: 20 }, pressed && { transform: [{ scale: 0.94 }] }]}>
                 <Ionicons name="add" size={28} color="#fff" />
               </Pressable>
             );
             const on = x.key === tab || (x.key === 'home' && tab === 'profile');
             return (
               <Pressable key={x.key} ref={tourRef(`tab-${x.key}`)} collapsable={false} style={s.item} onPress={() => { tap(); go(x.key); }}>
-                <View style={fresh && [s.tabPill, on && { backgroundColor: C.primary + '1A' }]}>
+                <View style={[s.tabPill, on && { backgroundColor: C.primary + '1A' }]}>
                   <Ionicons name={(on ? x.icon : `${x.icon}-outline`) as any} size={22} color={on ? C.primary : C.sub} />
                 </View>
                 <Text style={[s.label, on && { color: C.primary }]} numberOfLines={1}>{t(x.label)}</Text>
