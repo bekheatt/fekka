@@ -102,7 +102,7 @@ const AR: Record<string, string> = {
   '{n} months': '{n} شهر', 'No debt': 'مفيش ديون', 'Your numbers': 'أرقامك', 'Expenses logged': 'مصاريف مسجلة',
   'Active installments': 'أقساط شغالة', 'Goals': 'الأهداف', 'Your name': 'اسمك',
   // settings
-  'Personalise Fakka': 'خصص فكّة', 'Appearance': 'المظهر', 'Language': 'اللغة', 'Theme': 'الثيم', 'System': 'تلقائي', 'Light': 'فاتح', 'Dark': 'داكن',
+  'Personalise Fakka': 'خصص فكّة', 'Appearance': 'المظهر', 'Language': 'اللغة', 'Theme': 'الثيم', 'System': 'تلقائي', 'Light': 'فاتح', 'Dark': 'داكن', 'Design': 'التصميم', 'Classic': 'الكلاسيكي', 'New': 'الجديد',
   'Security': 'الأمان', 'Lock with Face ID / fingerprint': 'قفل بالوجه / البصمة', 'Ask every time you open Fakka': 'يطلبها كل ما تفتح فكّة', 'Locks the moment you leave the app, like a banking app': 'بيقفل أول ما تخرج من التطبيق، زي تطبيقات البنوك',
   'Notifications': 'الإشعارات', 'Payment reminders': 'تذكير بالمدفوعات', 'The day before and on the due day, at 10 AM': 'قبلها بيوم ويوم الميعاد، الساعة 10 الصبح',
   'Data': 'البيانات', 'Delete all data': 'مسح كل البيانات', 'This removes everything you entered. It cannot be undone.': 'هيمسح كل حاجة دخلتها. مينفعش ترجعها.',

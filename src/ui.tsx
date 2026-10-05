@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Pressable, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, Animated, PanResponder, Switch } from 'react-native';
+import { View, Pressable, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, Animated, PanResponder, Switch, AccessibilityInfo, Easing } from 'react-native';
 import { Text, TextInput } from './fonts';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { C, themed } from './theme';
+import { C, themed, ds, isRefined } from './theme';
 import { t } from './i18n';
 
 // Gentle press feedback for buttons: style={({ pressed }) => [s.btn, pressed && pressedStyle]}
@@ -219,10 +219,16 @@ export const num = (t?: string) => parseFloat((t ?? '').replace(/,/g, '')) || 0;
 // Screens fade and drift up gently when you switch tabs
 export const Screen = ({ children }: { children: React.ReactNode }) => {
   const a = useRef(new Animated.Value(0)).current;
-  useEffect(() => { Animated.timing(a, { toValue: 1, duration: 260, useNativeDriver: true }).start(); }, []);
+  useEffect(() => {
+    if (!isRefined()) { Animated.timing(a, { toValue: 1, duration: 260, useNativeDriver: true }).start(); return; }
+    AccessibilityInfo.isReduceMotionEnabled().then(still => {
+      if (still) a.setValue(1);
+      else Animated.timing(a, { toValue: 1, duration: 360, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+    });
+  }, []);
   return (
-    <Animated.ScrollView style={{ opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }] }}
-      contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 170 }} showsVerticalScrollIndicator={false}>
+    <Animated.ScrollView style={{ opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [ds(8, 14), 0] }) }] }}
+      contentContainerStyle={{ paddingHorizontal: ds(20, 22), paddingTop: ds(6, 10), paddingBottom: 170 }} showsVerticalScrollIndicator={false}>
       {children}
     </Animated.ScrollView>
   );

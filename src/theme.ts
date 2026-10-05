@@ -16,15 +16,74 @@ export const C = { ...LIGHT };
 let mode: 'light' | 'dark' = 'light';
 export const isDark = () => mode === 'dark';
 
+// ── Design switch (Settings → Appearance → Design) ──────────────────────────────
+// 'classic' = the original look. 'refined' = the SAME colours with a stricter type scale, more air and one
+// corner system (taste-skill audit, preserve mode: variance 3 / motion 4 / density 4).
+// Colours are never touched here. To keep one design later: delete toRefined() and every ds() branch.
+export type Design = 'classic' | 'refined';
+let design: Design = 'classic';
+export const isRefined = () => design === 'refined';
+// Pick a value for the current design: ds(classicValue, refinedValue)
+export const ds = <T,>(classic: T, refined: T): T => (design === 'refined' ? refined : classic);
+
+// Type scale: 21 sizes in use → 8 steps (12 · 13 · 15 · 17 · 20 · 24 · 28 · 34). Big hero numbers stay as they are.
+const TYPE: Record<number, number> = { 10: 12, 11: 12, 12: 12, 13: 13, 14: 15, 15: 15, 16: 17, 17: 17, 19: 20, 20: 20, 22: 24, 24: 24, 26: 28, 28: 28, 30: 34, 32: 34, 34: 34 };
+const SPACING = ['padding', 'paddingVertical', 'paddingHorizontal', 'paddingTop', 'paddingBottom', 'marginTop', 'marginBottom', 'gap', 'rowGap'];
+
+const toRefined = (st: any) => {
+  if (!st || typeof st !== 'object') return st;
+  const o = { ...st };
+  // Typography: one scale, quieter captions, bold only for big numbers and titles, tighter display tracking
+  if (typeof o.fontSize === 'number') {
+    const size = TYPE[o.fontSize] ?? o.fontSize;
+    o.fontSize = size;
+    const w = String(o.fontWeight ?? '400');
+    if (w === '500') o.fontWeight = size <= 13 ? '400' : '600';
+    else if (w === '700' && size < 20) o.fontWeight = '600';
+    if (size >= 24) o.letterSpacing = Math.min(o.letterSpacing ?? 0, -Math.round(size * 0.02 * 10) / 10);
+    else if (size >= 17) o.letterSpacing = Math.min(o.letterSpacing ?? 0, -0.2);
+    if (typeof o.lineHeight === 'number' && typeof st.fontSize === 'number') o.lineHeight = Math.round(o.lineHeight * size / st.fontSize + 1);
+  }
+  // Density 5 → 4: about 15% more breathing room, kept on an even grid
+  for (const k of SPACING) if (typeof o[k] === 'number' && o[k] >= 8) o[k] = Math.round(o[k] * 1.15 / 2) * 2;
+  // One corner system: cards 20 · large tiles 16 · buttons and inputs 14 · chips and icon tiles 12 · circles stay circles
+  const r = o.borderRadius;
+  if (typeof r === 'number') {
+    const w = o.width, h = o.height;
+    const sized = typeof w === 'number' && typeof h === 'number';
+    if (sized && r >= Math.min(w, h) / 2 - 1) { /* circle */ }
+    else if (sized && w === h && w >= 50) o.borderRadius = 16;      // large tiles (the + button)
+    else if (sized && w === h && w >= 30) o.borderRadius = 12;      // icon tiles
+    else if (r >= 26) { /* big pills (tab bar) */ }
+    else if (r >= 18) o.borderRadius = 20;
+    else if (r >= 13) o.borderRadius = 14;
+    else if (r >= 9) o.borderRadius = 12;
+  }
+  // Softer card shadows (same tint); strong shadows on floating things stay
+  if (typeof o.shadowOpacity === 'number' && o.shadowOpacity > 0 && o.shadowOpacity <= 0.1) {
+    o.shadowOpacity = Math.round(o.shadowOpacity * 0.6 * 1000) / 1000;
+    if (typeof o.shadowRadius === 'number') o.shadowRadius = Math.round(o.shadowRadius * 1.25);
+  }
+  return o;
+};
+
 // Style sheets that rebuild themselves when the theme changes
 const sheets: { cache: any; fn: () => any }[] = [];
+const build = (fn: () => any) => {
+  const sheet = fn();
+  if (design !== 'refined') return sheet;
+  const out: any = {};
+  for (const k in sheet) out[k] = toRefined(sheet[k]);
+  return out;
+};
 export function themed<T extends object>(fn: () => T): T {
   const entry = { cache: null as any, fn };
   sheets.push(entry);
-  return new Proxy({} as T, { get: (_, k) => { if (!entry.cache) entry.cache = fn(); return entry.cache[k]; } });
+  return new Proxy({} as T, { get: (_, k) => { if (!entry.cache) entry.cache = build(fn); return entry.cache[k]; } });
 }
-export function applyTheme(m: 'light' | 'dark') {
+export function applyTheme(m: 'light' | 'dark', d: Design = design) {
   mode = m;
+  design = d;
   Object.assign(C, m === 'dark' ? DARK : LIGHT);
   sheets.forEach(s => { s.cache = null; });
 }

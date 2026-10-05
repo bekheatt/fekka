@@ -10,6 +10,7 @@ import {
   IBMPlexSansArabic_400Regular, IBMPlexSansArabic_500Medium, IBMPlexSansArabic_600SemiBold, IBMPlexSansArabic_700Bold,
 } from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { getLang } from './i18n';
+import { isRefined } from './theme';
 
 export const FONTS = {
   IBMPlexSans_400Regular, IBMPlexSans_500Medium, IBMPlexSans_600SemiBold, IBMPlexSans_700Bold,
@@ -27,7 +28,9 @@ export const fontFor = (weight?: TextStyle['fontWeight']) =>
 const withFont = (style: any) => {
   const flat = StyleSheet.flatten(style) ?? {};
   if (flat.fontFamily) return style; // an explicit family (e.g. icons) wins
-  return [style, { fontFamily: fontFor(flat.fontWeight), fontWeight: 'normal' as const }];
+  // refined design: tabular numbers so amounts line up in lists
+  const nums = isRefined() && !flat.fontVariant ? { fontVariant: ['tabular-nums' as const] } : null;
+  return [style, { fontFamily: fontFor(flat.fontWeight), fontWeight: 'normal' as const }, nums];
 };
 
 export const Text = forwardRef<RNText, TextProps>((p, ref) => <RNText ref={ref} {...p} style={withFont(p.style)} />);
