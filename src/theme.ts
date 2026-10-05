@@ -18,8 +18,8 @@ export const isDark = () => mode === 'dark';
 
 // ── Design switch (Settings → Appearance → Design) ──────────────────────────────
 // 'classic' = the original Fekka look.
-// 'refined' (shown as "New") = "Ink & Electric": graphite and white with black statement cards, one electric-blue
-// accent, the Outfit typeface, flat hairline cards, round badges and pill controls.
+// 'refined' (shown as "New") = "Ink & Electric": cool white with electric-blue statement cards and accent,
+// navy-tinted text (a nod to Classic), the Outfit typeface, flat hairline cards, round badges and pill controls.
 // To keep one design later: delete the other palette pair, toNew() and every ds() branch.
 export type Design = 'classic' | 'refined';
 let design: Design = 'classic';
@@ -28,14 +28,14 @@ export const isRefined = () => design === 'refined';
 export const ds = <T,>(classic: T, fresh: T): T => (design === 'refined' ? fresh : classic);
 
 const NEW_LIGHT: typeof LIGHT = {
-  bg: '#EEEFF2', card: '#FFFFFF', ink: '#0E1014', sub: '#6E7480', line: '#E2E4E9', soft: '#F3F4F6',
-  navy: '#0E1014', primary: '#2B3BFF', accent: '#2B3BFF', sky: '#8E97FF', pale: '#D8DBFF', hero: '#0E1014',
-  green: '#14A06B', red: '#E5484D', orange: '#F2994A', purple: '#8E97FF', gold: '#2B3BFF', tabBar: '#0E1014',
+  bg: '#EEEFF2', card: '#FFFFFF', ink: '#121726', sub: '#6E7480', line: '#E2E4E9', soft: '#F3F4F6',
+  navy: '#2B3BFF', primary: '#2B3BFF', accent: '#2B3BFF', sky: '#8E97FF', pale: '#D8DBFF', hero: '#2B3BFF',
+  green: '#14A06B', red: '#E5484D', orange: '#F2994A', purple: '#8E97FF', gold: '#2B3BFF', tabBar: '#FFFFFF',
 };
 const NEW_DARK: typeof LIGHT = {
-  bg: '#08090B', card: '#131519', ink: '#F1F2F4', sub: '#8A909C', line: '#23262C', soft: '#1A1D22',
-  navy: '#08090B', primary: '#4D5BFF', accent: '#4D5BFF', sky: '#9AA2FF', pale: '#C9CDFF', hero: '#1C1F25',
-  green: '#2BC48A', red: '#F2555A', orange: '#F5A55C', purple: '#9AA2FF', gold: '#4D5BFF', tabBar: '#F1F2F4',
+  bg: '#0B0D12', card: '#151821', ink: '#EEF0F6', sub: '#8A909C', line: '#252A35', soft: '#1C2029',
+  navy: '#3B4BFF', primary: '#4D5BFF', accent: '#4D5BFF', sky: '#9AA2FF', pale: '#D3D7FF', hero: '#3B4BFF',
+  green: '#2BC48A', red: '#F2555A', orange: '#F5A55C', purple: '#9AA2FF', gold: '#4D5BFF', tabBar: '#151821',
 };
 
 // Bigger contrast between small text and display numbers
@@ -49,7 +49,8 @@ const toNew = (st: any) => {
   if (typeof o.fontSize === 'number') {
     const size = TYPE[o.fontSize] ?? o.fontSize;
     o.fontSize = size;
-    if (size >= 28) { o.fontWeight = '700'; o.letterSpacing = -Math.round(size * 0.035 * 10) / 10; }
+    if (String(o.fontWeight) === '700' || o.fontWeight === 'bold') o.fontWeight = '600'; // one step lighter than Classic
+    if (size >= 28) { o.fontWeight = '600'; o.letterSpacing = -Math.round(size * 0.03 * 10) / 10; }
     else if (size >= 18) o.letterSpacing = Math.min(o.letterSpacing ?? 0, -0.3);
     if (typeof o.lineHeight === 'number' && typeof st.fontSize === 'number') o.lineHeight = Math.round(o.lineHeight * size / st.fontSize + 1);
   }

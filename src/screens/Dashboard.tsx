@@ -274,7 +274,7 @@ const s = themed(() => StyleSheet.create({
 const n = themed(() => StyleSheet.create({
   worth: { marginTop: 4, paddingVertical: 6 },
   worthLabel: { fontSize: 13, color: C.sub, fontWeight: '500' },
-  worthVal: { fontSize: 46, fontWeight: '700', color: C.ink, marginTop: 2 },
+  worthVal: { fontSize: 46, fontWeight: '600', color: C.ink, marginTop: 2 },
   stats: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 10 },
   statLabel: { fontSize: 13, color: C.sub },
   statVal: { fontSize: 14, fontWeight: '600', color: C.ink },
@@ -282,5 +282,5 @@ const n = themed(() => StyleSheet.create({
   pills: { gap: 8, paddingVertical: 16, paddingRight: 8 },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: C.card, borderWidth: 1, borderColor: C.line, paddingHorizontal: 16, paddingVertical: 11, borderRadius: 999 },
   pillPrimary: { backgroundColor: C.primary, borderColor: C.primary },
-  pillTxt: { fontSize: 14, fontWeight: '600', color: C.ink },
+  pillTxt: { fontSize: 14, fontWeight: '500', color: C.ink },
 }));

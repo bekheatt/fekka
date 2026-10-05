@@ -172,26 +172,19 @@ function Shell() {
       <View style={[s.barWrap, { paddingBottom: Math.max(insets.bottom, 12) }]} pointerEvents="box-none">
         <View style={s.bar}>
           {TABS.map(x => {
-            const fresh = isRefined(); // New design: black capsule, active tab grows into a labelled pill
+            const fresh = isRefined(); // New design: Classic's bar with a soft blue pill behind the active icon
             if (x.key === 'add') return (
-              <Pressable key="add" ref={tourRef('add')} collapsable={false} onPress={() => { tap(); setQuick({}); }} style={({ pressed }) => [s.plus, fresh && [s.plusNew, { backgroundColor: isDark() ? '#08090B' : '#FFFFFF' }], pressed && { transform: [{ scale: 0.94 }] }]}>
-                <Ionicons name="add" size={fresh ? 26 : 28} color={fresh && !isDark() ? '#0E1014' : '#fff'} />
+              <Pressable key="add" ref={tourRef('add')} collapsable={false} onPress={() => { tap(); setQuick({}); }} style={({ pressed }) => [s.plus, fresh && { borderRadius: 20 }, pressed && { transform: [{ scale: 0.94 }] }]}>
+                <Ionicons name="add" size={28} color="#fff" />
               </Pressable>
             );
             const on = x.key === tab || (x.key === 'home' && tab === 'profile');
             return (
-              <Pressable key={x.key} ref={tourRef(`tab-${x.key}`)} collapsable={false} style={[s.item, fresh && on && { flex: 1.9 }]} onPress={() => { tap(); go(x.key); }}>
-                {fresh ? (
-                  <View style={[s.tabNew, on && s.tabNewOn]}>
-                    <Ionicons name={(on ? x.icon : `${x.icon}-outline`) as any} size={20} color={on ? '#fff' : '#8A909C'} />
-                    {on && <Text style={s.tabNewTxt} numberOfLines={1}>{t(x.label)}</Text>}
-                  </View>
-                ) : (
-                  <>
-                    <Ionicons name={(on ? x.icon : `${x.icon}-outline`) as any} size={22} color={on ? C.primary : C.sub} />
-                    <Text style={[s.label, on && { color: C.primary }]} numberOfLines={1}>{t(x.label)}</Text>
-                  </>
-                )}
+              <Pressable key={x.key} ref={tourRef(`tab-${x.key}`)} collapsable={false} style={s.item} onPress={() => { tap(); go(x.key); }}>
+                <View style={fresh && [s.tabPill, on && { backgroundColor: C.primary + '1A' }]}>
+                  <Ionicons name={(on ? x.icon : `${x.icon}-outline`) as any} size={22} color={on ? C.primary : C.sub} />
+                </View>
+                <Text style={[s.label, on && { color: C.primary }]} numberOfLines={1}>{t(x.label)}</Text>
               </Pressable>
             );
           })}
@@ -242,8 +235,5 @@ const s = themed(() => StyleSheet.create({
   plus: { width: 54, height: 54, borderRadius: 20, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center', marginHorizontal: 6,
     shadowColor: '#003366', shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   label: { fontSize: 11, fontWeight: '600', color: C.sub },
-  plusNew: { width: 46, height: 46, borderRadius: 23, marginHorizontal: 4, shadowOpacity: 0, elevation: 0 },
-  tabNew: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, height: 42, minWidth: 42, borderRadius: 21, paddingHorizontal: 12 },
-  tabNewOn: { backgroundColor: C.primary },
-  tabNewTxt: { color: '#fff', fontSize: 13, fontWeight: '600' },
+  tabPill: { paddingHorizontal: 14, paddingVertical: 3, borderRadius: 999 },
 }));
