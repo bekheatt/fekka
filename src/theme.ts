@@ -12,8 +12,22 @@ const DARK: typeof LIGHT = {
   green: '#2BC48A', red: '#F2555A', orange: '#F5A55C', purple: '#9AA2FF', gold: '#4D5BFF', tabBar: '#151821',
 };
 
+// Same look in electric purple (Settings → Appearance → Color). Only the accent family and its tints change.
+const PURPLE_LIGHT: typeof LIGHT = {
+  ...LIGHT, ink: '#18142A', navy: '#7B3BFF', primary: '#7B3BFF', accent: '#7B3BFF', sky: '#B49BFF', pale: '#E5DBFF',
+  hero: '#7B3BFF', purple: '#B49BFF', gold: '#7B3BFF',
+};
+const PURPLE_DARK: typeof LIGHT = {
+  ...DARK, bg: '#0D0B12', card: '#17141F', ink: '#F1EEF8', line: '#2A2536', soft: '#201C2A', tabBar: '#17141F',
+  navy: '#7B3BFF', primary: '#9361FF', accent: '#9361FF', sky: '#C1ADFF', pale: '#E5DBFF', hero: '#7B3BFF',
+  purple: '#C1ADFF', gold: '#9361FF',
+};
+export type Accent = 'blue' | 'purple';
+const PALETTES = { blue: { light: LIGHT, dark: DARK }, purple: { light: PURPLE_LIGHT, dark: PURPLE_DARK } };
+
 export const C = { ...LIGHT };
 let mode: 'light' | 'dark' = 'light';
+let accent: Accent = 'blue';
 export const isDark = () => mode === 'dark';
 
 // Shared style rules, applied to every themed style sheet so all screens follow one system:
@@ -68,9 +82,10 @@ export function themed<T extends object>(fn: () => T): T {
   sheets.push(entry);
   return new Proxy({} as T, { get: (_, k) => { if (!entry.cache) entry.cache = build(fn); return entry.cache[k]; } });
 }
-export function applyTheme(m: 'light' | 'dark') {
+export function applyTheme(m: 'light' | 'dark', a: Accent = accent) {
   mode = m;
-  Object.assign(C, m === 'dark' ? DARK : LIGHT);
+  accent = a;
+  Object.assign(C, PALETTES[a][m]);
   sheets.forEach(s => { s.cache = null; });
 }
 

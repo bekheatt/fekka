@@ -19,7 +19,7 @@ export type PriceAlert = { id: string; kind: string; dir: 'above' | 'below'; pri
 export type Income = { id: string; source: string; monthly: number; day?: number; oneOff?: string; src?: string; transfer?: boolean }; // transfer = arrived by InstaPay / wallet / bank transfer
 export type Saving = { id: string; kind: string; qty: number; name?: string; price?: number };
 export type Work = 'employee' | 'freelancer' | 'business' | 'student' | 'retired' | 'other';
-export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; account?: 'guest' | 'google' | 'apple' | 'email'; email?: string; uid?: string;
+export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; accent?: 'blue' | 'purple'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; account?: 'guest' | 'google' | 'apple' | 'email'; email?: string; uid?: string;
   smsKey?: string;       // personal key in the iPhone Shortcut link (this phone only)
   smsAutoKeep?: boolean; // add transactions from bank messages without asking
   toured?: boolean;      // false = show the first-run tour on Home (new users, or 'Replay tour')
@@ -86,7 +86,7 @@ export function gameyaStatus(g: Gameya) {
 export const ALERT_NAMES: Record<string, string> = { gold21: 'Gold 21K', gold24: 'Gold 24K', usd: 'US Dollar', eur: 'Euro' };
 
 const resolveTheme = (s: Settings) => (s.theme === 'system' ? (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light') : s.theme);
-const paint = (s: Settings) => applyTheme(resolveTheme(s));
+const paint = (s: Settings) => applyTheme(resolveTheme(s), s.accent === 'purple' ? 'purple' : 'blue');
 
 // Free sources, no key needed: open.er-api.com (USD/EUR→EGP), api.gold-api.com (gold $/oz)
 async function fetchLiveRates() {
@@ -160,7 +160,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
   const applyRemote = (merged: any) => setD(x => {
     const next: Data = withDevice({ ...empty(), ...merged }, x);
     const s = next.settings, p = x.settings;
-    if (s.theme !== p.theme || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
+    if (s.theme !== p.theme || s.accent !== p.accent || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
       setLang(s.lang); setHidden(!!s.hideAmounts); paint(s);
       setTimeout(() => setVersion(v => v + 1), 0);
     }
@@ -240,7 +240,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
     const next = fn(prev);
     if (next.settings !== prev.settings) {
       const s = next.settings, p = prev.settings;
-      if (s.theme !== p.theme || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
+      if (s.theme !== p.theme || s.accent !== p.accent || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
         setLang(s.lang);
         setHidden(!!s.hideAmounts);
         paint(s);
@@ -272,7 +272,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
     setVersion(v => v + 1);
   };
 
-  const reset = () => { stopSync(); const e = empty(); e.settings = { ...e.settings, lang: d.settings.lang, theme: d.settings.theme }; setD(e); };
+  const reset = () => { stopSync(); const e = empty(); e.settings = { ...e.settings, lang: d.settings.lang, theme: d.settings.theme, accent: d.settings.accent }; setD(e); };
   const redoSetup = () => set(x => ({ ...x, settings: { ...x.settings, onboarded: false } }));
 
   if (!ready) return null;
