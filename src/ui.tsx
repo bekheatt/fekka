@@ -35,7 +35,7 @@ export const Panel = ({ children, style }: any) => <View style={[s.card, { paddi
 
 // Rounded tinted square with an icon in it
 export const Bubble = ({ icon, color, size = 40 }: { icon: any; color: string; size?: number }) => (
-  <View style={{ width: size, height: size, borderRadius: size * 0.35, backgroundColor: color + '1F', alignItems: 'center', justifyContent: 'center' }}>
+  <View style={{ width: size, height: size, borderRadius: size * ds(0.35, 0.5), backgroundColor: color + '1F', alignItems: 'center', justifyContent: 'center' }}>
     <Ionicons name={icon} size={size * 0.5} color={color} />
   </View>
 );
@@ -238,8 +238,8 @@ const s = themed(() => StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 18 },
   title: { fontSize: 28, fontWeight: '700', color: C.ink, letterSpacing: -0.4 },
   subtitle: { fontSize: 15, color: C.sub, marginTop: 3 },
-  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 26, marginBottom: 12, paddingHorizontal: 4 },
-  section: { fontSize: 17, fontWeight: '600', color: C.ink },
+  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: ds(26, 30), marginBottom: 12, paddingHorizontal: ds(4, 2) },
+  section: { fontSize: 17, fontWeight: ds('600', '700'), color: C.ink },
   sectionAction: { fontSize: 14, fontWeight: '600', color: C.accent },
   card: { backgroundColor: C.card, borderRadius: 24, paddingHorizontal: 18, paddingVertical: 4, shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 20, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 13, gap: 12 },

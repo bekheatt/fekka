@@ -17,52 +17,59 @@ let mode: 'light' | 'dark' = 'light';
 export const isDark = () => mode === 'dark';
 
 // ── Design switch (Settings → Appearance → Design) ──────────────────────────────
-// 'classic' = the original look. 'refined' = the SAME colours with a stricter type scale, more air and one
-// corner system (taste-skill audit, preserve mode: variance 3 / motion 4 / density 4).
-// Colours are never touched here. To keep one design later: delete toRefined() and every ds() branch.
+// 'classic' = the original Fekka look.
+// 'refined' (shown as "New") = "Ink & Electric": graphite and white with black statement cards, one electric-blue
+// accent, the Outfit typeface, flat hairline cards, round badges and pill controls.
+// To keep one design later: delete the other palette pair, toNew() and every ds() branch.
 export type Design = 'classic' | 'refined';
 let design: Design = 'classic';
 export const isRefined = () => design === 'refined';
-// Pick a value for the current design: ds(classicValue, refinedValue)
-export const ds = <T,>(classic: T, refined: T): T => (design === 'refined' ? refined : classic);
+// Pick a value for the current design: ds(classicValue, newValue)
+export const ds = <T,>(classic: T, fresh: T): T => (design === 'refined' ? fresh : classic);
 
-// Type scale: 21 sizes in use → 8 steps (12 · 13 · 15 · 17 · 20 · 24 · 28 · 34). Big hero numbers stay as they are.
-const TYPE: Record<number, number> = { 10: 12, 11: 12, 12: 12, 13: 13, 14: 15, 15: 15, 16: 17, 17: 17, 19: 20, 20: 20, 22: 24, 24: 24, 26: 28, 28: 28, 30: 34, 32: 34, 34: 34 };
+const NEW_LIGHT: typeof LIGHT = {
+  bg: '#EEEFF2', card: '#FFFFFF', ink: '#0E1014', sub: '#6E7480', line: '#E2E4E9', soft: '#F3F4F6',
+  navy: '#0E1014', primary: '#2B3BFF', accent: '#2B3BFF', sky: '#8E97FF', pale: '#D8DBFF', hero: '#0E1014',
+  green: '#14A06B', red: '#E5484D', orange: '#F2994A', purple: '#8E97FF', gold: '#2B3BFF', tabBar: '#0E1014',
+};
+const NEW_DARK: typeof LIGHT = {
+  bg: '#08090B', card: '#131519', ink: '#F1F2F4', sub: '#8A909C', line: '#23262C', soft: '#1A1D22',
+  navy: '#08090B', primary: '#4D5BFF', accent: '#4D5BFF', sky: '#9AA2FF', pale: '#C9CDFF', hero: '#1C1F25',
+  green: '#2BC48A', red: '#F2555A', orange: '#F5A55C', purple: '#9AA2FF', gold: '#4D5BFF', tabBar: '#F1F2F4',
+};
+
+// Bigger contrast between small text and display numbers
+const TYPE: Record<number, number> = { 10: 12, 11: 12, 17: 18, 19: 20, 20: 22, 22: 24, 24: 28, 26: 30, 28: 34, 30: 36, 32: 38, 34: 42 };
 const SPACING = ['padding', 'paddingVertical', 'paddingHorizontal', 'paddingTop', 'paddingBottom', 'marginTop', 'marginBottom', 'gap', 'rowGap'];
 
-const toRefined = (st: any) => {
+const toNew = (st: any) => {
   if (!st || typeof st !== 'object') return st;
   const o = { ...st };
-  // Typography: one scale, quieter captions, bold only for big numbers and titles, tighter display tracking
+  // Type: display sizes jump up and tighten; titles get a little tracking off
   if (typeof o.fontSize === 'number') {
     const size = TYPE[o.fontSize] ?? o.fontSize;
     o.fontSize = size;
-    const w = String(o.fontWeight ?? '400');
-    if (w === '500') o.fontWeight = size <= 13 ? '400' : '600';
-    else if (w === '700' && size < 20) o.fontWeight = '600';
-    if (size >= 24) o.letterSpacing = Math.min(o.letterSpacing ?? 0, -Math.round(size * 0.02 * 10) / 10);
-    else if (size >= 17) o.letterSpacing = Math.min(o.letterSpacing ?? 0, -0.2);
+    if (size >= 28) { o.fontWeight = '700'; o.letterSpacing = -Math.round(size * 0.035 * 10) / 10; }
+    else if (size >= 18) o.letterSpacing = Math.min(o.letterSpacing ?? 0, -0.3);
     if (typeof o.lineHeight === 'number' && typeof st.fontSize === 'number') o.lineHeight = Math.round(o.lineHeight * size / st.fontSize + 1);
   }
-  // Density 5 → 4: about 15% more breathing room, kept on an even grid
-  for (const k of SPACING) if (typeof o[k] === 'number' && o[k] >= 8) o[k] = Math.round(o[k] * 1.15 / 2) * 2;
-  // One corner system: cards 20 · large tiles 16 · buttons and inputs 14 · chips and icon tiles 12 · circles stay circles
+  // A bit more air
+  for (const k of SPACING) if (typeof o[k] === 'number' && o[k] >= 8) o[k] = Math.round(o[k] * 1.1 / 2) * 2;
+  // Shapes: round badges, pill controls, soft 24px panels
   const r = o.borderRadius;
   if (typeof r === 'number') {
     const w = o.width, h = o.height;
     const sized = typeof w === 'number' && typeof h === 'number';
-    if (sized && r >= Math.min(w, h) / 2 - 1) { /* circle */ }
-    else if (sized && w === h && w >= 50) o.borderRadius = 16;      // large tiles (the + button)
-    else if (sized && w === h && w >= 30) o.borderRadius = 12;      // icon tiles
-    else if (r >= 26) { /* big pills (tab bar) */ }
-    else if (r >= 18) o.borderRadius = 20;
-    else if (r >= 13) o.borderRadius = 14;
-    else if (r >= 9) o.borderRadius = 12;
+    if (sized && r >= Math.min(w, h) / 2 - 1) { /* already round */ }
+    else if (sized && w === h) o.borderRadius = w / 2;                                   // icon tiles → circles
+    else if (r >= 26) { /* big capsules */ }
+    else if (r >= 18 || (r >= 11 && ((o.padding ?? 0) >= 18 || (typeof h === 'number' && h >= 80)))) o.borderRadius = 24; // panels, images
+    else if (r >= 11) o.borderRadius = 999;                                              // buttons, chips, inputs → pills
   }
-  // Softer card shadows (same tint); strong shadows on floating things stay
-  if (typeof o.shadowOpacity === 'number' && o.shadowOpacity > 0 && o.shadowOpacity <= 0.1) {
-    o.shadowOpacity = Math.round(o.shadowOpacity * 0.6 * 1000) / 1000;
-    if (typeof o.shadowRadius === 'number') o.shadowRadius = Math.round(o.shadowRadius * 1.25);
+  // Flat: no soft shadows; white cards get a hairline instead
+  if (typeof o.shadowOpacity === 'number' && o.shadowOpacity <= 0.12) {
+    o.shadowOpacity = 0; o.elevation = 0;
+    if (o.backgroundColor === C.card && o.borderWidth == null) { o.borderWidth = 1; o.borderColor = C.line; }
   }
   return o;
 };
@@ -73,7 +80,7 @@ const build = (fn: () => any) => {
   const sheet = fn();
   if (design !== 'refined') return sheet;
   const out: any = {};
-  for (const k in sheet) out[k] = toRefined(sheet[k]);
+  for (const k in sheet) out[k] = toNew(sheet[k]);
   return out;
 };
 export function themed<T extends object>(fn: () => T): T {
@@ -84,7 +91,7 @@ export function themed<T extends object>(fn: () => T): T {
 export function applyTheme(m: 'light' | 'dark', d: Design = design) {
   mode = m;
   design = d;
-  Object.assign(C, m === 'dark' ? DARK : LIGHT);
+  Object.assign(C, d === 'refined' ? (m === 'dark' ? NEW_DARK : NEW_LIGHT) : (m === 'dark' ? DARK : LIGHT));
   sheets.forEach(s => { s.cache = null; });
 }
 
