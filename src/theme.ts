@@ -12,18 +12,18 @@ const DARK: typeof LIGHT = {
   green: '#2BC48A', red: '#F2555A', orange: '#F5A55C', purple: '#9AA2FF', gold: '#4D5BFF', tabBar: '#151821',
 };
 
-// Same look in deep teal (Settings → Appearance → Color). Only the accent family and its tints change.
-const TEAL_LIGHT: typeof LIGHT = {
-  ...LIGHT, ink: '#122024', navy: '#0A7C86', primary: '#0A7C86', accent: '#0A7C86', sky: '#5FC4CC', pale: '#CDEFF1',
-  hero: '#0A7C86', purple: '#5FC4CC', gold: '#0A7C86',
+// "Copper & Slate": the same look with a warm burnt-copper accent on the cool slate neutrals
+// (Settings → Appearance → Color). Warnings move from orange to amber so they don't blend with the copper.
+const COPPER_LIGHT: typeof LIGHT = {
+  ...LIGHT, navy: '#B8481A', primary: '#B8481A', accent: '#B8481A', sky: '#E8A07E', pale: '#F8DCCD',
+  hero: '#B8481A', purple: '#E8A07E', gold: '#B8481A', orange: '#D9A21B',
 };
-const TEAL_DARK: typeof LIGHT = {
-  ...DARK, bg: '#091012', card: '#121A1C', ink: '#EDF5F6', line: '#22302F', soft: '#1A2427', tabBar: '#121A1C',
-  navy: '#0A7C86', primary: '#0E8F99', accent: '#0E8F99', sky: '#6FD0D8', pale: '#CDEFF1', hero: '#0A7C86',
-  purple: '#6FD0D8', gold: '#0E8F99',
+const COPPER_DARK: typeof LIGHT = {
+  ...DARK, navy: '#B8481A', primary: '#D9622B', accent: '#D9622B', sky: '#F0A989', pale: '#F8DCCD',
+  hero: '#B8481A', purple: '#F0A989', gold: '#D9622B', orange: '#E8B33A',
 };
-export type Accent = 'blue' | 'teal';
-const PALETTES = { blue: { light: LIGHT, dark: DARK }, teal: { light: TEAL_LIGHT, dark: TEAL_DARK } };
+export type Accent = 'blue' | 'copper';
+const PALETTES = { blue: { light: LIGHT, dark: DARK }, copper: { light: COPPER_LIGHT, dark: COPPER_DARK } };
 
 export const C = { ...LIGHT };
 let mode: 'light' | 'dark' = 'light';
