@@ -3,7 +3,7 @@ import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, PROVIDERS, LOAN_TYPES, BILL_TYPES, themed } from '../theme';
-import { useStore, useTotals, uid, gameyaStatus, ym, daysUntil, isPropertyLoan, propertyOwned } from '../store';
+import { useStore, useTotals, uid, gameyaStatus, ym, daysUntil, daysLate, isPropertyLoan, propertyOwned } from '../store';
 import { Header, Section, Card, Row, Empty, Sheet, Field, Chips, num, tap, Screen, Hint, Check, Progress } from '../ui';
 import { t } from '../i18n';
 import { dueLabel } from './Dashboard';
@@ -121,7 +121,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
             <Row key={u.kind + u.id} icon={u.icon} color={u.color} title={u.name} dim={u.paid}
               left={<Check on={u.paid} onPress={() => togglePaid(u.kind, u.id)} />} onPress={() => edit(u.kind, u.id)}
               sub={`${u.by} · ${u.paid ? t('Paid') : dueLabel(u.day)}`}
-              value={le(u.amount)} valueColor={!u.paid && daysUntil(u.day) <= 3 ? C.orange : undefined}
+              value={le(u.amount)} valueColor={u.paid ? undefined : daysLate(u.day) > 0 ? C.red : daysUntil(u.day) <= 3 ? C.orange : undefined}
               last={i === tot.due.length - 1} />
           ))}
       </Card>

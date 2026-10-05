@@ -3,7 +3,7 @@ import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, EXPENSE_CATS, themed, isHidden } from '../theme';
-import { useStore, useTotals, daysUntil, goalValue, ym } from '../store';
+import { useStore, useTotals, daysUntil, daysLate, goalValue, ym } from '../store';
 import { Card, Row, Section, Screen, tap, Progress, Check, SplitBar, pressedStyle } from '../ui';
 import { t, locale } from '../i18n';
 import Logo from '../Logo';
@@ -13,7 +13,10 @@ import { tourRef } from '../features/Tour/Tour';
 
 type Go = (tab: string, action?: string) => void;
 
+// For unpaid payments: late if its day has passed this month, otherwise how soon it's due
 export const dueLabel = (day: number) => {
+  const late = daysLate(day);
+  if (late > 0) return late === 1 ? t('1 day late') : t('{n} days late', { n: late });
   const n = daysUntil(day);
   return n === 0 ? t('due today') : n === 1 ? t('due tomorrow') : t('due in {n} days', { n });
 };
@@ -31,10 +34,11 @@ export default function Dashboard({ go }: { go: Go }) {
   const isNew = d.incomes.length + d.expenses.length + d.installments.length + d.loans.length + d.savings.length + d.bills.length + d.goals.length + d.gameyas.length === 0;
 
   const upcoming = tot.unpaid.slice(0, 3);
-  const dueThisWeek = tot.unpaid.filter(u => daysUntil(u.day) <= 6).length;
+  const lateCount = tot.unpaid.filter(u => daysLate(u.day) > 0).length;
   const glance = [
     daysLeft === 0 ? t('Last day') : daysLeft === 1 ? t('1 day left') : t('{n} days left', { n: daysLeft }),
-    tot.due.length === 0 ? null : dueThisWeek === 0 ? t('Nothing due') : t('{n} due soon', { n: dueThisWeek }), // soon = next 7 days
+    tot.due.length === 0 ? null : tot.unpaid.length === 0 ? t('All paid')
+      : lateCount > 0 ? t('{n} due, {k} late', { n: tot.unpaid.length, k: lateCount }) : t('{n} due', { n: tot.unpaid.length }),
   ].filter(Boolean).join(' · ');
 
   const base = Math.max(tot.income, tot.committed + tot.spent, 1);
@@ -134,7 +138,7 @@ export default function Dashboard({ go }: { go: Go }) {
                   <Row key={u.id} icon={u.icon} color={u.color} title={u.name}
                     left={<Check on={u.paid} onPress={() => togglePaid(u.kind, u.id)} />} onPress={() => go('pay', `edit:${u.kind}:${u.id}`)}
                     sub={`${u.by} · ${dueLabel(u.day)}`}
-                    value={le(u.amount)} valueColor={daysUntil(u.day) <= 3 ? C.orange : undefined} last={i === upcoming.length - 1} />
+                    value={le(u.amount)} valueColor={daysLate(u.day) > 0 ? C.red : daysUntil(u.day) <= 3 ? C.orange : undefined} last={i === upcoming.length - 1} />
                 ))}
           </Card>
 
