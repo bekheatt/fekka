@@ -33,8 +33,8 @@ export default function Dashboard({ go }: { go: Go }) {
   const upcoming = tot.unpaid.slice(0, 3);
   const dueThisWeek = tot.unpaid.filter(u => daysUntil(u.day) <= 6).length;
   const glance = [
-    daysLeft === 0 ? t('Last day of the month') : daysLeft === 1 ? t('1 day left') : t('{n} days left', { n: daysLeft }),
-    tot.due.length === 0 ? null : dueThisWeek === 0 ? t('Nothing due this week') : dueThisWeek === 1 ? t('1 payment due this week') : t('{n} payments due this week', { n: dueThisWeek }),
+    daysLeft === 0 ? t('Last day') : daysLeft === 1 ? t('1 day left') : t('{n} days left', { n: daysLeft }),
+    tot.due.length === 0 ? null : dueThisWeek === 0 ? t('Nothing due') : t('{n} due soon', { n: dueThisWeek }), // soon = next 7 days
   ].filter(Boolean).join(' · ');
 
   const base = Math.max(tot.income, tot.committed + tot.spent, 1);
@@ -56,7 +56,7 @@ export default function Dashboard({ go }: { go: Go }) {
         <Logo size={40} />
         <View style={{ flex: 1 }}>
           <Text style={s.hello} numberOfLines={1}>{monthName}</Text>
-          <Text style={s.date} numberOfLines={1}>{glance}</Text>
+          <Text style={s.date} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{glance}</Text>
         </View>
         <Pressable onPress={() => { tap(); set(x => ({ ...x, settings: { ...x.settings, hideAmounts: !x.settings.hideAmounts } })); }} hitSlop={10} style={s.eye} ref={tourRef('eye')} collapsable={false}>
           <Ionicons name={isHidden() ? 'eye-off-outline' : 'eye-outline'} size={20} color={C.primary} />
