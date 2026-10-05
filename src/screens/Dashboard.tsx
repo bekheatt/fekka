@@ -53,6 +53,7 @@ export default function Dashboard({ go }: { go: Go }) {
   return (
     <Screen>
       <View style={s.top}>
+        <Logo size={40} />
         <View style={{ flex: 1 }}>
           <Text style={s.hello} numberOfLines={1}>{monthName}</Text>
           <Text style={s.date} numberOfLines={1}>{glance}</Text>

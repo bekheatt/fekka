@@ -11,10 +11,10 @@ export default function Splash({ onDone }: { onDone: () => void }) {
   const out = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.timing(text, { toValue: 1, duration: 500, delay: 650, useNativeDriver: true }).start();
+    Animated.timing(text, { toValue: 1, duration: 400, delay: 450, useNativeDriver: true }).start();
     const t = setTimeout(() => {
-      Animated.timing(out, { toValue: 0, duration: 300, useNativeDriver: true }).start(onDone);
-    }, 3200); // ~3.5 seconds total — longer so the name sticks
+      Animated.timing(out, { toValue: 0, duration: 250, useNativeDriver: true }).start(onDone);
+    }, 1600); // about 1.8 seconds in total: long enough for the coins, the shine and the name
     return () => clearTimeout(t);
   }, []);
 
