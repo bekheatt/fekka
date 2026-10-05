@@ -12,18 +12,18 @@ const DARK: typeof LIGHT = {
   green: '#2BC48A', red: '#F2555A', orange: '#F5A55C', purple: '#9AA2FF', gold: '#4D5BFF', tabBar: '#151821',
 };
 
-// Same look in electric magenta (Settings → Appearance → Color). Only the accent family and its tints change.
-const MAGENTA_LIGHT: typeof LIGHT = {
-  ...LIGHT, ink: '#1C1420', navy: '#D6187A', primary: '#D6187A', accent: '#D6187A', sky: '#F07AB5', pale: '#FFD6EA',
-  hero: '#D6187A', purple: '#F07AB5', gold: '#D6187A',
+// Same look in deep teal (Settings → Appearance → Color). Only the accent family and its tints change.
+const TEAL_LIGHT: typeof LIGHT = {
+  ...LIGHT, ink: '#122024', navy: '#0A7C86', primary: '#0A7C86', accent: '#0A7C86', sky: '#5FC4CC', pale: '#CDEFF1',
+  hero: '#0A7C86', purple: '#5FC4CC', gold: '#0A7C86',
 };
-const MAGENTA_DARK: typeof LIGHT = {
-  ...DARK, bg: '#100B0E', card: '#1A1418', ink: '#F6EEF2', line: '#2E242A', soft: '#231B20', tabBar: '#1A1418',
-  navy: '#D6187A', primary: '#F0429A', accent: '#F0429A', sky: '#F59CC8', pale: '#FFD6EA', hero: '#D6187A',
-  purple: '#F59CC8', gold: '#F0429A',
+const TEAL_DARK: typeof LIGHT = {
+  ...DARK, bg: '#091012', card: '#121A1C', ink: '#EDF5F6', line: '#22302F', soft: '#1A2427', tabBar: '#121A1C',
+  navy: '#0A7C86', primary: '#0E8F99', accent: '#0E8F99', sky: '#6FD0D8', pale: '#CDEFF1', hero: '#0A7C86',
+  purple: '#6FD0D8', gold: '#0E8F99',
 };
-export type Accent = 'blue' | 'magenta';
-const PALETTES = { blue: { light: LIGHT, dark: DARK }, magenta: { light: MAGENTA_LIGHT, dark: MAGENTA_DARK } };
+export type Accent = 'blue' | 'teal';
+const PALETTES = { blue: { light: LIGHT, dark: DARK }, teal: { light: TEAL_LIGHT, dark: TEAL_DARK } };
 
 export const C = { ...LIGHT };
 let mode: 'light' | 'dark' = 'light';
