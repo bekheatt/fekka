@@ -18,8 +18,6 @@ const AR: Record<string, string> = {
   // tabs & titles
   'Home': 'الرئيسية', 'Spend': 'المصاريف', 'Pay': 'المدفوعات', 'Save': 'الادخار', 'Profile': 'حسابي', 'Settings': 'الإعدادات',
   'Spending': 'المصاريف', 'Payments': 'المدفوعات', 'Savings': 'الادخار',
-  // greetings
-  'Good morning': 'صباح الخير', 'Good afternoon': 'مساء الخير', 'Good evening': 'مساء الخير',
   // dashboard
   "What you're worth": 'صافي ثروتك', 'Everything you own minus everything you owe': 'كل ما تملكه ناقص كل ما عليك',
   'You own': 'تملك', 'You owe': 'عليك', 'Expense': 'مصروف', 'Income': 'دخل', 'Payment': 'قسط', 'Goal': 'هدف',
@@ -376,6 +374,12 @@ const AR: Record<string, string> = {
   "Replay the tour": "إعادة الجولة",
   "A quick walk through the app": "لفة سريعة في التطبيق",
   'Afford?': 'أقدر؟',
+  "Last day of the month": "آخر يوم في الشهر",
+  "1 day left": "باقي يوم واحد",
+  "{n} days left": "باقي {n} يوم",
+  "Nothing due this week": "مفيش مدفوعات الأسبوع ده",
+  "1 payment due this week": "قسط واحد مستحق الأسبوع ده",
+  "{n} payments due this week": "{n} مدفوعات مستحقة الأسبوع ده",
   "After you buy it": "بعد ما تشتريها",
   "With this installment": "مع القسط ده",
   "left to spend this month": "باقيين معاك تصرفهم الشهر ده",
