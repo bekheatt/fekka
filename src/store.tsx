@@ -6,6 +6,7 @@ import { Appearance, AppState } from 'react-native';
 import { DEFAULT_RATES, PROVIDERS, BILL_TYPES, LOAN_TYPES, applyTheme, isDark, setHidden, le, C } from './theme';
 import * as Notifications from 'expo-notifications';
 import { setLang, t } from './i18n';
+import { dictionaryCategory, shopOf } from './features/SmsImport/merchants';
 
 export type Installment = { id: string; provider: string; item: string; monthly: number; monthsLeft: number; dueDay: number; paidMonths?: string[] };
 // Mortgages can also track the property: name = nickname (e.g. "Sahel chalet"), price = property price, paid = paid so far
@@ -13,7 +14,7 @@ export type Loan = { id: string; type: string; lender: string; monthly: number; 
 export type Bill = { id: string; cat: string; name: string; amount: number; dueDay: number; paidMonths?: string[] };
 export type Gameya = { id: string; name: string; monthly: number; members: number; myTurn: number; start: string; dueDay: number; paidMonths?: string[] };
 export type Goal = { id: string; name: string; icon: string; unit: string; target: number; saved: number; deadline?: string; history?: { date: string; amount: number }[] };
-export type Expense = { id: string; cat: string; amount: number; note: string; date: string; receipt?: string; src?: string }; // src = fingerprint of the bank SMS it came from
+export type Expense = { id: string; cat: string; amount: number; note: string; date: string; receipt?: string; src?: string; shop?: string }; // src = fingerprint of the bank SMS it came from; shop = its shop name (card payments)
 export type PriceAlert = { id: string; kind: string; dir: 'above' | 'below'; price: number; active: boolean; firedAt?: string };
 // oneOff = ISO date for a single payment (freelance job, bonus, Eid money); otherwise it repeats monthly
 export type Income = { id: string; source: string; monthly: number; day?: number; oneOff?: string; src?: string; transfer?: boolean }; // transfer = arrived by InstaPay / wallet / bank transfer
@@ -138,6 +139,8 @@ export function Provider({ children }: { children: React.ReactNode }) {
       if (!hadSettings) loaded.settings.onboarded = [loaded.incomes, loaded.expenses, loaded.installments, loaded.loans, loaded.savings].some(a => a.length > 0);
       // Transfers logged from bank SMS before the Transfers category existed
       loaded.expenses = loaded.expenses.map(e => (e.src && e.cat === 'Other' && /^(Transfer|تحويل)/.test(e.note) ? { ...e, cat: 'Transfers' } : e));
+      // Bank-SMS expenses still in Other: sort them with the built-in shop list
+      loaded.expenses = loaded.expenses.map(e => { if (!e.src || e.cat !== 'Other') return e; const shop = shopOf(e); const cat = shop && dictionaryCategory(shop); return cat ? { ...e, cat, shop } : e; });
       setLang(loaded.settings.lang);
       setHidden(!!loaded.settings.hideAmounts);
       paint(loaded.settings);

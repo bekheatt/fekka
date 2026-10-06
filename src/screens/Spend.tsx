@@ -8,6 +8,8 @@ import { useStore, useTotals, uid, ym } from '../store';
 import { Header, Section, Card, Row, Empty, AddBtn, Sheet, Field, num, tap, Screen, Hint, Segmented } from '../ui';
 import { t, locale } from '../i18n';
 import SmsImport from '../features/SmsImport/SmsImport';
+import { teach } from '../features/SmsImport/crowd';
+import { merchantKey, shopOf } from '../features/SmsImport/merchants';
 
 const isTransferIncome = (i: { transfer?: boolean; src?: string; source: string }) =>
   i.transfer ?? (!!i.src && /transfer|تحويل/i.test(i.source));
@@ -55,7 +57,17 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
   const save = () => {
     const v = num(amt);
     if (!v) return reset();
-    if (editId && open === 'exp') set(x => ({ ...x, expenses: x.expenses.map(e => { if (e.id !== editId) return e; if (e.receipt && e.receipt !== receipt) deleteReceipt(e.receipt); return { ...e, cat, amount: v, note, receipt }; }) }));
+    if (editId && open === 'exp') {
+      // a new category for a shop from a bank SMS: remember it for that shop, and share it
+      const old = d.expenses.find(e => e.id === editId);
+      const shop = old && old.cat !== cat ? shopOf(old) : undefined;
+      if (shop) teach(shop, cat);
+      set(x => ({
+        ...x,
+        merchantCats: shop ? { ...(x.merchantCats ?? {}), [merchantKey(shop)]: cat } : x.merchantCats,
+        expenses: x.expenses.map(e => { if (e.id !== editId) return e; if (e.receipt && e.receipt !== receipt) deleteReceipt(e.receipt); return { ...e, cat, amount: v, note, receipt }; }),
+      }));
+    }
     else if (editId) set(x => ({ ...x, incomes: x.incomes.map(i => i.id === editId ? { ...i, source: note || i.source, monthly: v, oneOff: once ? (i.oneOff ?? new Date().toISOString()) : undefined } : i) }));
     else if (open === 'exp') set(x => ({ ...x, expenses: [{ id: uid(), cat, amount: v, note, date: new Date().toISOString(), receipt }, ...x.expenses] }));
     else set(x => ({ ...x, incomes: [...x.incomes, { id: uid(), source: note || t(once ? 'Payment received' : 'Salary'), monthly: v, oneOff: once ? new Date().toISOString() : undefined }] }));

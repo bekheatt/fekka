@@ -11,6 +11,7 @@ import { Card, Check, Bubble, Section, tap, pressedStyle } from '../../ui';
 import { t, locale } from '../../i18n';
 import { parseSms, splitMessages } from './parse';
 import { guessCategory, describe, isLogged, inPounds, logTransactions } from './log';
+import { prefetchCrowd, canShare, teach } from './crowd';
 import AutoLogSetup from './AutoLogSetup';
 
 export default function SmsImport({ visible, onClose, initialText }: { visible: boolean; onClose: () => void; initialText?: string }) {
@@ -19,6 +20,7 @@ export default function SmsImport({ visible, onClose, initialText }: { visible: 
   const [off, setOff] = useState<Record<string, boolean>>({});      // unticked rows
   const [cats, setCats] = useState<Record<string, string>>({});     // category changes
   const [setup, setSetup] = useState(false);
+  const [crowdTick, setCrowdTick] = useState(0); // redraws once shared shop categories arrive
 
   useEffect(() => { if (visible) { setText(initialText ?? ''); setOff({}); setCats({}); } }, [visible]);
 
@@ -30,7 +32,8 @@ export default function SmsImport({ visible, onClose, initialText }: { visible: 
     // the same message pasted twice shows once
     const unique = rows.filter((r, i) => rows.findIndex(x => x.tx.fingerprint === r.tx.fingerprint) === i);
     return { rows: unique, unread: msgs.length - rows.length };
-  }, [text, d.expenses, d.incomes]);
+  }, [text, d.expenses, d.incomes, crowdTick]);
+  useEffect(() => { if (rows.length) prefetchCrowd(rows.map(r => r.tx)).then(() => setCrowdTick(x => x + 1)); }, [text]);
 
   const chosen = rows.filter(r => !r.dup && !off[r.tx.fingerprint]);
   const paste = async () => { tap(); const s = await Clipboard.getStringAsync(); if (s) setText(x => (x ? x + '\n' : '') + s); };
@@ -42,7 +45,8 @@ export default function SmsImport({ visible, onClose, initialText }: { visible: 
   const add = () => {
     if (!chosen.length) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    set(x => logTransactions(x, chosen.map(r => ({ tx: r.tx, cat: cats[r.tx.fingerprint] ?? r.cat }))).next);
+    set(x => logTransactions(x, chosen.map(r => ({ tx: r.tx, cat: cats[r.tx.fingerprint] ?? r.cat, chosen: !!cats[r.tx.fingerprint] }))).next);
+    chosen.forEach(r => { const c = cats[r.tx.fingerprint]; if (c && canShare(r.tx)) teach(r.tx.party!, c); });
     onClose();
   };
 

@@ -142,3 +142,22 @@ export async function clearInbox(ids: string[]): Promise<void> {
   const { error } = await supabase.from('sms_inbox').delete().in('id', ids);
   if (error) throw error;
 }
+
+// ---------- Shared shop categories (merchant_votes): what Fekka users put each shop under ----------
+export type CrowdRow = { merchant_key: string; category: string; votes: number };
+
+export async function loadCrowd(keys: string[]): Promise<CrowdRow[]> {
+  if (!keys.length) return [];
+  const { data, error } = await supabase.rpc('merchant_crowd', { p_keys: keys.slice(0, 200) });
+  if (error) throw error;
+  return (data ?? []) as CrowdRow[];
+}
+
+// One vote per person per shop; changing your mind replaces your vote
+export async function voteMerchant(key: string, category: string): Promise<void> {
+  const { data } = await supabase.auth.getSession();
+  const uid = data.session?.user.id;
+  if (!uid) return; // guests don't share
+  const { error } = await supabase.from('merchant_votes').upsert({ user_id: uid, merchant_key: key, category, updated_at: new Date().toISOString() });
+  if (error) throw error;
+}

@@ -26,6 +26,7 @@ import Banner, { BannerInfo } from './src/features/SmsImport/Banner';
 import { parseSms } from './src/features/SmsImport/parse';
 import { guessCategory, describe, inPounds, isLogged, isTransfer, logTransactions, undoLogged, fromInbox, type Pick } from './src/features/SmsImport/log';
 import InboxReview, { Pending } from './src/features/SmsImport/InboxReview';
+import { prefetchCrowd, canShare, teach } from './src/features/SmsImport/crowd';
 import { loadInbox, clearInbox } from './src/cloud/supabase';
 import Tour, { tourRef } from './src/features/Tour/Tour';
 import { le } from './src/theme';
@@ -54,9 +55,10 @@ function Shell() {
   const [banner, setBanner] = useState<BannerInfo | null>(null);
 
   // A bank SMS handed over by an iPhone Shortcuts automation: add it straight away, offer Undo
-  const logSms = (text: string) => {
+  const logSms = async (text: string) => {
     const tx = parseSms(text);
     const key = Date.now();
+    if (tx) await prefetchCrowd([tx]);
     if (!tx) return setBanner({ key, title: t('Not a payment message'), sub: t('Nothing was added'), icon: 'information-circle', color: C.sub });
     if (isLogged(dRef.current, tx.fingerprint)) return setBanner({ key, title: t('Already added'), sub: describe(tx), icon: 'checkmark-circle', color: C.sub });
     set(x => logTransactions(x, [{ tx, cat: guessCategory(tx, x.merchantCats) }]).next);
@@ -97,6 +99,7 @@ function Shell() {
       const fresh: Pending[] = rows.filter(r => !isLogged(cur, r.fingerprint)).map(r => ({ id: r.id, tx: fromInbox(r) }));
       if (known.length) clearInbox(known).catch(() => {});
       if (!fresh.length) return;
+      await prefetchCrowd(fresh.map(p => p.tx));
       if (cur.settings.smsAutoKeep) keepFromInbox(fresh.map(p => ({ tx: p.tx, cat: guessCategory(p.tx, cur.merchantCats) })), fresh.map(p => p.id));
       else setPending(fresh);
     } catch { /* offline: try again next time the app opens */ }
@@ -104,6 +107,7 @@ function Shell() {
   };
   const reviewed = (keep: Pick[], alwaysKeep: boolean) => {
     keepFromInbox(keep, pending.map(p => p.id));
+    keep.forEach(k => { if (k.chosen && canShare(k.tx)) teach(k.tx.party!, k.cat); });
     if (alwaysKeep) set(x => ({ ...x, settings: { ...x.settings, smsAutoKeep: true } }));
     setPending([]);
   };

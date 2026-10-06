@@ -4,27 +4,30 @@ import type { Data, Expense, Income } from '../../store';
 import { uid } from '../../store';
 import { t } from '../../i18n';
 import type { ParsedTx } from './parse';
-
-// Common Egyptian shops and services → category. Your own picks (Data.merchantCats) always win.
-const KEYWORDS: [string, RegExp][] = [
-  ['Food', /(carrefour|spinneys|seoudi|metro market|kazyon|hyper|oscar|gourmet|kheir zaman|awlad ragab|fathalla|talabat|elmenus|breadfast|instashop|rabbit|mcdonald|kfc|burger|hardee|pizza|domino|papa john|starbucks|costa|cilantro|cafe|coffee|bakery|restaurant|food|grill|koshary|abou|tbs|cook door|مطعم|سوبر ماركت|ماركت|كافيه|مخبز|بقاله)/i],
-  ['Transport', /(uber|careem|didi|indrive|swvl|halan|bolt|taxi|petrol|fuel|gas station|wataniya|watanya|chillout|misr petroleum|mobil|shell|total|emarat misr|parking|toll|metro ticket|بنزين|وقود|موقف|بنزينه)/i],
-  ['Bills', /(vodafone(?! cash)|orange(?! cash)|etisalat(?! cash)|e&|\bwe\b|telecom egypt|fawry|electric|كهرباء|water|مياه|natural gas|petrotrade|town gas|internet|انترنت|فوري|tedata|school fee|tuition|اشتراك)/i],
-  ['Shopping', /(amazon|noon|jumia|shein|zara|h&m|lc waikiki|defacto|max fashion|ikea|centrepoint|b\.tech|btech|2b|raya|apple\.com|apple store|city ?stars|mall|cairo festival|ملابس|مول)/i],
-  ['Health', /(pharma|صيدلي|el ezaby|ezaby|seif|misr pharmacies|19011|hospital|مستشفي|clinic|عياده|alfa lab|al borg|البرج|lab|dental|doctor|vezeeta|دكتور)/i],
-  ['Fun', /(netflix|spotify|anghami|shahid|osn|watch ?it|yango play|youtube|google play|app store|itunes|playstation|psn|steam|xbox|cinema|vox|imax|سينما|gym|fitness|club)/i],
-];
+import { dictionaryCategory, merchantKey } from './merchants';
+import { canShare, crowdFor } from './crowd';
 
 export const isTransfer = (tx: ParsedTx) => tx.channel === 'instapay' || tx.channel === 'wallet' || tx.channel === 'transfer';
+export { merchantKey };
 
-export const merchantKey = (party?: string) => (party ?? '').toLowerCase().replace(/[^a-z0-9؀-ۿ]+/g, ' ').trim();
-
+// Category for a transaction, most trusted first:
+//   1. what you picked for this shop before (Data.merchantCats)
+//   2. what 3+ Fekka users agree on (can correct the built-in list)
+//   3. the built-in list of Egyptian shops (merchants.ts)
+//   4. what 2 Fekka users agree on (fills in shops the list doesn't know)
+//   5. Transfers for money sent to people, otherwise Other
 export function guessCategory(tx: ParsedTx, learned?: Record<string, string>) {
   const key = merchantKey(tx.party);
-  if (key && learned?.[key]) return learned[key];
-  // match the shop name; only look at the whole message when there is no name (avoids words like "total")
-  const hay = tx.party || tx.text;
-  for (const [cat, re] of KEYWORDS) if (re.test(hay)) return cat;
+  const mine = key ? learned?.[key] : undefined;
+  if (mine && mine !== 'Other') return mine; // an old automatic "Other" shouldn't hide a better answer
+  if (tx.party && canShare(tx)) {
+    const crowd = crowdFor(key);
+    if (crowd?.cat && crowd.n >= 3) return crowd.cat;
+    const known = dictionaryCategory(tx.party);
+    if (known) return known;
+    if (crowd?.cat) return crowd.cat;
+  }
+  if (mine) return mine;
   return isTransfer(tx) ? 'Transfers' : 'Other';
 }
 
@@ -44,14 +47,15 @@ export function describe(tx: ParsedTx) {
 
 export const isLogged = (d: Data, fp: string) => d.expenses.some(e => e.src === fp) || d.incomes.some(i => i.src === fp);
 
-export type Pick = { tx: ParsedTx; cat: string };
+// chosen = the person picked this category themselves (not the automatic guess)
+export type Pick = { tx: ParsedTx; cat: string; chosen?: boolean };
 
 // Adds the picked transactions; returns the new ids so the caller can undo
 export function logTransactions(d: Data, picks: Pick[]): { next: Data; ids: string[] } {
   const expenses: Expense[] = [], incomes: Income[] = [], ids: string[] = [];
   const learned = { ...(d.merchantCats ?? {}) };
   const seen = new Set<string>();
-  for (const { tx, cat } of picks) {
+  for (const { tx, cat, chosen } of picks) {
     if (seen.has(tx.fingerprint) || isLogged(d, tx.fingerprint)) continue;
     seen.add(tx.fingerprint);
     const id = uid();
@@ -61,9 +65,9 @@ export function logTransactions(d: Data, picks: Pick[]): { next: Data; ids: stri
     const foreign = tx.currency !== 'EGP' ? ` (${tx.currency} ${tx.amount})` : '';
     if (tx.kind === 'income') incomes.push({ id, source: describe(tx), monthly: amount, oneOff: date, src: tx.fingerprint, transfer: isTransfer(tx) || undefined });
     else {
-      expenses.push({ id, cat, amount, note: describe(tx) + foreign, date, src: tx.fingerprint });
+      expenses.push({ id, cat, amount, note: describe(tx) + foreign, date, src: tx.fingerprint, shop: canShare(tx) ? tx.party : undefined });
       const key = merchantKey(tx.party);
-      if (key) learned[key] = cat;
+      if (key && chosen) learned[key] = cat;
     }
   }
   return {

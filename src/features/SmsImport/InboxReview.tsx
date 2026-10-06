@@ -27,7 +27,7 @@ export default function InboxReview({ items, onDone }: { items: Pending[]; onDon
   const kept = items.filter(p => !drop[p.id]);
   const finish = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    onDone(kept.map(p => ({ tx: p.tx, cat: catOf(p) })), always);
+    onDone(kept.map(p => ({ tx: p.tx, cat: catOf(p), chosen: !!cats[p.id] })), always);
   };
   const cycle = (p: Pending) => {
     tap();
