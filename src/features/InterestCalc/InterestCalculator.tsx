@@ -51,7 +51,7 @@ export default function InterestCalculator({ visible, onClose }: { visible: bool
             <View style={{ height: 12 }} />
             {mode === 'monthly'
               ? <Field label={t('Monthly payment (L.E)')} keyboardType="numeric" placeholder="2,875" value={f.monthly} onChangeText={upd('monthly')}
-                  hint={t("From the shop, app or bank offer — e.g. valU, Souhoola, a car dealer")} />
+                  hint={t("From the shop, app or bank offer, e.g. valU, Souhoola, a car dealer")} />
               : <>
                   <Field label={t('Yearly interest rate (%)')} keyboardType="numeric" placeholder="18" value={f.rate} onChangeText={upd('rate')} />
                   <Segmented value={kind} onChange={k => { tap(); setKind(k as RateKind); }}
@@ -60,7 +60,7 @@ export default function InterestCalculator({ visible, onClose }: { visible: bool
                     ? 'Flat: interest on the full amount for the whole time. Most car and personal loans in Egypt are quoted this way. Ask the bank if unsure.'
                     : 'Reducing: interest only on what you still owe. Usually called "declining balance".')}</Text>
                 </>}
-            <Field label={t('One-time fees (L.E) — optional')} keyboardType="numeric" placeholder="0" value={f.fees} onChangeText={upd('fees')}
+            <Field label={t('One-time fees (L.E, optional)')} keyboardType="numeric" placeholder="0" value={f.fees} onChangeText={upd('fees')}
               hint={t('Admin fees, insurance or anything paid once at the start')} />
           </View>
 
@@ -75,7 +75,7 @@ export default function InterestCalculator({ visible, onClose }: { visible: bool
               <Text style={[s.big, { color: r.interest > 0.5 ? C.orange : C.green }]}>{money(r.interest)}</Text>
               <Text style={s.sentence}>{r.interest > 0.5
                 ? t("That's {p} more than the price. You pay {total} for something that costs {price}.", { p: pct(r.extraPct), total: money(r.totalPaid), price: money(num(f.price)) })
-                : t('No interest — you pay exactly the price. A true 0% offer.')}</Text>
+                : t('No interest. You pay exactly the price, a true 0% offer.')}</Text>
 
               {r.interest > 0.5 && <>
                 <View style={s.bar}>

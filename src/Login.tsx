@@ -100,7 +100,7 @@ export default function Login() {
 
       <View style={s.copy}>
         <Text style={s.h1}>{t('Know where every\npound goes')}</Text>
-        <Text style={s.p}>{t('Installments, bills, gold and savings —\nall in one calm place.')}</Text>
+        <Text style={s.p}>{t('Installments, bills, gold and savings,\nall in one calm place.')}</Text>
       </View>
 
       <View style={s.buttons}>
@@ -111,7 +111,7 @@ export default function Login() {
 
         <Pressable onPress={busy ? undefined : google} style={({ pressed }) => [s.btn, s.google, pressed && s.pressed]}>
           {busy ? <ActivityIndicator color={C.primary} /> : <Ionicons name="logo-google" size={18} color="#4285F4" />}
-          <Text style={[s.btnTxt, { color: '#14294A' }]}>{t('Continue with Google')}</Text>
+          <Text style={[s.btnTxt, { color: '#1F1F1F' }]}>{t('Continue with Google')}</Text>
         </Pressable>
 
         <View style={s.links}>
@@ -161,7 +161,7 @@ const s = themed(() => StyleSheet.create({
   floatLabel: { fontSize: 11, color: C.sub, fontWeight: '500' },
   floatVal: { fontSize: 14, color: C.ink, fontWeight: '600' },
   score: { position: 'absolute', backgroundColor: C.primary, borderRadius: 18, paddingVertical: 8, paddingHorizontal: 14, alignItems: 'center',
-    shadowColor: '#003366', shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
+    shadowColor: C.primary, shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
   scoreNum: { color: '#fff', fontSize: 22, fontWeight: '700' },
   scoreTxt: { color: C.pale, fontSize: 11, fontWeight: '500' },
   copy: { alignItems: 'center', marginTop: 8 },
@@ -176,7 +176,7 @@ const s = themed(() => StyleSheet.create({
   buttons: { paddingBottom: 16, paddingTop: 22, gap: 12 },
   btn: { height: 54, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
   apple: { backgroundColor: '#000' },
-  google: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#DCE5F2' },
+  google: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#DADCE0' }, // Google's own button colours
   guest: { backgroundColor: C.soft },
   email: { backgroundColor: C.primary },
   switchTxt: { fontSize: 14, color: C.primary, textAlign: 'center', fontWeight: '600', marginBottom: 20 },

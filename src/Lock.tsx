@@ -5,6 +5,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { Ionicons } from '@expo/vector-icons';
 import Logo from './Logo';
 import { t } from './i18n';
+import { C, themed } from './theme';
 
 // True while the Face ID / passcode sheet is on screen, so the app
 // doesn't treat that as "left the app" and lock itself again.
@@ -46,7 +47,7 @@ export default function Lock({ onUnlock, resume = 0 }: { onUnlock: () => void; r
     <View style={s.wrap}>
       <Logo size={110} />
       <Text style={s.title}>{t('Fakka is locked')}</Text>
-      <Pressable style={[s.btn, busy && { opacity: 0.6 }]} onPress={tryUnlock} disabled={busy}>
+      <Pressable style={[s.btn, busy && { opacity: 0.6 }]} onPress={tryUnlock} disabled={busy} accessibilityRole="button" accessibilityLabel={t('Unlock')}>
         {busy ? <ActivityIndicator color="#fff" /> : <Ionicons name="finger-print" size={22} color="#fff" />}
         <Text style={s.btnTxt}>{t('Unlock')}</Text>
       </Pressable>
@@ -54,9 +55,9 @@ export default function Lock({ onUnlock, resume = 0 }: { onUnlock: () => void; r
   );
 }
 
-const s = StyleSheet.create({
-  wrap: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#003366', alignItems: 'center', justifyContent: 'center', zIndex: 90 },
+const s = themed(() => StyleSheet.create({
+  wrap: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.navy, alignItems: 'center', justifyContent: 'center', zIndex: 90 },
   title: { color: '#fff', fontSize: 22, fontWeight: '700', marginTop: 24 },
-  btn: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#007ACC', paddingHorizontal: 28, paddingVertical: 15, borderRadius: 16, marginTop: 30 },
+  btn: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)', paddingHorizontal: 28, paddingVertical: 15, borderRadius: 16, marginTop: 30 },
   btnTxt: { color: '#fff', fontSize: 17, fontWeight: '600' },
-});
+}));

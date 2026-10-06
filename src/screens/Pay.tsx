@@ -149,7 +149,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
                       n < st.round && { backgroundColor: C.pale },
                       n === st.round && { backgroundColor: C.accent },
                       n === g.myTurn && { borderColor: C.green, borderWidth: 2 }]}>
-                      <Text style={[s.turnTxt, n < st.round && { color: '#003366' }, n === st.round && { color: '#fff' }]}>{n}</Text>
+                      <Text style={[s.turnTxt, n < st.round && { color: C.primary }, n === st.round && { color: '#fff' }]}>{n}</Text>
                     </View>
                   ))}
                 </View>

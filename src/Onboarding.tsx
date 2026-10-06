@@ -144,7 +144,7 @@ export default function Onboarding() {
                 <Pressable key={w.key} onPress={() => { tap(); setX({ ...x, work: w.key }); }} style={[s.work, on && s.workOn]}>
                   <View style={[s.workIcon, on && { backgroundColor: 'rgba(255,255,255,0.18)' }]}><Ionicons name={w.icon} size={22} color={on ? '#fff' : C.accent} /></View>
                   <Text style={[s.workTxt, on && { color: '#fff' }]}>{t(w.label)}</Text>
-                  <Text style={[s.workSub, on && { color: '#CCE0FF' }]}>{t(w.sub)}</Text>
+                  <Text style={[s.workSub, on && { color: C.pale }]}>{t(w.sub)}</Text>
                 </Pressable>
               );
             })}
@@ -242,7 +242,7 @@ export default function Onboarding() {
 
       case 'savings': return (
         <>
-          <Q title={t('What have you saved?')} sub={t('Fill in only what you have — we convert it to L.E with live prices')} />
+          <Q title={t('What have you saved?')} sub={t('Fill in only what you have. We convert it to L.E with live prices')} />
           <SavIn icon="wallet" color={C.primary} label={t('Cash / bank (L.E)')} k="egp" x={x} setX={setX} />
           <SavIn icon="diamond" color="#E0AA3E" label={t('Gold 21K (grams)')} k="gold21" x={x} setX={setX} />
           <SavIn icon="diamond-outline" color="#C9922A" label={t('Gold 24K (grams)')} k="gold24" x={x} setX={setX} />
@@ -253,7 +253,7 @@ export default function Onboarding() {
 
       case 'goal': return (
         <>
-          <Q title={t('Saving for something?')} sub={t('Pick one to start — you can add more later')} />
+          <Q title={t('Saving for something?')} sub={t('Pick one to start. You can add more later')} />
           <View style={s.multi}>
             {GOAL_IDEAS.map(g => {
               const on = x.goal.name === t(g.name);

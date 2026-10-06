@@ -177,13 +177,13 @@ function Shell() {
         <View style={s.bar}>
           {TABS.map(x => {
             if (x.key === 'add') return (
-              <Pressable key="add" ref={tourRef('add')} collapsable={false} onPress={() => { tap(); setQuick({}); }} style={({ pressed }) => [s.plus, { borderRadius: 20 }, pressed && { transform: [{ scale: 0.94 }] }]}>
+              <Pressable key="add" ref={tourRef('add')} collapsable={false} accessibilityRole="button" accessibilityLabel={t('Quick expense')} onPress={() => { tap(); setQuick({}); }} style={({ pressed }) => [s.plus, { borderRadius: 20 }, pressed && { transform: [{ scale: 0.94 }] }]}>
                 <Ionicons name="add" size={28} color="#fff" />
               </Pressable>
             );
             const on = x.key === tab || (x.key === 'home' && tab === 'profile');
             return (
-              <Pressable key={x.key} ref={tourRef(`tab-${x.key}`)} collapsable={false} style={s.item} onPress={() => { tap(); go(x.key); }}>
+              <Pressable key={x.key} ref={tourRef(`tab-${x.key}`)} collapsable={false} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={t(x.label)} style={s.item} onPress={() => { tap(); go(x.key); }}>
                 <View style={[s.tabPill, on && { backgroundColor: C.primary + '1A' }]}>
                   <Ionicons name={(on ? x.icon : `${x.icon}-outline`) as any} size={22} color={on ? C.primary : C.sub} />
                 </View>
@@ -211,7 +211,7 @@ function Shell() {
 // Shown over everything while the app is in the app switcher
 function Cover() {
   return (
-    <View style={[StyleSheet.absoluteFill, { backgroundColor: '#003366', alignItems: 'center', justifyContent: 'center', zIndex: 200 }]}>
+    <View style={[StyleSheet.absoluteFill, { backgroundColor: C.navy, alignItems: 'center', justifyContent: 'center', zIndex: 200 }]}>
       <Logo size={110} />
     </View>
   );
@@ -236,7 +236,7 @@ const s = themed(() => StyleSheet.create({
     shadowColor: '#14294A', shadowOpacity: 0.1, shadowRadius: 24, shadowOffset: { width: 0, height: 8 }, elevation: 10 },
   item: { flex: 1, alignItems: 'center', gap: 3 },
   plus: { width: 54, height: 54, borderRadius: 20, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center', marginHorizontal: 6,
-    shadowColor: '#003366', shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
+    shadowColor: C.primary, shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   label: { fontSize: 11, fontWeight: '600', color: C.sub },
   tabPill: { paddingHorizontal: 14, paddingVertical: 3, borderRadius: 999 },
 }));

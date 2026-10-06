@@ -33,7 +33,7 @@ export default function Profile() {
   return (
     <Screen>
       <Header title={t('Profile')} subtitle={t('Your money at a glance')}
-        right={<Pressable onPress={() => { tap(); setShowSettings(true); }} hitSlop={10} style={s.gear}><Ionicons name="settings-outline" size={22} color={C.primary} /></Pressable>} />
+        right={<Pressable onPress={() => { tap(); setShowSettings(true); }} hitSlop={10} style={s.gear} accessibilityRole="button" accessibilityLabel={t('Settings')}><Ionicons name="settings-outline" size={22} color={C.primary} /></Pressable>} />
 
       <View style={s.card}>
         <View style={s.avatar}><Text style={s.avatarTxt}>{initials}</Text></View>
@@ -105,14 +105,14 @@ const s = themed(() => StyleSheet.create({
   settingsTitle: { fontSize: 16, fontWeight: '700', color: C.ink },
   settingsSub: { fontSize: 13, color: C.sub, marginTop: 2 },
   card: { backgroundColor: C.hero, borderRadius: 24, padding: 24, alignItems: 'center' },
-  avatar: { width: 84, height: 84, borderRadius: 42, backgroundColor: '#007ACC', borderWidth: 3, borderColor: '#66A3FF', alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 84, height: 84, borderRadius: 42, backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 3, borderColor: 'rgba(255,255,255,0.4)', alignItems: 'center', justifyContent: 'center' },
   avatarTxt: { color: '#fff', fontSize: 32, fontWeight: '700' },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 },
   name: { color: '#fff', fontSize: 22, fontWeight: '700' },
   editRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, alignSelf: 'stretch' },
   input: { flex: 1, backgroundColor: 'rgba(255,255,255,0.12)', color: '#fff', borderRadius: 10, padding: 12, fontSize: 17, textAlign: 'center' },
-  ok: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#007ACC', alignItems: 'center', justifyContent: 'center' },
-  since: { color: '#CCE0FF', fontSize: 13, marginTop: 6 },
+  ok: { width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' },
+  since: { color: C.pale, fontSize: 13, marginTop: 6 },
   work: { color: '#fff', fontSize: 13, fontWeight: '700', marginTop: 8, backgroundColor: 'rgba(255,255,255,0.14)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10, overflow: 'hidden' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 14 },
   stat: { width: '47.5%', backgroundColor: C.card, borderRadius: 14, padding: 16 },

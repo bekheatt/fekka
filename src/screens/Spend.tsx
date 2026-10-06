@@ -185,7 +185,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
         <Segmented value={once ? 'once' : 'monthly'} onChange={k => setOnce(k === 'once')}
           options={[{ key: 'monthly', label: t('Every month') }, { key: 'once', label: t('One-time') }]} />
         <Text style={[s.lbl, { color: C.sub, fontWeight: '400', marginTop: 4 }]}>
-          {t(once ? 'A single payment: a freelance job, bonus or Eid money' : 'Salary, pension, rent — anything that comes every month')}
+          {t(once ? 'A single payment: a freelance job, bonus or Eid money' : 'Salary, pension, rent: anything that comes every month')}
         </Text>
         <Field label={t('Where does it come from?')} placeholder={t(once ? 'e.g. Logo design for client' : 'Salary')} value={note} onChangeText={setNote} />
         <Field label={t(once ? 'Amount (L.E)' : 'Monthly amount (L.E)')} keyboardType="numeric" placeholder="25,000" value={amt} onChangeText={setAmt} style={s.big} />

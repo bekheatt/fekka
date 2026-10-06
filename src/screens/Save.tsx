@@ -133,7 +133,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
       {/* Goals */}
       <Section action={t('+ Add')} onAction={() => { setF({ unit: 'egp', icon: 'heart' }); setOpen('goal'); }}>{t('Savings goals')}</Section>
       {d.goals.length === 0 ? (
-        <Card><Empty icon="flag-outline" text={t('Save for a wedding, car, trip or Umrah — in pounds, gold or dollars')} button={t('Add goal')}
+        <Card><Empty icon="flag-outline" text={t('Save for a wedding, car, trip or Umrah, in pounds, gold or dollars')} button={t('Add goal')}
           onPress={() => { setF({ unit: 'egp', icon: 'heart' }); setOpen('goal'); }} /></Card>
       ) : d.goals.map(g => {
         const p = g.target ? Math.min(1, g.saved / g.target) : 0;
@@ -163,7 +163,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
       <Section>{t('What you have')}</Section>
       <Card>
         {d.savings.length === 0
-          ? <Empty icon="diamond-outline" text={t('Add your gold, dollars, euros, cash — or anything else you save')} button={t('Add savings')} onPress={() => { setF({}); setOpen('hold'); }} />
+          ? <Empty icon="diamond-outline" text={t('Add your gold, dollars, euros, cash, or anything else you save')} button={t('Add savings')} onPress={() => { setF({}); setOpen('hold'); }} />
           : d.savings.map((x, idx) => {
             const st = SAVING_TYPES.find(y => y.key === x.kind);
             return <Row key={x.id} icon={st?.icon ?? 'star'} color={st?.color ?? C.sky}
@@ -179,10 +179,10 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
         <View style={[s.liveDot, { backgroundColor: rateStatus === 'error' ? C.red : C.green }]} />
         <Text style={s.liveTxt}>
           {rateStatus === 'loading' ? t('Updating prices…')
-            : rateStatus === 'error' ? t("Couldn't update — showing last saved prices")
+            : rateStatus === 'error' ? t("Couldn't update. Showing last saved prices")
             : updated ? t('Live prices · updated {x}', { x: updated }) : t('Prices not updated yet')}
         </Text>
-        <Pressable onPress={() => { tap(); refreshRates(); }} hitSlop={10} style={s.refresh}>
+        <Pressable onPress={() => { tap(); refreshRates(); }} hitSlop={10} style={s.refresh} accessibilityRole="button" accessibilityLabel={t('Refresh prices')}>
           {rateStatus === 'loading' ? <ActivityIndicator size="small" color={C.primary} /> : <Ionicons name="refresh" size={18} color={C.primary} />}
         </Pressable>
       </View>
@@ -199,7 +199,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
           </View>
         ))}
       </Card>
-      <Hint>{t('Prices update automatically when you open the app. Gold is the world price — shop prices in Egypt can differ a little, so you can tap any price to adjust it.')}</Hint>
+      <Hint>{t('Prices update automatically when you open the app. Gold is the world price. Shop prices in Egypt can differ a little, so you can tap any price to adjust it.')}</Hint>
 
       <Section action={t('+ Add')} onAction={openAlert}>{t('Price alerts')}</Section>
       <Card>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
-import { C } from './theme';
+import { C, themed } from './theme';
 import { fontFor } from './fonts';
 import Logo from './Logo';
 import { t } from './i18n';
@@ -31,9 +31,9 @@ export default function Splash({ onDone }: { onDone: () => void }) {
   );
 }
 
-const s = StyleSheet.create({
+const s = themed(() => StyleSheet.create({
   wrap: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.navy, alignItems: 'center', justifyContent: 'center', zIndex: 100 },
   ring: { position: 'absolute', borderWidth: 2, borderColor: C.sky },
   name: { color: '#fff', fontSize: 42, letterSpacing: -0.5, marginTop: 22 },
   tag: { color: C.pale, fontSize: 16, marginTop: 6 },
-});
+}));

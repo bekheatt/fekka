@@ -38,7 +38,7 @@ function emergencyPart(d: Data, t: Totals): Part {
   return {
     key: 'emergency', label: 'Emergency fund', weight: WEIGHTS.emergency, score,
     detail: tr('Your cash covers {n} months of expenses', { n: months.toFixed(1) }),
-    tip: months < 3 ? tr('Build cash to cover 3 months of expenses') : tr('Great safety net — keep it up'),
+    tip: months < 3 ? tr('Build cash to cover 3 months of expenses') : tr('Great safety net, keep it up'),
   };
 }
 
@@ -65,7 +65,7 @@ function diversityPart(d: Data): Part {
   const group = (k: string) => (k.startsWith('gold') ? 'gold' : k === 'usd' || k === 'eur' ? 'fx' : k === 'egp' ? 'egp' : 'other');
   d.savings.forEach(s => { groups[group(s.kind)] = (groups[group(s.kind)] ?? 0) + savingValue(s, d.rates); });
   const total = Object.values(groups).reduce((a, b) => a + b, 0);
-  if (total <= 0) return { key: 'diversity', label: 'Savings mix', weight: WEIGHTS.diversity, score: 0, detail: tr('No savings added yet'), tip: tr('Start saving — even a little gold or dollars helps') };
+  if (total <= 0) return { key: 'diversity', label: 'Savings mix', weight: WEIGHTS.diversity, score: 0, detail: tr('No savings added yet'), tip: tr('Start saving. Even a little gold or dollars helps') };
   const max = Math.max(...Object.values(groups)) / total;
   const score = max <= 0.6 ? 100 : max <= 0.7 ? 80 : max <= 0.85 ? 60 : 40;
   return {

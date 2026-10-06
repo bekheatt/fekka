@@ -17,7 +17,7 @@ export const bandColor = (b: Band) =>
 const BAND_MSG: Record<Band, string> = {
   Excellent: "You're in great shape. Keep building.",
   Healthy: "You're on the right track.",
-  Fair: 'Room to improve — start with the tips below.',
+  Fair: 'Room to improve. Start with the tips below.',
   Warning: 'Your finances are fragile. Hold off on new installments.',
   Critical: 'Act now: cut commitments before adding anything new.',
 };

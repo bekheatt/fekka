@@ -187,7 +187,7 @@ export const Toggle = ({ title, sub, value, onChange, icon, last }: { title: str
       <Text style={s.rowTitle}>{title}</Text>
       {!!sub && <Text style={s.rowSub}>{sub}</Text>}
     </View>
-    <Switch value={value} onValueChange={v => { tap(); onChange(v); }} trackColor={{ true: C.accent, false: C.line }} thumbColor="#fff" />
+    <Switch accessibilityLabel={title} value={value} onValueChange={v => { tap(); onChange(v); }} trackColor={{ true: C.accent, false: C.line }} thumbColor="#fff" />
   </View>
 );
 
@@ -208,7 +208,7 @@ export const Progress = ({ value, color, height = 8 }: { value: number; color?: 
 );
 
 export const Check = ({ on, onPress, color }: { on: boolean; onPress: () => void; color?: string }) => (
-  <Pressable hitSlop={10} onPress={() => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); onPress(); }}
+  <Pressable hitSlop={10} accessibilityRole="checkbox" accessibilityState={{ checked: on }} accessibilityLabel={t('Paid')} onPress={() => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); onPress(); }}
     style={[s.check, on && { backgroundColor: color ?? C.green, borderColor: color ?? C.green }]}>
     {on && <Ionicons name="checkmark" size={16} color="#fff" />}
   </Pressable>

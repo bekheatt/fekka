@@ -83,21 +83,21 @@ export default function QuickAdd({ visible, onClose, initial }: { visible: boole
         <View style={s.noteRow}>
           <TextInput style={s.note} value={note} onChangeText={setNote} placeholder={t('Note (optional)')} placeholderTextColor={C.sub} />
           {receipt ? (
-            <Pressable onPress={() => { deleteReceipt(receipt); setReceipt(undefined); }}>
+            <Pressable onPress={() => { deleteReceipt(receipt); setReceipt(undefined); }} accessibilityRole="button" accessibilityLabel={t('Remove receipt')}>
               <Image source={{ uri: receipt }} style={s.thumb} />
               <View style={s.thumbX}><Ionicons name="close" size={12} color="#fff" /></View>
             </Pressable>
           ) : (
             <>
-              <Pressable onPress={() => { tap(); snap('camera'); }} style={s.camBtn}><Ionicons name="camera" size={20} color={C.primary} /></Pressable>
-              <Pressable onPress={() => { tap(); snap('library'); }} style={s.camBtn}><Ionicons name="image" size={20} color={C.primary} /></Pressable>
+              <Pressable onPress={() => { tap(); snap('camera'); }} style={s.camBtn} accessibilityRole="button" accessibilityLabel={t('Take photo')}><Ionicons name="camera" size={20} color={C.primary} /></Pressable>
+              <Pressable onPress={() => { tap(); snap('library'); }} style={s.camBtn} accessibilityRole="button" accessibilityLabel={t('From photos')}><Ionicons name="image" size={20} color={C.primary} /></Pressable>
             </>
           )}
         </View>
 
         <View style={s.pad}>
           {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'].map(k => (
-            <Pressable key={k} onPress={() => press(k)} onLongPress={() => k === '⌫' && setAmt('')}
+            <Pressable key={k} onPress={() => press(k)} onLongPress={() => k === '⌫' && setAmt('')} accessibilityRole="button" accessibilityLabel={k === '⌫' ? t('Delete') : k}
               style={({ pressed }) => [s.key, pressed && { backgroundColor: C.soft }]}>
               {k === '⌫' ? <Ionicons name="backspace-outline" size={26} color={C.ink} /> : <Text style={s.keyTxt}>{k}</Text>}
             </Pressable>

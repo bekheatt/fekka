@@ -90,7 +90,7 @@ export default function InboxReview({ items, onDone }: { items: Pending[]; onDon
               <Text style={s.alwaysTitle}>{t('Keep all future transactions')}</Text>
               <Text style={s.alwaysSub}>{t("Add them automatically and don't show this screen again. You can change this in Settings.")}</Text>
             </View>
-            <Switch value={always} onValueChange={v => { tap(); setAlways(v); }} trackColor={{ true: C.accent, false: C.line }} thumbColor="#fff" />
+            <Switch accessibilityLabel={t('Keep all future transactions')} value={always} onValueChange={v => { tap(); setAlways(v); }} trackColor={{ true: C.accent, false: C.line }} thumbColor="#fff" />
           </View>
           <Pressable onPress={() => finish()} style={({ pressed }) => [s.save, pressed && pressedStyle]}>
             <Text style={s.saveTxt}>

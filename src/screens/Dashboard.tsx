@@ -4,7 +4,7 @@ import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, EXPENSE_CATS, themed, isHidden } from '../theme';
 import { useStore, useTotals, daysUntil, daysLate, goalValue, ym } from '../store';
-import { Card, Row, Section, Screen, tap, Progress, Check, SplitBar, pressedStyle } from '../ui';
+import { Card, Row, Section, Screen, tap, Progress, Check, SplitBar, Empty, pressedStyle } from '../ui';
 import { t, locale } from '../i18n';
 import Logo from '../Logo';
 import HealthCard from '../features/HealthScore/HealthCard';
@@ -62,10 +62,11 @@ export default function Dashboard({ go }: { go: Go }) {
           <Text style={s.hello} numberOfLines={1}>{monthName}</Text>
           <Text style={s.date} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{glance}</Text>
         </View>
-        <Pressable onPress={() => { tap(); set(x => ({ ...x, settings: { ...x.settings, hideAmounts: !x.settings.hideAmounts } })); }} hitSlop={10} style={s.eye} ref={tourRef('eye')} collapsable={false}>
+        <Pressable onPress={() => { tap(); set(x => ({ ...x, settings: { ...x.settings, hideAmounts: !x.settings.hideAmounts } })); }} hitSlop={10} style={s.eye} ref={tourRef('eye')} collapsable={false}
+          accessibilityRole="button" accessibilityLabel={t(isHidden() ? 'Show amounts' : 'Hide amounts')}>
           <Ionicons name={isHidden() ? 'eye-off-outline' : 'eye-outline'} size={20} color={C.primary} />
         </Pressable>
-        <Pressable onPress={() => { tap(); go('profile'); }} hitSlop={6} style={s.avatar} ref={tourRef('avatar')} collapsable={false}>
+        <Pressable onPress={() => { tap(); go('profile'); }} hitSlop={6} style={s.avatar} ref={tourRef('avatar')} collapsable={false} accessibilityRole="button" accessibilityLabel={t('Profile')}>
           {first ? <Text style={s.avatarTxt}>{first[0].toUpperCase()}</Text> : <Ionicons name="person" size={18} color="#fff" />}
         </Pressable>
       </View>
@@ -131,7 +132,7 @@ export default function Dashboard({ go }: { go: Go }) {
           <Section action={tot.due.length ? t('See all') : undefined} onAction={() => go('pay')}>{t('Coming up')}</Section>
           <Card>
             {tot.due.length === 0
-              ? <Text style={s.none}>{t('No payments added yet')}</Text>
+              ? <Empty icon="calendar-outline" text={t('No payments added yet')} button={t('Add a payment')} onPress={() => go('pay')} />
               : upcoming.length === 0
                 ? <Text style={s.none}>{t('All paid this month')}</Text>
                 : upcoming.map((u, i) => (
