@@ -10,7 +10,10 @@ import { tap } from './ui';
 import Logo from './Logo';
 import { Sheet, Field, Bubble } from './ui';
 import { APP_NAME, TAGLINE } from './brand';
-import { signInEmail, signUpEmail, signInGoogle, CloudUser } from './cloud/supabase';
+import { signInEmail, signUpEmail, signInGoogle, recordConsent, CloudUser } from './cloud/supabase';
+import * as Haptics from 'expo-haptics';
+import Agree from './features/Legal/Agree';
+import { newConsent } from './features/Legal/consent';
 
 // Alert.alert does nothing in a web browser, so use the browser's own pop-up there
 const say = (title: string, msg: string) =>
@@ -25,7 +28,8 @@ const friendly = (m: string) =>
   : /rate limit/i.test(m) ? t('Too many tries. Wait a few minutes and try again.')
   : m;
 
-// Sign-in screen. Email sign-in is real (Supabase); Apple and Google are look-only for now.
+// Sign-in screen. Email and Google sign-in are real (Supabase); Apple is look-only for now.
+// Nothing continues (account or guest) until the Terms / Privacy Policy box is ticked.
 export default function Login() {
   const { set, signInAs } = useStore();
   const [emailOpen, setEmailOpen] = useState(false);
@@ -33,14 +37,28 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [busy, setBusy] = useState(false);
+  const [agreedAt, setAgreedAt] = useState<string | null>(null); // when the box was ticked; null = not ticked
+  const [warn, setWarn] = useState(false);
+  const agree = (on: boolean) => { setAgreedAt(on ? new Date().toISOString() : null); if (on) setWarn(false); };
+
+  // Every way in goes through here: without the tick, explain instead of continuing
+  const needsAgree = () => {
+    if (agreedAt) return false;
+    setWarn(true);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+    return true;
+  };
 
   // After any sign-in: bring back saved data, or start the account from this device's data
   const signedIn = async (u: CloudUser, kind: 'email' | 'google') => {
-    await signInAs(u.uid, { account: kind, email: u.email, uid: u.uid });
+    const consent = newConsent(agreedAt!, kind);
+    await signInAs(u.uid, { account: kind, email: u.email, uid: u.uid, consent });
+    recordConsent(consent, kind).catch(() => {}); // if offline, LegalUpdate saves it on a later app start
   };
 
   const google = async () => {
     tap();
+    if (needsAgree()) return;
     setBusy(true);
     try {
       const u = await signInGoogle();
@@ -56,7 +74,7 @@ export default function Login() {
     if (pw.length < 6) return say(t('Check your password'), t('Password must be at least 6 characters.'));
     setBusy(true);
     try {
-      const u = mode === 'in' ? await signInEmail(email, pw) : await signUpEmail(email, pw);
+      const u = mode === 'in' ? await signInEmail(email, pw) : await signUpEmail(email, pw, newConsent(agreedAt!, 'email'));
       if (!u) {
         setMode('in');
         return say(t('Confirm your email'), t('We sent a link to {e}. Tap it, then come back and sign in.', { e: email.trim() }));
@@ -70,12 +88,14 @@ export default function Login() {
 
   const soon = (who: string) => {
     tap();
+    if (needsAgree()) return;
     say(t('Coming soon'), t('{who} sign-in is on the way. For now, continue as a guest.', { who }));
   };
 
   const guest = () => {
     tap();
-    set(v => ({ ...v, settings: { ...v.settings, account: 'guest' } }));
+    if (needsAgree()) return;
+    set(v => ({ ...v, settings: { ...v.settings, account: 'guest', consent: newConsent(agreedAt!, 'guest') } }));
   };
 
   return (
@@ -104,20 +124,22 @@ export default function Login() {
       </View>
 
       <View style={s.buttons}>
-        <Pressable onPress={() => soon('Apple')} style={({ pressed }) => [s.btn, s.apple, pressed && s.pressed]}>
+        <Agree on={!!agreedAt} onChange={agree} warn={warn} />
+
+        <Pressable onPress={() => soon('Apple')} accessibilityState={{ disabled: !agreedAt }} style={({ pressed }) => [s.btn, s.apple, !agreedAt && s.off, pressed && s.pressed]}>
           <Ionicons name="logo-apple" size={20} color="#fff" />
           <Text style={[s.btnTxt, { color: '#fff' }]}>{t('Continue with Apple')}</Text>
         </Pressable>
 
-        <Pressable onPress={busy ? undefined : google} style={({ pressed }) => [s.btn, s.google, pressed && s.pressed]}>
+        <Pressable onPress={busy ? undefined : google} accessibilityState={{ disabled: !agreedAt }} style={({ pressed }) => [s.btn, s.google, !agreedAt && s.off, pressed && s.pressed]}>
           {busy ? <ActivityIndicator color={C.primary} /> : <Ionicons name="logo-google" size={18} color="#4285F4" />}
           <Text style={[s.btnTxt, { color: '#1F1F1F' }]}>{t('Continue with Google')}</Text>
         </Pressable>
 
         <View style={s.links}>
-          <Pressable onPress={guest} hitSlop={8}><Text style={s.link}>{t('Continue as guest')}</Text></Pressable>
+          <Pressable onPress={guest} hitSlop={8} style={!agreedAt && s.off}><Text style={s.link}>{t('Continue as guest')}</Text></Pressable>
           <Text style={s.sep}>·</Text>
-          <Pressable onPress={() => { tap(); setEmailOpen(true); }} hitSlop={8}><Text style={s.link}>{t('Use email')}</Text></Pressable>
+          <Pressable onPress={() => { tap(); if (!needsAgree()) setEmailOpen(true); }} hitSlop={8} style={!agreedAt && s.off}><Text style={s.link}>{t('Use email')}</Text></Pressable>
         </View>
 
         <View style={s.privacy}>
@@ -181,6 +203,7 @@ const s = themed(() => StyleSheet.create({
   email: { backgroundColor: C.primary },
   switchTxt: { fontSize: 14, color: C.primary, textAlign: 'center', fontWeight: '600', marginBottom: 20 },
   pressed: { opacity: 0.75 },
+  off: { opacity: 0.45 }, // looks unavailable until the Terms box is ticked (still tappable, to explain why)
   btnTxt: { fontSize: 16, fontWeight: '600' },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 2 },
   orLine: { flex: 1, height: 1, backgroundColor: C.line },

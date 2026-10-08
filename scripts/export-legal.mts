@@ -1,0 +1,69 @@
+// Writes web copies of the Privacy Policy, Terms of Service and an account-deletion page to docs/legal/,
+// from the same text the app shows (src/features/Legal/documents.ts). Host these anywhere public
+// (e.g. GitHub Pages) and use the links in App Store Connect and Google Play.
+//   node scripts/export-legal.mts
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
+import { LEGAL_DOCS, blocks, type LegalDocKey } from '../src/features/Legal/documents.ts';
+
+const brand = JSON.parse(readFileSync(new URL('../brand.json', import.meta.url), 'utf8'));
+const out = new URL('../docs/legal/', import.meta.url);
+mkdirSync(out, { recursive: true });
+
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const named = (s: string) => s.split('Fakka').join(brand.name);
+
+const page = (title: string, inner: string) => `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)} · ${esc(brand.name)}</title>
+<style>
+:root { --bg:#EEEFF2; --card:#fff; --ink:#121726; --sub:#6E7480; --line:#E2E4E9; --accent:#2B3BFF; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0B0D12; --card:#151821; --ink:#EEF0F6; --sub:#8A909C; --line:#252A35; --accent:#4D5BFF; } }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width:760px; margin:0 auto; padding:32px 16px 64px; }
+article { background:var(--card); border:1px solid var(--line); border-radius:24px; padding:28px 24px; }
+h1 { font-size:30px; line-height:1.2; margin:0 0 12px; } h2 { font-size:20px; margin:28px 0 8px; } h3 { font-size:17px; margin:18px 0 6px; }
+.meta { color:var(--sub); font-size:14px; white-space:pre-line; } p { white-space:pre-line; margin:0 0 12px; } li { margin-bottom:6px; }
+nav { margin-bottom:16px; font-size:14px; } a { color:var(--accent); }
+</style></head><body><main>
+<nav><a href="privacy-policy.html">Privacy Policy</a> · <a href="terms-of-service.html">Terms of Service</a> · <a href="delete-account.html">Delete your account</a></nav>
+<article>${inner}</article></main></body></html>
+`;
+
+function render(key: LegalDocKey) {
+  const d = LEGAL_DOCS[key];
+  let html = `<h1>${esc(d.title)}</h1>`;
+  let list = false;
+  blocks(named(d.body)).forEach((b, i) => {
+    if (b.kind !== 'li' && list) { html += '</ul>'; list = false; }
+    if (b.kind === 'li' && !list) { html += '<ul>'; list = true; }
+    html += b.kind === 'h2' ? `<h2>${esc(b.text)}</h2>`
+      : b.kind === 'h3' ? `<h3>${esc(b.text)}</h3>`
+      : b.kind === 'li' ? `<li>${esc(b.text)}</li>`
+      : `<p${i === 0 ? ' class="meta"' : ''}>${esc(b.text)}</p>`;
+  });
+  if (list) html += '</ul>';
+  return page(d.title, html);
+}
+
+// Google Play asks for a web page that explains how to delete the account and what gets deleted
+const deletion = page('Delete your account', `
+<h1>Delete your ${esc(brand.name)} account</h1>
+<p>You can delete your account and all data linked to it at any time.</p>
+<h2>In the app</h2>
+<ul><li>Open ${esc(brand.name)} and sign in.</li><li>Go to Profile → Settings → Legal &amp; Privacy → Delete account.</li>
+<li>Confirm with your password (email accounts) or by typing DELETE (Google accounts).</li></ul>
+<h2>Without the app</h2>
+<p>Email [PRIVACY EMAIL] from the email address linked to your account and ask us to delete it. We may ask you to confirm that the account is yours, and we will reply within 30 days.</p>
+<h2>What is deleted</h2>
+<ul><li>Your sign-in account (email, or the Google account link).</li>
+<li>All financial information synced to your account: income, spending, installments, loans, bills, gam'eya, savings, goals, price alerts, shop categories and scores.</li>
+<li>Bank-message transactions waiting in your inbox and your message-forwarding key.</li>
+<li>Your shop category votes and your Terms / Privacy acceptance records.</li></ul>
+<h2>What may be kept</h2>
+<p>Deleted data may remain in encrypted backups held by our hosting provider for up to [BACKUP RETENTION PERIOD] before being overwritten. Aggregated shop category suggestions that no longer identify you may remain. We keep nothing else, unless the law requires it.</p>
+<p>See our <a href="privacy-policy.html">Privacy Policy</a> for details.</p>`);
+
+writeFileSync(new URL('privacy-policy.html', out), render('privacy'));
+writeFileSync(new URL('terms-of-service.html', out), render('terms'));
+writeFileSync(new URL('delete-account.html', out), deletion);
+console.log('Wrote docs/legal/privacy-policy.html, terms-of-service.html, delete-account.html');

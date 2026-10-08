@@ -25,6 +25,11 @@ export async function pickReceipt(from: 'camera' | 'library'): Promise<string | 
   }
 }
 
+// Every receipt photo Fakka saved on this phone (when deleting the account or all data)
+export function deleteAllReceipts() {
+  try { const dir = new Directory(Paths.document, 'receipts'); if (dir.exists) dir.delete(); } catch { /* nothing saved */ }
+}
+
 export function deleteReceipt(uri?: string) {
   if (!uri) return;
   try { const f = new File(uri); if (f.exists) f.delete(); } catch { /* already gone */ }

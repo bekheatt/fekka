@@ -9,9 +9,13 @@ import { Header, Section, Card, Screen, Toggle, Segmented, tap } from '../ui';
 import { t } from '../i18n';
 import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
-import { signOutCloud, deleteMyAccount } from '../cloud/supabase';
+import { signOutCloud } from '../cloud/supabase';
 import { hasAccount } from '../store';
 import AutoLogSetup from '../features/SmsImport/AutoLogSetup';
+import LegalDoc from '../features/Legal/LegalDoc';
+import YourData from '../features/Legal/YourData';
+import DeleteAccount from '../features/Legal/DeleteAccount';
+import type { LegalDocKey } from '../features/Legal/documents';
 
 const CLOUD_TEXT = { off: 'Saved on this device', saving: 'Saving to your account…', saved: 'Saved to your account', error: "Couldn't save to your account" } as const;
 
@@ -55,24 +59,11 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
     change({ notify: on });
   };
 
-  // Guest: clear this phone. Account: also delete the account and its data from our server for good.
+  // Legal & Privacy: the documents, "Your data", and deleting the account (or a guest's data) for good
   const online = hasAccount(d.settings);
-  const eraseEverything = async () => {
-    if (!online) return reset();
-    try {
-      await deleteMyAccount();
-      reset();
-    } catch (e: any) {
-      Alert.alert(t("Couldn't delete your account"), t('Check your internet connection and try again. Nothing was deleted.'));
-    }
-  };
-  const wipe = () => Alert.alert(t('Delete all data'),
-    online
-      ? t('This permanently deletes your Fakka account and everything in it, from this phone and from our servers. If you sign in again, you will start fresh. It cannot be undone.')
-      : t('This removes everything you entered. It cannot be undone.'), [
-    { text: t('Cancel'), style: 'cancel' },
-    { text: t('Delete'), style: 'destructive', onPress: eraseEverything },
-  ]);
+  const [doc, setDoc] = React.useState<LegalDocKey | null>(null);
+  const [yourData, setYourData] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
 
   return (
     <Screen>
@@ -136,18 +127,32 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
             <Text style={s.aboutVal}>{t('Go through the welcome questions again')}</Text>
           </View>
         </Pressable>
-        <Pressable onPress={signOut} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]}>
+        <Pressable onPress={signOut} style={s.danger}>
           <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="log-out-outline" size={18} color={C.primary} /></View>
           <View style={{ flex: 1 }}>
             <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Sign out')}</Text>
             <Text style={s.aboutVal}>{hasAccount(st) ? `${st.email ?? ''} · ${t(CLOUD_TEXT[cloudStatus])}${cloudStatus === 'error' && cloudError ? ` (${cloudError})` : ''}` : t('Back to the sign-in screen. Your data stays.')}</Text>
           </View>
         </Pressable>
-        <Pressable onPress={() => { tap(); wipe(); }} style={s.danger}>
+      </Card>
+
+      <Section>{t('Legal & Privacy')}</Section>
+      <Card>
+        <LinkRow icon="shield-checkmark" title={t('Privacy Policy')} sub={t('What we collect and how we protect it')} onPress={() => setDoc('privacy')} />
+        <LinkRow icon="document-text" title={t('Terms of Service')} sub={t('The rules for using Fakka')} onPress={() => setDoc('terms')} />
+        <LinkRow icon="person-circle" title={t('Your data')} sub={t('Where it is kept, and a copy to download')} onPress={() => setYourData(true)} />
+        <Pressable onPress={() => { tap(); setDeleting(true); }} style={s.danger} accessibilityRole="button">
           <View style={[s.icon, { backgroundColor: C.red + '22' }]}><Ionicons name="trash" size={18} color={C.red} /></View>
-          <Text style={[s.dangerTxt]}>{t('Delete all data')}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={s.dangerTxt}>{t(online ? 'Delete account' : 'Delete all data')}</Text>
+            <Text style={s.aboutVal}>{t(online ? 'Permanently, from this phone and our servers' : 'Everything on this phone')}</Text>
+          </View>
         </Pressable>
       </Card>
+      <LegalDoc doc={doc} onClose={() => setDoc(null)} />
+      <YourData visible={yourData} onClose={() => setYourData(false)}
+        onDelete={() => { setYourData(false); setTimeout(() => setDeleting(true), 450); /* one sheet at a time */ }} />
+      <DeleteAccount visible={deleting} onClose={() => setDeleting(false)} />
 
       <Section>{t('About')}</Section>
       <Card>
@@ -158,6 +163,18 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
     </Screen>
   );
 }
+
+// A Settings row that opens something (with a line under it)
+const LinkRow = ({ icon, title, sub, onPress }: { icon: any; title: string; sub: string; onPress: () => void }) => (
+  <Pressable onPress={() => { tap(); onPress(); }} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }]} accessibilityRole="button">
+    <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name={icon} size={18} color={C.primary} /></View>
+    <View style={{ flex: 1 }}>
+      <Text style={[s.dangerTxt, { color: C.ink }]}>{title}</Text>
+      <Text style={s.aboutVal}>{sub}</Text>
+    </View>
+    <Ionicons name="chevron-forward" size={18} color={C.sub} />
+  </Pressable>
+);
 
 const s = themed(() => StyleSheet.create({
   back: { flexDirection: 'row', alignItems: 'center', marginTop: 8, marginLeft: -4 },

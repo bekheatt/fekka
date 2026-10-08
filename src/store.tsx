@@ -7,6 +7,7 @@ import { DEFAULT_RATES, PROVIDERS, BILL_TYPES, LOAN_TYPES, applyTheme, isDark, s
 import * as Notifications from 'expo-notifications';
 import { setLang, t } from './i18n';
 import { dictionaryCategory, shopOf } from './features/SmsImport/merchants';
+import type { Consent } from './features/Legal/consent';
 
 export type Installment = { id: string; provider: string; item: string; monthly: number; monthsLeft: number; dueDay: number; paidMonths?: string[] };
 // Mortgages can also track the property: name = nickname (e.g. "Sahel chalet"), price = property price, paid = paid so far
@@ -24,6 +25,7 @@ export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'lig
   smsKey?: string;       // personal key in the iPhone Shortcut link (this phone only)
   smsAutoKeep?: boolean; // add transactions from bank messages without asking
   toured?: boolean;      // false = show the first-run tour on Home (new users, or 'Replay tour')
+  consent?: Consent;     // the Terms / Privacy Policy versions accepted (asked again when they change)
 };
 
 export type Data = {

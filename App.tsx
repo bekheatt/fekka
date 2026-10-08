@@ -29,6 +29,8 @@ import InboxReview, { Pending } from './src/features/SmsImport/InboxReview';
 import { prefetchCrowd, canShare, teach } from './src/features/SmsImport/crowd';
 import { loadInbox, clearInbox } from './src/cloud/supabase';
 import Tour, { tourRef } from './src/features/Tour/Tour';
+import LegalUpdate from './src/features/Legal/LegalUpdate';
+import { isCurrent } from './src/features/Legal/consent';
 import { le } from './src/theme';
 
 // 'add' is the round + button in the middle; Profile opens from the avatar on Home
@@ -155,6 +157,9 @@ function Shell() {
     return () => clearTimeout(id);
   }, [d.installments, d.loans, d.bills, d.gameyas, d.settings.notify, d.settings.lang]);
 
+  // Signed in but hasn't accepted the current Terms / Privacy Policy: LegalUpdate covers the app until they do
+  const legalOk = !d.settings.account || isCurrent(d.settings.consent);
+
   const go = (k: string, a?: string) => { setTab(k); setAction(a); };
   useEffect(() => { if (d.settings.onboarded) setTab('home'); }, [d.settings.onboarded]);
   // "Replay tour" in Settings: go back to Home where the tour runs
@@ -196,11 +201,12 @@ function Shell() {
 
       <QuickAdd visible={!!quick} initial={quick ?? undefined} onClose={() => setQuick(null)} />
       <Banner info={banner} onHide={() => setBanner(null)} />
-      {!splash && !locked && <InboxReview items={pending} onDone={reviewed} />}
-      <Tour visible={d.settings.toured === false && d.settings.onboarded && !!d.settings.account && !splash && !locked && !covered && !quick && !pending.length && tab === 'home'} onDone={finishTour} />
+      {!splash && !locked && legalOk && <InboxReview items={pending} onDone={reviewed} />}
+      <Tour visible={d.settings.toured === false && d.settings.onboarded && !!d.settings.account && legalOk && !splash && !locked && !covered && !quick && !pending.length && tab === 'home'} onDone={finishTour} />
 
       {!d.settings.onboarded && <View style={StyleSheet.absoluteFill}><Onboarding /></View>}
       {!d.settings.account && <View style={StyleSheet.absoluteFill}><Login /></View>}
+      <LegalUpdate active={!splash && !locked} />
       {locked && !splash && d.settings.onboarded && d.settings.account && <Lock resume={resume} onUnlock={() => setLocked(false)} />}
       {covered && !locked && <Cover />}
       {splash && <Splash onDone={() => setSplash(false)} />}

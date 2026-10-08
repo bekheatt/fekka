@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import { type Consent, APP_VERSION, PLATFORM } from '../features/Legal/consent';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -33,8 +34,10 @@ export async function signInEmail(email: string, password: string): Promise<Clou
   return { uid: data.user.id, email: data.user.email ?? email };
 }
 
-export async function signUpEmail(email: string, password: string): Promise<CloudUser | null> {
-  const { data, error } = await supabase.auth.signUp({ email: email.trim(), password });
+// The accepted Terms/Privacy versions also go into the new account's details, so there is a record
+// even when the account waits for its email to be confirmed (no session yet to save legal_consents).
+export async function signUpEmail(email: string, password: string, consent?: Consent): Promise<CloudUser | null> {
+  const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: consent ? { data: { consent } } : undefined });
   if (error) throw error;
   if (!data.session || !data.user) return null; // confirmation email sent
   return { uid: data.user.id, email: data.user.email ?? email };
@@ -103,12 +106,38 @@ export async function saveUserData(appData: object, baseRev: number): Promise<nu
   return Number(data);
 }
 
-// Permanently deletes the signed-in person's account and all their saved data from the server.
+// Permanently deletes the signed-in person's account and all their saved data from the server
+// (user_data directly; sms_inbox, sms_keys, merchant_votes and legal_consents go with it via on delete cascade).
 // Signing in again afterwards starts a brand-new account.
 export async function deleteMyAccount(): Promise<void> {
+  // Make sure the sign-in is still valid first, so a stale session can't make the delete silently fail
+  const { error: refreshErr } = await supabase.auth.refreshSession();
+  if (refreshErr) throw refreshErr.name === 'AuthRetryableFetchError' ? refreshErr : new Error('SIGN_IN_AGAIN'); // offline vs. signed out
   const { error } = await supabase.rpc('delete_my_account');
   if (error) throw error;
   await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+}
+
+// Checks the password again before something serious (deleting the account).
+// Returns false for a wrong password; throws for anything else (offline…).
+export async function confirmPassword(email: string, password: string): Promise<boolean> {
+  const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+  if (!error) return true;
+  if (/invalid login/i.test(error.message)) return false;
+  throw error;
+}
+
+// ---------- Terms & Privacy acceptance (legal_consents) ----------
+// One row per account per accepted version pair; accepting the same versions again is ignored.
+export async function recordConsent(c: Consent, method: 'email' | 'google' | 'apple' | 'update'): Promise<void> {
+  const { data } = await supabase.auth.getSession();
+  const uid = data.session?.user.id;
+  if (!uid) return;
+  const { error } = await supabase.from('legal_consents').upsert({
+    user_id: uid, terms_version: c.terms, privacy_version: c.privacy, accepted_at: c.at,
+    method, platform: PLATFORM, app_version: APP_VERSION,
+  }, { onConflict: 'user_id,terms_version,privacy_version', ignoreDuplicates: true });
+  if (error) throw error;
 }
 
 // ---------- Bank SMS auto-logging (see supabase/functions/sms-ingest) ----------
