@@ -7,8 +7,8 @@
 // Changing either document in a way people should agree to again: bump its version below.
 // Everyone is then asked to accept the new version the next time they open the app.
 
-export const PRIVACY_VERSION = '2026-10-08';
-export const TERMS_VERSION = '2026-10-08';
+export const PRIVACY_VERSION = '2026-10-09';
+export const TERMS_VERSION = '2026-10-09';
 
 export type LegalDocKey = 'privacy' | 'terms';
 
@@ -16,13 +16,13 @@ const PRIVACY = `
 Effective date: [EFFECTIVE DATE]
 Version: ${PRIVACY_VERSION}
 
-This Privacy Policy explains how [LEGAL COMPANY NAME] ("we", "us", "our") collects, uses, stores, shares and protects personal information when you use the Fakka mobile application (the "App") and its related online services (together, the "Service"). It also explains the choices and rights you have.
+This Privacy Policy explains how Ahmed Hesham Bekheat ("we", "us", "our") collects, uses, stores, shares and protects personal information when you use the Fakka mobile application (the "App") and its related online services (together, the "Service"). It also explains the choices and rights you have.
 
 Please read this Policy together with our Terms of Service. By creating an account, continuing as a guest, or otherwise using the Service after confirming that you accept this Policy, you acknowledge that you have read and understood it. If you do not agree, please do not use the Service.
 
 ## 1. Who we are
 
-The Service is provided by [LEGAL COMPANY NAME], [COMPANY ADDRESS] ("Controller"). We are responsible for deciding how and why your personal information is processed as described in this Policy.
+The Service is provided by Ahmed Hesham Bekheat, an independent developer based in Egypt (the "Controller"). References to "we", "us" and "our" in this Policy mean Ahmed Hesham Bekheat. We are responsible for deciding how and why your personal information is processed as described in this Policy.
 
 For any privacy question or request, contact us at [PRIVACY EMAIL].
 
@@ -151,7 +151,7 @@ We may also disclose information:
 
 - If required by law, regulation, court order or a lawful request by public authorities.
 - To protect the rights, property or safety of our users, the public or us, including to prevent fraud or abuse.
-- In connection with a merger, acquisition, financing or sale of all or part of our business, in which case the recipient must honour this Policy or notify you of changes.
+- If the Service is transferred to a company we set up to run it, or in connection with a merger, acquisition, financing or sale of all or part of the Service, in which case the recipient must honour this Policy or notify you of changes.
 - With your explicit consent or at your direction.
 
 We do not sell personal information, and we do not share it for cross-context behavioural advertising.
@@ -196,7 +196,7 @@ The Service is intended for adults aged 18 or over (or the age of legal majority
 
 ## 13. International data transfers
 
-We are based in [COUNTRY OF ESTABLISHMENT] and our servers are located in the European Union. If you use the Service from another country, including Egypt, your information will be transferred to, stored in and processed in the European Union and in other countries where our service providers operate. These countries may have data protection laws different from those in your country.
+We are based in Egypt, and our servers are located in the European Union. If you create an account, your information will therefore be transferred from Egypt, or from wherever you use the Service, to the European Union, and may be processed in other countries where our service providers operate. These countries may have data protection laws different from those in your country.
 
 Where required, we put appropriate safeguards in place for such transfers, such as the standard contractual clauses included in our service providers' data processing agreements, and we comply with any additional cross-border transfer requirements of applicable law, including Egyptian Personal Data Protection Law No. 151 of 2020.
 
@@ -210,8 +210,7 @@ We may update this Policy from time to time, for example to reflect new features
 
 ## 16. Contact us
 
-[LEGAL COMPANY NAME]
-[COMPANY ADDRESS]
+Ahmed Hesham Bekheat, independent developer, Egypt
 Privacy questions and requests: [PRIVACY EMAIL]
 General support: [SUPPORT EMAIL]
 
@@ -226,7 +225,7 @@ const TERMS = `
 Effective date: [EFFECTIVE DATE]
 Version: ${TERMS_VERSION}
 
-These Terms of Service (the "Terms") form a legally binding agreement between you and [LEGAL COMPANY NAME], [COMPANY ADDRESS] ("we", "us", "our") and govern your use of the Fakka mobile application (the "App") and its related online services (together, the "Service").
+These Terms of Service (the "Terms") form a legally binding agreement between you and Ahmed Hesham Bekheat, an independent developer based in Egypt ("we", "us", "our") and govern your use of the Fakka mobile application (the "App") and its related online services (together, the "Service").
 
 By ticking the box to accept these Terms and creating an account or continuing as a guest, or by otherwise using the Service, you agree to these Terms and confirm that you have read our Privacy Policy. If you do not agree, you must not use the Service.
 
@@ -380,13 +379,12 @@ If you downloaded the App from the Apple App Store, you and we acknowledge that:
 - These Terms, together with the Privacy Policy, are the entire agreement between you and us about the Service.
 - If any part of these Terms is found unenforceable, the rest remains in effect.
 - Our failure to enforce a provision is not a waiver of our right to do so later.
-- You may not transfer your rights under these Terms without our consent. We may transfer ours as part of a merger, acquisition or sale of assets, provided your rights are not reduced.
+- You may not transfer your rights under these Terms without our consent. We may transfer ours to a company we set up to run the Service, or as part of a merger, acquisition or sale of assets, provided your rights are not reduced. We will tell you if this happens.
 - These Terms are written in English. If we provide a translation, the English version prevails to the extent permitted by law.
 
 ## 20. Contact
 
-[LEGAL COMPANY NAME]
-[COMPANY ADDRESS]
+Ahmed Hesham Bekheat, independent developer, Egypt
 Support: [SUPPORT EMAIL]
 Privacy: [PRIVACY EMAIL]
 `;
