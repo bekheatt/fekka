@@ -1,5 +1,5 @@
-// Fakka's Privacy Policy and Terms of Service. One source for the in-app screens and the web copies
-// (scripts/export-legal.mts writes docs/legal/*.html from this file, so keep it free of imports).
+// Fakka's Privacy Policy and Terms of Service. One source for the in-app screens and fakkaeg.com
+// (scripts/build-website.mts builds website/ from this file, so keep it free of imports).
 //
 // Format: "## " heading, "### " subheading, "- " bullet, blank line between paragraphs.
 // Anything in [SQUARE BRACKETS] is a placeholder the owner still has to fill in.
@@ -24,7 +24,7 @@ Please read this Policy together with our Terms of Service. By creating an accou
 
 The Service is provided by Ahmed Hesham Bekheat, an independent developer based in Egypt (the "Controller"). References to "we", "us" and "our" in this Policy mean Ahmed Hesham Bekheat. We are responsible for deciding how and why your personal information is processed as described in this Policy.
 
-For any privacy question or request, contact us at [PRIVACY EMAIL].
+For any privacy question or request, contact us at support@fakkaeg.com.
 
 ## 2. Summary
 
@@ -174,7 +174,7 @@ When you delete your account we permanently delete your sign-in account and all 
 
 Deletion cannot be undone. If you sign in again later with the same email or provider, a new, empty account will be created.
 
-If you cannot access the App, you can ask us to delete your account by emailing [PRIVACY EMAIL] from the email address linked to your account, or by using our web request page at [ACCOUNT DELETION URL]. We may need to verify your identity before acting on the request.
+If you cannot access the App, you can ask us to delete your account by emailing support@fakkaeg.com from the email address linked to your account, or by using our web request page at https://fakkaeg.com/delete-account. We may need to verify your identity before acting on the request.
 
 ## 11. Your privacy rights
 
@@ -188,11 +188,11 @@ Depending on where you live, you may have some or all of the following rights:
 - Withdrawal of consent: to withdraw consent at any time, without affecting earlier lawful processing.
 - Complaint: to complain to a data protection authority, such as Egypt's Personal Data Protection Center or the supervisory authority in your country of residence.
 
-To exercise a right, contact us at [PRIVACY EMAIL]. We will respond within the time required by applicable law, and in any case within 30 days where possible. We may need to verify your identity, and we may decline requests that are manifestly unfounded or excessive or that the law allows us to refuse. We will not discriminate against you for exercising your rights.
+To exercise a right, contact us at support@fakkaeg.com. We will respond within the time required by applicable law, and in any case within 30 days where possible. We may need to verify your identity, and we may decline requests that are manifestly unfounded or excessive or that the law allows us to refuse. We will not discriminate against you for exercising your rights.
 
 ## 12. Children's privacy
 
-The Service is intended for adults aged 18 or over (or the age of legal majority where you live, if higher). It is not directed to children, and we do not knowingly collect personal information from anyone under 18. If you believe a child has provided us with personal information, please contact us at [PRIVACY EMAIL] and we will delete it.
+The Service is intended for adults aged 18 or over (or the age of legal majority where you live, if higher). It is not directed to children, and we do not knowingly collect personal information from anyone under 18. If you believe a child has provided us with personal information, please contact us at support@fakkaeg.com and we will delete it.
 
 ## 13. International data transfers
 
@@ -211,8 +211,7 @@ We may update this Policy from time to time, for example to reflect new features
 ## 16. Contact us
 
 Ahmed Hesham Bekheat, independent developer, Egypt
-Privacy questions and requests: [PRIVACY EMAIL]
-General support: [SUPPORT EMAIL]
+Email (privacy questions, requests and support): support@fakkaeg.com
 
 ## 17. Financial disclaimer
 
@@ -252,7 +251,7 @@ You may create an account with an email address and password, with Sign in with 
 - Provide accurate information and keep your email address up to date.
 - Create only one account for yourself and not create an account for anyone else without their permission.
 - Keep your password and devices secure and not share your account with others.
-- Tell us promptly at [SUPPORT EMAIL] if you suspect unauthorised use of your account.
+- Tell us promptly at support@fakkaeg.com if you suspect unauthorised use of your account.
 
 You are responsible for activity that takes place under your account, except to the extent caused by our breach of these Terms.
 
@@ -353,7 +352,7 @@ These Terms and any dispute or claim arising out of or in connection with them o
 
 ## 16. Dispute resolution
 
-If you have a concern, please contact us first at [SUPPORT EMAIL]. We will try in good faith to resolve the issue informally within 30 days.
+If you have a concern, please contact us first at support@fakkaeg.com. We will try in good faith to resolve the issue informally within 30 days.
 
 If a dispute is not resolved informally, it will be submitted to the competent courts of [DISPUTE VENUE CITY], [GOVERNING LAW COUNTRY], unless mandatory law gives you the right to bring proceedings in the courts of the place where you live. Nothing in this section prevents either party from seeking urgent interim relief from a competent court, or prevents you from contacting a consumer protection authority.
 
@@ -385,8 +384,7 @@ If you downloaded the App from the Apple App Store, you and we acknowledge that:
 ## 20. Contact
 
 Ahmed Hesham Bekheat, independent developer, Egypt
-Support: [SUPPORT EMAIL]
-Privacy: [PRIVACY EMAIL]
+Email: support@fakkaeg.com
 `;
 
 export const LEGAL_DOCS: Record<LegalDocKey, { title: string; version: string; body: string }> = {

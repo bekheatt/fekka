@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support · Fakka</title>
+<meta name="description" content="Get help with Fakka: contact support, delete your account, and answers to common questions.">
+<link rel="canonical" href="https://fakkaeg.com/support/">
+<meta property="og:title" content="Support · Fakka"><meta property="og:description" content="Get help with Fakka: contact support, delete your account, and answers to common questions."><meta property="og:url" content="https://fakkaeg.com/support/"><meta property="og:type" content="website">
+<meta name="theme-color" content="#2B3BFF">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+@font-face { font-family: Outfit; font-weight: 400; font-display: swap; src: url(/fonts/Outfit_400Regular.ttf) format("truetype"); }
+@font-face { font-family: Outfit; font-weight: 600; font-display: swap; src: url(/fonts/Outfit_600SemiBold.ttf) format("truetype"); }
+@font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 400; font-display: swap; src: url(/fonts/IBMPlexSansArabic_400Regular.ttf) format("truetype"); }
+@font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 600; font-display: swap; src: url(/fonts/IBMPlexSansArabic_600SemiBold.ttf) format("truetype"); }
+:root { --bg:#EEEFF2; --card:#fff; --ink:#121726; --sub:#6E7480; --line:#E2E4E9; --soft:#F3F4F6; --accent:#2B3BFF; --sky:#8E97FF; --pale:#D8DBFF; --hero:#2B3BFF; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0B0D12; --card:#151821; --ink:#EEF0F6; --sub:#8A909C; --line:#252A35; --soft:#1C2029; --accent:#4D5BFF; --sky:#9AA2FF; --pale:#D3D7FF; --hero:#3B4BFF; color-scheme: dark; } }
+* { box-sizing: border-box; }
+html[lang=en] [data-l=ar], html[lang=ar] [data-l=en] { display: none; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 Outfit, "IBM Plex Sans Arabic", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+html[lang=ar] body { font-family: "IBM Plex Sans Arabic", Outfit, system-ui, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+header { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: 20px; letter-spacing: -.3px; }
+nav { display: flex; align-items: center; gap: 18px; font-size: 15px; }
+nav a { color: var(--sub); text-decoration: none; } nav a:hover, nav a[aria-current] { color: var(--ink); }
+.lang { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+@media (max-width: 560px) { nav .hide-sm { display: none; } }
+.hero { text-align: center; padding: 72px 0 56px; }
+.hero h1 { font-size: clamp(38px, 7vw, 64px); line-height: 1.05; letter-spacing: -.03em; font-weight: 600; margin: 22px 0 14px; }
+.hero p { color: var(--sub); font-size: clamp(17px, 2.4vw, 20px); max-width: 560px; margin: 0 auto; }
+.pill { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; background: var(--accent); color: #fff; border-radius: 999px; padding: 14px 24px; font-weight: 600; text-decoration: none; }
+.small { display: block; margin-top: 14px; font-size: 14px; color: var(--sub); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 24px; }
+.card h3 { margin: 14px 0 6px; font-size: 19px; font-weight: 600; letter-spacing: -.2px; }
+.card p { margin: 0; color: var(--sub); font-size: 16px; }
+.icon { width: 44px; height: 44px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); display: grid; place-items: center; font-size: 22px; }
+section { padding: 28px 0; }
+h2.section { font-size: clamp(26px, 4vw, 36px); letter-spacing: -.02em; font-weight: 600; margin: 0 0 18px; }
+.band { background: var(--hero); color: #fff; border-radius: 24px; padding: 32px 24px; }
+.band h2 { margin: 0 0 14px; font-size: clamp(24px, 4vw, 32px); font-weight: 600; }
+.band ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; }
+.band li { padding-inline-start: 28px; position: relative; color: #E7E9FF; }
+.band li::before { content: "✓"; position: absolute; inset-inline-start: 0; color: #fff; font-weight: 600; }
+footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 40px; color: var(--sub); font-size: 14px; }
+footer .row { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; }
+footer a { color: var(--sub); }
+.doc { max-width: 760px; margin: 32px auto 0; }
+.doc article { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 28px 24px; direction: ltr; text-align: left; }
+.doc h1 { font-size: clamp(30px, 5vw, 40px); line-height: 1.15; letter-spacing: -.02em; font-weight: 600; margin: 0 0 12px; }
+.doc h2 { font-size: 21px; font-weight: 600; margin: 30px 0 8px; } .doc h3 { font-size: 17px; font-weight: 600; margin: 18px 0 6px; }
+.doc p { white-space: pre-line; margin: 0 0 12px; } .doc .meta { color: var(--sub); font-size: 15px; } .doc li { margin-bottom: 6px; }
+.note { background: var(--soft); border-radius: 14px; padding: 12px 14px; color: var(--sub); font-size: 15px; margin-bottom: 14px; }
+details { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px 20px; margin-bottom: 10px; }
+summary { cursor: pointer; font-weight: 600; } details p { color: var(--sub); margin: 10px 0 0; }
+.mail { font-size: clamp(20px, 4vw, 26px); font-weight: 600; text-decoration: none; word-break: break-all; }
+</style>
+<script>
+(function(){var h=document.documentElement,k='fakka-lang',l;try{l=localStorage.getItem(k)}catch(e){}
+if(!l)l=(navigator.language||'').slice(0,2)==='ar'?'ar':'en';
+function set(x){h.lang=x;h.dir=x==='ar'?'rtl':'ltr';try{localStorage.setItem(k,x)}catch(e){}}
+set(l);window.fakkaLang=function(){set(h.lang==='ar'?'en':'ar')};})();
+</script>
+</head><body>
+<header><div class="wrap">
+  <a class="brand" href="/"><svg class="logo" width="34" height="34" viewBox="0 0 100 100" aria-hidden="true">
+  <circle cx="50" cy="50" r="50" fill="var(--accent)" opacity=".18"/>
+  <g><circle cx="35" cy="39" r="29.1" fill="var(--pale)" stroke="var(--sky)" stroke-width="3.7"/><circle cx="35" cy="39" r="22.3" fill="none" stroke="var(--sky)" stroke-width="1.2" opacity=".6"/></g>
+  <g><circle cx="65" cy="37" r="29.1" fill="var(--sky)" stroke="var(--accent)" stroke-width="3.7"/><circle cx="65" cy="37" r="22.3" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".6"/></g>
+  <g><circle cx="50" cy="63" r="29.1" fill="#fff" stroke="var(--accent)" stroke-width="3.7"/><circle cx="50" cy="63" r="22.3" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".6"/>
+  <text x="50" y="66" text-anchor="middle" dominant-baseline="middle" font-size="31" font-weight="700" fill="#2B3BFF" font-family="IBM Plex Sans Arabic, Tahoma, sans-serif">ف</text></g>
+</svg><span><span data-l="en">Fakka</span><span data-l="ar">فكّة</span></span></a>
+  <nav aria-label="Main">
+    <a href="/support/" aria-current="page"><span data-l="en">Support</span><span data-l="ar">الدعم</span></a>
+    <a class="hide-sm" href="/privacy/"><span data-l="en">Privacy</span><span data-l="ar">الخصوصية</span></a>
+    <a class="hide-sm" href="/terms/"><span data-l="en">Terms</span><span data-l="ar">الشروط</span></a>
+    <button class="lang" type="button" onclick="fakkaLang()"><span data-l="en">العربية</span><span data-l="ar">English</span></button>
+  </nav>
+</div></header>
+<main class="wrap">
+<div class="doc">
+  <h1 style="font-size:clamp(32px,5vw,44px);letter-spacing:-.02em;font-weight:600;margin:0 0 8px"><span data-l="en">How can we help?</span><span data-l="ar">نقدر نساعدك إزاي؟</span></h1>
+  <div class="card" style="margin:18px 0 26px">
+    <p style="margin:0 0 6px"><span data-l="en">Email us and we will get back to you as soon as we can.</span><span data-l="ar">ابعتلنا إيميل وهنرد عليك في أقرب وقت.</span></p>
+    <a class="mail" href="mailto:support@fakkaeg.com">support@fakkaeg.com</a>
+  </div>
+  <h2 class="section" style="font-size:24px"><span data-l="en">Common questions</span><span data-l="ar">أسئلة شائعة</span></h2>
+  <details><summary><span data-l="en">How do I delete my account?</span><span data-l="ar">إزاي أمسح حسابي؟</span></summary><p><span data-l="en">In the app: Profile → Settings → Legal & Privacy → Delete account. It deletes your account and all your data for good. Can't open the app? See <a href="/delete-account/">Delete your account</a>.</span><span data-l="ar">من التطبيق: حسابي ← الإعدادات ← القانوني والخصوصية ← امسح الحساب. بيمسح حسابك وكل بياناتك نهائياً. مش قادر تفتح التطبيق؟ شوف <a href="/delete-account/">مسح الحساب</a>.</span></p></details>
+  <details><summary><span data-l="en">I forgot my password</span><span data-l="ar">نسيت الباسورد</span></summary><p><span data-l="en">Email us from the address you signed up with and we will help you get back in.</span><span data-l="ar">ابعتلنا إيميل من نفس الإيميل اللي سجلت بيه وهنساعدك ترجع لحسابك.</span></p></details>
+  <details><summary><span data-l="en">Does Fakka connect to my bank?</span><span data-l="ar">فكّة بتتوصل بحسابي في البنك؟</span></summary><p><span data-l="en">No. Fakka never connects to your bank and never asks for card numbers, bank passwords or PINs. You decide what to add.</span><span data-l="ar">لا. فكّة عمرها ما بتتوصل ببنكك ولا بتطلب رقم كارت أو باسورد أو PIN. إنت اللي بتقرر تضيف إيه.</span></p></details>
+  <details><summary><span data-l="en">Where is my data stored?</span><span data-l="ar">بياناتي محفوظة فين؟</span></summary><p><span data-l="en">As a guest, only on your phone. With an account, on your phone and on secure servers in the EU, where only you can read it. Receipt photos always stay on your phone. Details are in our <a href="/privacy/">Privacy Policy</a>.</span><span data-l="ar">كضيف، على موبايلك بس. بحساب، على موبايلك وعلى سيرفرات آمنة في الاتحاد الأوروبي محدش يقدر يشوفها غيرك. صور الإيصالات دايماً على موبايلك. التفاصيل في <a href="/privacy/">سياسة الخصوصية</a>.</span></p></details>
+  <details><summary><span data-l="en">How does automatic bank message logging work?</span><span data-l="ar">التسجيل التلقائي لرسائل البنك بيشتغل إزاي؟</span></summary><p><span data-l="en">On iPhone, go to Settings → Bank messages → Automatic logging and follow the steps to set up a Shortcuts automation. Only the amount, shop and date are kept, never the message itself. You can turn it off any time.</span><span data-l="ar">على الآيفون، روح الإعدادات ← رسائل البنك ← التسجيل التلقائي واتبع الخطوات لعمل أتمتة في Shortcuts. بنحفظ المبلغ والمحل والتاريخ بس، مش الرسالة نفسها. وتقدر تقفله في أي وقت.</span></p></details>
+  <details><summary><span data-l="en">Is Fakka free?</span><span data-l="ar">فكّة ببلاش؟</span></summary><p><span data-l="en">Yes, Fakka is free to download and use.</span><span data-l="ar">أيوه، فكّة ببلاش تنزيل واستخدام.</span></p></details>
+  <details><summary><span data-l="en">Is Fakka financial advice?</span><span data-l="ar">فكّة بتقدم نصيحة مالية؟</span></summary><p><span data-l="en">No. Fakka helps you keep track of your money. Figures are estimates based on what you enter. Check important numbers with your bank and talk to a professional before big decisions.</span><span data-l="ar">لا. فكّة بتساعدك تتابع فلوسك. الأرقام تقديرية حسب اللي بتدخله. اتأكد من الأرقام المهمة مع بنكك واسأل متخصص قبل أي قرار كبير.</span></p></details>
+</div></main>
+<footer><div class="wrap">
+  <div class="row">
+    <span>© 2026 Ahmed Hesham Bekheat. <span data-l="en">Fakka is a personal finance tracker, not a bank or financial adviser.</span><span data-l="ar">فكّة تطبيق لمتابعة فلوسك، مش بنك ولا مستشار مالي.</span></span>
+    <span><a href="/privacy/">Privacy Policy</a> · <a href="/terms/">Terms of Service</a> · <a href="/delete-account/">Delete account</a> · <a href="mailto:support@fakkaeg.com">support@fakkaeg.com</a></span>
+  </div>
+</div></footer>
+</body></html>
