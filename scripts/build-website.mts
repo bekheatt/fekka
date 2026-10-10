@@ -287,6 +287,7 @@ write('404.html', page({
 
 writeFileSync(new URL('favicon.svg', root), favicon);
 writeFileSync(new URL('CNAME', root), `${DOMAIN}\n`); // GitHub Pages custom domain (ignored by other hosts)
+writeFileSync(new URL('.nojekyll', root), ''); // GitHub Pages: serve the files exactly as they are
 writeFileSync(new URL('robots.txt', root), `User-agent: *\nAllow: /\nSitemap: https://${DOMAIN}/sitemap.xml\n`);
 writeFileSync(new URL('sitemap.xml', root), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${['/', '/support/', '/privacy/', '/terms/', '/delete-account/'].map(p => `  <url><loc>https://${DOMAIN}${p}</loc></url>`).join('\n')}\n</urlset>\n`);
 console.log(`Built website/ for ${DOMAIN}`);
