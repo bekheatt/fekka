@@ -1,6 +1,6 @@
 import React from 'react';
 import { APP_NAME, APP_NAME_AR } from '../brand';
-import { View, StyleSheet, Pressable, Alert, I18nManager } from 'react-native';
+import { View, StyleSheet, Pressable, Alert, I18nManager, ActivityIndicator } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, themed } from '../theme';
@@ -9,19 +9,22 @@ import { Header, Section, Card, Screen, Toggle, Segmented, tap } from '../ui';
 import { t } from '../i18n';
 import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
-import { signOutCloud } from '../cloud/supabase';
+import { signOutCloud, signInGoogle, loadUserData, recordConsent } from '../cloud/supabase';
 import { hasAccount } from '../store';
 import AutoLogSetup from '../features/SmsImport/AutoLogSetup';
 import LegalDoc from '../features/Legal/LegalDoc';
 import YourData from '../features/Legal/YourData';
 import DeleteAccount from '../features/Legal/DeleteAccount';
 import type { LegalDocKey } from '../features/Legal/documents';
-import { APP_VERSION } from '../features/Legal/consent';
+import { APP_VERSION, newConsent } from '../features/Legal/consent';
+
+// Does an account's online copy hold anything worth asking about?
+const hasRecords = (x: any) => !!x && ['installments', 'loans', 'bills', 'gameyas', 'goals', 'expenses', 'incomes', 'savings'].some(k => x[k]?.length);
 
 const CLOUD_TEXT = { off: 'Saved on this device', saving: 'Saving to your account…', saved: 'Saved to your account', error: "Couldn't save to your account" } as const;
 
 export default function Settings({ onBack }: { onBack?: () => void }) {
-  const { d, set, reset, redoSetup, cloudStatus, cloudError, flush } = useStore();
+  const { d, set, reset, redoSetup, cloudStatus, cloudError, flush, signInAs } = useStore();
 
   // Account: save one last time, then clear this device so the next person can't see your money.
   // Guest: just go back to the sign-in screen; data stays on this device.
@@ -38,6 +41,41 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
   const st = d.settings;
   const [autoLog, setAutoLog] = React.useState(false);
   const change = (patch: Partial<S>) => set(x => ({ ...x, settings: { ...x.settings, ...patch } }));
+
+  // Guest → Google account. A new account starts from this phone's data; one that already
+  // has Fakka data asks which copy to keep, so nothing is replaced without asking.
+  const [connecting, setConnecting] = React.useState(false);
+  const connectGoogle = async () => {
+    tap();
+    setConnecting(true);
+    try {
+      const u = await signInGoogle();
+      if (!u) return; // closed the Google page
+      let keepPhone = true;
+      if (hasRecords((await loadUserData(u.uid))?.data)) {
+        const pick = await new Promise<'phone' | 'account' | null>(res => Alert.alert(
+          t('This account already has data'),
+          t("Which data do you want to keep? The other copy will be replaced."),
+          [
+            { text: t("Use this phone's data"), onPress: () => res('phone') },
+            { text: t("Use account's data"), onPress: () => res('account') },
+            { text: t('Cancel'), style: 'cancel', onPress: () => res(null) },
+          ],
+          { cancelable: true, onDismiss: () => res(null) },
+        ));
+        if (!pick) return await signOutCloud(); // stay a guest, nothing changed
+        keepPhone = pick === 'phone';
+      }
+      // They already accepted the Terms as a guest; this records it for the account
+      const consent = newConsent(new Date().toISOString(), 'google');
+      // lock/notify/onboarded/toured: this phone's own choices, even when taking the account's data
+      await signInAs(u.uid, { account: 'google', email: u.email, uid: u.uid, consent, lock: st.lock, notify: st.notify, onboarded: st.onboarded, toured: st.toured }, keepPhone);
+      recordConsent(consent, 'google').catch(() => {});
+    } catch {
+      await signOutCloud();
+      Alert.alert(t("Couldn't connect your account"), t('Check your internet and try again. Your data is still on this phone.'));
+    } finally { setConnecting(false); }
+  };
 
   const setLanguage = (lang: 'en' | 'ar') => {
     if (lang === st.lang) return;
@@ -111,6 +149,21 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
         </Pressable>
       </Card>
       <AutoLogSetup visible={autoLog} onClose={() => setAutoLog(false)} />
+
+      {!online && (<>
+        <Section>{t('Account')}</Section>
+        <Card>
+          {/* Sign in with Apple goes here too, as a second row */}
+          <Pressable onPress={connectGoogle} disabled={connecting} style={[s.danger, connecting && { opacity: 0.6 }]} accessibilityRole="button">
+            <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="logo-google" size={18} color="#4285F4" /></View>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Connect Google account')}</Text>
+              <Text style={s.aboutVal}>{t('Back up your data and use it on other phones')}</Text>
+            </View>
+            {connecting ? <ActivityIndicator color={C.primary} /> : <Ionicons name="chevron-forward" size={18} color={C.sub} />}
+          </Pressable>
+        </Card>
+      </>)}
 
       <Section>{t('Data')}</Section>
       <Card>

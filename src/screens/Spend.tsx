@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Pressable, StyleSheet, Image } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Pressable, StyleSheet, Image, Animated } from 'react-native';
 import { Text } from '../fonts';
 import { pickReceipt, deleteReceipt } from '../receipts';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,6 +26,10 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
   const [receipt, setReceipt] = useState<string | undefined>();
   const [bigReceipt, setBigReceipt] = useState(false);
   const [sms, setSms] = useState(false);
+  // Tapped day in the week chart: shows its amount in a little bubble
+  const [sel, setSel] = useState<number | null>(null);
+  const fade = useRef(new Animated.Value(0)).current;
+  useEffect(() => { if (sel !== null) { fade.setValue(0); Animated.timing(fade, { toValue: 1, duration: 150, useNativeDriver: true }).start(); } }, [sel]);
 
   useEffect(() => {
     if (action === 'expense') setOpen('exp');
@@ -38,7 +42,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
   const week = Array.from({ length: 7 }, (_, i) => {
     const day = new Date(); day.setDate(day.getDate() - (6 - i));
     const ds = day.toDateString();
-    return { label: day.toLocaleDateString(locale(), { weekday: 'narrow' }), v: d.expenses.filter(e => new Date(e.date).toDateString() === ds).reduce((s, e) => s + e.amount, 0) };
+    return { label: day.toLocaleDateString(locale(), { weekday: 'narrow' }), name: day.toLocaleDateString(locale(), { weekday: 'long' }), v: d.expenses.filter(e => new Date(e.date).toDateString() === ds).reduce((s, e) => s + e.amount, 0) };
   });
   const weekMax = Math.max(1, ...week.map(w => w.v));
   const prevM = (() => { const x = new Date(); x.setDate(1); x.setMonth(x.getMonth() - 1); return ym(x); })();
@@ -78,7 +82,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
     <Screen>
       <Header title={t('Spending')} subtitle={t('Track what comes in and goes out')} right={<AddBtn onPress={() => setOpen('exp')} label={t('Expense')} />} />
 
-      <View style={s.sumCard}>
+      <Pressable style={s.sumCard} onPress={() => setSel(null)} accessible={false}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
           <View style={{ flex: 1 }}>
             <Text style={s.sumLabel}>{t('Spent this month')}</Text>
@@ -95,14 +99,27 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
         </View>
         <View style={s.chart}>
           {week.map((w, i) => (
-            <View key={i} style={s.col}>
-              <View style={[s.bar, { height: 8 + 64 * (w.v / weekMax), backgroundColor: i === 6 ? C.primary : C.pale }]} />
-              <Text style={[s.day, i === 6 && { color: C.ink }]}>{w.label}</Text>
-            </View>
+            <Pressable key={i} style={[s.col, sel === i && { zIndex: 1 }]} hitSlop={{ top: 12, bottom: 8 }}
+              onPress={() => { tap(); setSel(sel === i ? null : i); }}
+              accessibilityRole="button" accessibilityLabel={`${w.name}, ${le(w.v)}`}>
+              <View style={{ width: '100%' }}>
+                {sel === i && (
+                  // pinned to the card's edge for the first/last day so it never runs off (start/end follow RTL)
+                  <Animated.View pointerEvents="none" style={[s.tipBox, { opacity: fade }]}>
+                    <View style={s.caret} />
+                    <View style={[s.tipWrap, i === 0 ? s.tipStart : i === 6 ? s.tipEnd : null]}>
+                      <View style={s.tip}><Text style={s.tipTxt} numberOfLines={1}>{le(w.v)}</Text></View>
+                    </View>
+                  </Animated.View>
+                )}
+                <View style={[s.bar, { height: 8 + 64 * (w.v / weekMax), backgroundColor: i === 6 || sel === i ? C.primary : C.pale }]} />
+              </View>
+              <Text style={[s.day, (i === 6 || sel === i) && { color: C.ink }]}>{w.label}</Text>
+            </Pressable>
           ))}
         </View>
         <Text style={s.today}>{t('Today')} · {le(todaySpent)}</Text>
-      </View>
+      </Pressable>
 
       <Pressable onPress={() => { tap(); setSms(true); }} style={({ pressed }) => [s.smsRow, pressed && { opacity: 0.7 }]}>
         <View style={s.smsIcon}><Ionicons name="chatbubble-ellipses" size={18} color={C.primary} /></View>
@@ -201,8 +218,15 @@ const s = themed(() => StyleSheet.create({
   trend: { borderRadius: 99, paddingHorizontal: 10, paddingVertical: 5, marginLeft: 8 },
   trendTxt: { fontSize: 12, fontWeight: '600' },
   chart: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 16, height: 92 },
-  col: { flex: 1, alignItems: 'center', gap: 6 },
+  col: { flex: 1, height: '100%', alignItems: 'center', justifyContent: 'flex-end', gap: 6 },
   bar: { width: '100%', borderRadius: 8 },
+  tipBox: { position: 'absolute', bottom: '100%', start: 0, end: 0, marginBottom: 3, alignItems: 'center' },
+  tipWrap: { position: 'absolute', bottom: 3, start: -50, end: -50, alignItems: 'center' },
+  tipStart: { start: 0, end: -100, alignItems: 'flex-start' },
+  tipEnd: { start: -100, end: 0, alignItems: 'flex-end' },
+  tip: { backgroundColor: C.ink, borderRadius: 99, paddingHorizontal: 9, paddingVertical: 4 },
+  tipTxt: { color: C.card, fontSize: 12, fontWeight: '700' },
+  caret: { width: 8, height: 8, backgroundColor: C.ink, transform: [{ rotate: '45deg' }] },
   day: { fontSize: 11, color: C.sub, fontWeight: '500' },
   today: { fontSize: 13, color: C.sub, fontWeight: '500', marginTop: 12 },
   sumVal: { color: C.ink, fontSize: 30, fontWeight: '700', marginTop: 2, letterSpacing: -0.5 },

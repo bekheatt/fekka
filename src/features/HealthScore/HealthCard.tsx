@@ -92,10 +92,6 @@ function Inner({ onAddIncome }: { onAddIncome: () => void }) {
               </Text>
             )}
           </View>
-          <View style={s.pro}>
-            <Ionicons name="lock-closed" size={11} color="#fff" />
-            <Text style={s.proTxt}>PRO</Text>
-          </View>
         </View>
         <View style={s.factors}>
           {BOXES.map(f => {
@@ -194,8 +190,6 @@ const s = themed(() => StyleSheet.create({
   factorVal: { fontSize: 15, fontWeight: '600', color: C.ink },
   cta: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: C.soft, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginTop: 14 },
   ctaTxt: { flex: 1, fontSize: 14, fontWeight: '600', color: C.primary },
-  pro: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.primary, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
-  proTxt: { color: '#fff', fontSize: 10, fontWeight: '700', letterSpacing: 0.6 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { fontSize: 16, fontWeight: '600', color: C.ink },
   emptyTxt: { color: C.sub, fontSize: 14, marginTop: 8 },

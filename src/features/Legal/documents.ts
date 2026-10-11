@@ -7,8 +7,8 @@
 // Changing either document in a way people should agree to again: bump its version below.
 // Everyone is then asked to accept the new version the next time they open the app.
 
-export const PRIVACY_VERSION = '2026-10-09';
-export const TERMS_VERSION = '2026-10-09';
+export const PRIVACY_VERSION = '2026-10-11';
+export const TERMS_VERSION = '2026-10-11';
 
 export type LegalDocKey = 'privacy' | 'terms';
 
@@ -38,9 +38,9 @@ For any privacy question or request, contact us at support@fakkaeg.com.
 
 ### 3.1 Information you give us when you create an account
 
-- Email sign-up: your email address and a password. Passwords are handled by our authentication provider and stored only in hashed form; we cannot see your password.
+- You can create an account with Sign in with Google or Sign in with Apple. We do not offer password accounts, so we never hold a password for you.
 - Sign in with Google: your email address and your Google account identifier. Google may also share your name and profile picture address with our authentication provider; we do not use them in the App.
-- Sign in with Apple (when offered): your Apple account identifier and the email address Apple shares with us, which may be a private relay address chosen by you.
+- Sign in with Apple: your Apple account identifier and the email address Apple shares with us, which may be a private relay address chosen by you.
 - A record that you accepted our Terms of Service and this Privacy Policy: the version of each document, the date and time you accepted, the sign-in method, your device platform (iOS or Android) and the App version.
 
 ### 3.2 Information you enter in the App
@@ -112,7 +112,7 @@ We use personal information only for these purposes:
 - To suggest shop categories using aggregated choices from users.
 - To keep the Service secure: preventing fraud and abuse, protecting accounts and investigating security incidents.
 - To maintain and improve the Service: fixing errors and making the App work better.
-- To communicate with you: responding to your requests and sending essential service messages such as email confirmation, password reset, or important changes to our Terms or this Policy.
+- To communicate with you: responding to your requests and sending essential service messages such as important changes to our Terms or this Policy.
 - To comply with law: meeting legal obligations, responding to lawful requests from authorities and enforcing our Terms.
 - To keep a record of your acceptance of our Terms and this Policy.
 
@@ -135,7 +135,7 @@ Where Egyptian Personal Data Protection Law No. 151 of 2020 and its executive re
 - Personal keys for bank message forwarding are stored only as one-way hashes.
 - You can protect the App with Face ID, fingerprint or your device passcode, hide amounts on screen, and the App hides its content in the app switcher.
 
-No method of transmission or storage is completely secure. While we use reasonable administrative, technical and organisational measures to protect your information, we cannot guarantee absolute security. Please keep your device, email account and password secure, and contact us immediately if you believe your account has been compromised.
+No method of transmission or storage is completely secure. While we use reasonable administrative, technical and organisational measures to protect your information, we cannot guarantee absolute security. Please keep your device and your Google or Apple account secure, and contact us immediately if you believe your account has been compromised.
 
 ## 8. Third-party service providers
 
@@ -143,7 +143,7 @@ We share personal information only with service providers that help us run the S
 
 - Supabase Inc. (authentication, database and server functions; data hosted on Amazon Web Services in the EU). Supabase processes your account details, Financial Information you sync, forwarded bank-message transactions, consent records and service logs.
 - Google LLC, if you choose Sign in with Google. Google's handling of your Google account data is governed by Google's privacy policy.
-- Apple Inc., if you choose Sign in with Apple (when offered) or use Apple Shortcuts to forward messages. Apple's handling of that data is governed by Apple's privacy policy.
+- Apple Inc., if you choose Sign in with Apple or use Apple Shortcuts to forward messages. Apple's handling of that data is governed by Apple's privacy policy.
 - open.er-api.com and api.gold-api.com, which receive anonymous price requests from your device as described in section 3.6.
 - Apple App Store and Google Play, which handle App downloads, updates and any purchases under their own terms and privacy policies.
 
@@ -168,11 +168,11 @@ We do not sell personal information, and we do not share it for cross-context be
 
 ## 10. Deleting your account
 
-You can delete your account at any time in the App: Settings → Legal & Privacy → Delete account. You will be asked to confirm, and for security we may ask for your password again.
+You can delete your account at any time in the App: Settings → Legal & Privacy → Delete account. You will be asked to confirm by typing DELETE.
 
 When you delete your account we permanently delete your sign-in account and all server-side data linked to it: your synced Financial Information, any bank-message inbox items, your personal message-forwarding key, your shop category choices and your consent records. We also clear Fakka's data from the device you used to delete the account, including receipt photos saved by the App. If you use Fakka on other devices, they will be signed out, but information already saved on them stays on those devices until you delete it in the App there or uninstall the App.
 
-Deletion cannot be undone. If you sign in again later with the same email or provider, a new, empty account will be created.
+Deletion cannot be undone. If you sign in again later with the same Google or Apple account, a new, empty account will be created.
 
 If you cannot access the App, you can ask us to delete your account by emailing support@fakkaeg.com from the email address linked to your account, or by using our web request page at https://fakkaeg.com/delete-account. We may need to verify your identity before acting on the request.
 
@@ -246,11 +246,11 @@ You may use the App without an account. In guest mode your information is stored
 
 ### 3.2 Creating an account
 
-You may create an account with an email address and password, with Sign in with Google, or with Sign in with Apple where offered. You agree to:
+You may create an account with Sign in with Google or Sign in with Apple. You agree to:
 
-- Provide accurate information and keep your email address up to date.
+- Provide accurate information and keep the email address of your Google or Apple account up to date.
 - Create only one account for yourself and not create an account for anyone else without their permission.
-- Keep your password and devices secure and not share your account with others.
+- Keep your devices and your Google or Apple account secure and not share your account with others.
 - Tell us promptly at support@fakkaeg.com if you suspect unauthorised use of your account.
 
 You are responsible for activity that takes place under your account, except to the extent caused by our breach of these Terms.

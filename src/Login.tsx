@@ -8,9 +8,9 @@ import { useStore } from './store';
 import { t } from './i18n';
 import { tap } from './ui';
 import Logo from './Logo';
-import { Sheet, Field, Bubble } from './ui';
+import { Bubble } from './ui';
 import { APP_NAME, TAGLINE } from './brand';
-import { signInEmail, signUpEmail, signInGoogle, recordConsent, CloudUser } from './cloud/supabase';
+import { signInGoogle, recordConsent, CloudUser } from './cloud/supabase';
 import * as Haptics from 'expo-haptics';
 import Agree from './features/Legal/Agree';
 import { newConsent } from './features/Legal/consent';
@@ -19,23 +19,20 @@ import { newConsent } from './features/Legal/consent';
 const say = (title: string, msg: string) =>
   Platform.OS === 'web' ? window.alert(`${title}\n\n${msg}`) : Alert.alert(title, msg);
 
+// Same, with Cancel and a confirm button; onYes runs only if they confirm
+const ask = (title: string, msg: string, yes: string, onYes: () => void) =>
+  Platform.OS === 'web' ? (window.confirm(`${title}\n\n${msg}`) && onYes())
+  : Alert.alert(title, msg, [{ text: t('Cancel'), style: 'cancel' }, { text: yes, onPress: onYes }]);
+
 // Supabase's messages, in plain words
 const friendly = (m: string) =>
-  /invalid login/i.test(m) ? t('Wrong email or password.')
-  : /not confirmed/i.test(m) ? t('Please confirm your email first. Check your inbox for the link.')
-  : /already registered/i.test(m) ? t('This email already has an account. Sign in instead.')
-  : /password/i.test(m) && /6/.test(m) ? t('Password must be at least 6 characters.')
-  : /rate limit/i.test(m) ? t('Too many tries. Wait a few minutes and try again.')
+  /rate limit/i.test(m) ? t('Too many tries. Wait a few minutes and try again.')
   : m;
 
-// Sign-in screen. Email and Google sign-in are real (Supabase); Apple is look-only for now.
+// Sign-in screen: Google (Supabase) and Apple (look-only for now), or guest. No email/password accounts.
 // Nothing continues (account or guest) until the Terms / Privacy Policy box is ticked.
 export default function Login() {
   const { set, signInAs } = useStore();
-  const [emailOpen, setEmailOpen] = useState(false);
-  const [mode, setMode] = useState<'in' | 'up'>('in');
-  const [email, setEmail] = useState('');
-  const [pw, setPw] = useState('');
   const [busy, setBusy] = useState(false);
   const [agreedAt, setAgreedAt] = useState<string | null>(null); // when the box was ticked; null = not ticked
   const [warn, setWarn] = useState(false);
@@ -50,7 +47,7 @@ export default function Login() {
   };
 
   // After any sign-in: bring back saved data, or start the account from this device's data
-  const signedIn = async (u: CloudUser, kind: 'email' | 'google') => {
+  const signedIn = async (u: CloudUser, kind: 'google') => {
     const consent = newConsent(agreedAt!, kind);
     await signInAs(u.uid, { account: kind, email: u.email, uid: u.uid, consent });
     recordConsent(consent, kind).catch(() => {}); // if offline, LegalUpdate saves it on a later app start
@@ -69,23 +66,6 @@ export default function Login() {
     } finally { setBusy(false); }
   };
 
-  const submit = async () => {
-    if (!email.includes('@')) return say(t('Check your email'), t('Please enter a valid email address.'));
-    if (pw.length < 6) return say(t('Check your password'), t('Password must be at least 6 characters.'));
-    setBusy(true);
-    try {
-      const u = mode === 'in' ? await signInEmail(email, pw) : await signUpEmail(email, pw, newConsent(agreedAt!, 'email'));
-      if (!u) {
-        setMode('in');
-        return say(t('Confirm your email'), t('We sent a link to {e}. Tap it, then come back and sign in.', { e: email.trim() }));
-      }
-      await signedIn(u, 'email');
-      setEmailOpen(false); setPw('');
-    } catch (e: any) {
-      say(t('Sign-in failed'), friendly(String(e?.message ?? e)));
-    } finally { setBusy(false); }
-  };
-
   const soon = (who: string) => {
     tap();
     if (needsAgree()) return;
@@ -95,7 +75,11 @@ export default function Login() {
   const guest = () => {
     tap();
     if (needsAgree()) return;
-    set(v => ({ ...v, settings: { ...v.settings, account: 'guest', consent: newConsent(agreedAt!, 'guest') } }));
+    // Guests keep everything on this phone only, so say so before continuing
+    ask(t('Continue as guest?'),
+      t("As a guest, your data is saved only on this phone. If you delete the app or lose your phone, it can't be recovered. You can connect a Google account later in Settings."),
+      t('Continue as guest'),
+      () => set(v => ({ ...v, settings: { ...v.settings, account: 'guest', consent: newConsent(agreedAt!, 'guest') } })));
   };
 
   return (
@@ -138,8 +122,6 @@ export default function Login() {
 
         <View style={s.links}>
           <Pressable onPress={guest} hitSlop={8} style={!agreedAt && s.off}><Text style={s.link}>{t('Continue as guest')}</Text></Pressable>
-          <Text style={s.sep}>·</Text>
-          <Pressable onPress={() => { tap(); if (!needsAgree()) setEmailOpen(true); }} hitSlop={8} style={!agreedAt && s.off}><Text style={s.link}>{t('Use email')}</Text></Pressable>
         </View>
 
         <View style={s.privacy}>
@@ -147,19 +129,6 @@ export default function Login() {
           <Text style={s.note}>{t('Your data stays private and locked to you')}</Text>
         </View>
       </View>
-
-      <Sheet visible={emailOpen} title={t(mode === 'in' ? 'Sign in' : 'Create account')} onClose={() => setEmailOpen(false)}
-        onSave={busy ? () => {} : submit} saveLabel={busy ? t('Please wait…') : t(mode === 'in' ? 'Sign in' : 'Create account')}>
-        <Field label={t('Email')} value={email} onChangeText={setEmail} placeholder="you@example.com"
-          keyboardType="email-address" autoCapitalize="none" autoCorrect={false} autoComplete="email" />
-        <Field label={t('Password')} value={pw} onChangeText={setPw} placeholder="••••••" secureTextEntry
-          autoCapitalize="none" autoComplete={mode === 'in' ? 'current-password' : 'new-password'}
-          hint={mode === 'up' ? t('At least 6 characters') : undefined} />
-        {busy && <ActivityIndicator color={C.primary} style={{ marginBottom: 12 }} />}
-        <Pressable onPress={() => { tap(); setMode(mode === 'in' ? 'up' : 'in'); }} style={{ paddingVertical: 8 }}>
-          <Text style={s.switchTxt}>{t(mode === 'in' ? 'New to Fakka? Create an account' : 'Already have an account? Sign in')}</Text>
-        </Pressable>
-      </Sheet>
     </SafeAreaView>
   );
 }
@@ -189,7 +158,6 @@ const s = themed(() => StyleSheet.create({
   copy: { alignItems: 'center', marginTop: 8 },
   links: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10, paddingTop: 6 },
   link: { fontSize: 15, fontWeight: '600', color: C.primary },
-  sep: { color: C.sub },
   privacy: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 8 },
   wrap: { flex: 1, backgroundColor: C.bg, paddingHorizontal: 24 },
   top: { flex: 1, alignItems: 'center', justifyContent: 'center' },
@@ -199,9 +167,6 @@ const s = themed(() => StyleSheet.create({
   btn: { height: 54, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
   apple: { backgroundColor: '#000' },
   google: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#DADCE0' }, // Google's own button colours
-  guest: { backgroundColor: C.soft },
-  email: { backgroundColor: C.primary },
-  switchTxt: { fontSize: 14, color: C.primary, textAlign: 'center', fontWeight: '600', marginBottom: 20 },
   pressed: { opacity: 0.75 },
   off: { opacity: 0.45 }, // looks unavailable until the Terms box is ticked (still tappable, to explain why)
   btnTxt: { fontSize: 16, fontWeight: '600' },

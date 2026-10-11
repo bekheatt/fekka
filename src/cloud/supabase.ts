@@ -27,22 +27,6 @@ if (Platform.OS !== 'web') {
 
 export type CloudUser = { uid: string; email: string };
 
-// Returns the user, or null when the account still needs its email confirmed
-export async function signInEmail(email: string, password: string): Promise<CloudUser> {
-  const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-  if (error) throw error;
-  return { uid: data.user.id, email: data.user.email ?? email };
-}
-
-// The accepted Terms/Privacy versions also go into the new account's details, so there is a record
-// even when the account waits for its email to be confirmed (no session yet to save legal_consents).
-export async function signUpEmail(email: string, password: string, consent?: Consent): Promise<CloudUser | null> {
-  const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: consent ? { data: { consent } } : undefined });
-  if (error) throw error;
-  if (!data.session || !data.user) return null; // confirmation email sent
-  return { uid: data.user.id, email: data.user.email ?? email };
-}
-
 // Google: opens Google's sign-in page in a secure browser, then comes back into the app.
 // Returns null if the person closed the page.
 export async function signInGoogle(): Promise<CloudUser | null> {
@@ -116,15 +100,6 @@ export async function deleteMyAccount(): Promise<void> {
   const { error } = await supabase.rpc('delete_my_account');
   if (error) throw error;
   await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
-}
-
-// Checks the password again before something serious (deleting the account).
-// Returns false for a wrong password; throws for anything else (offline…).
-export async function confirmPassword(email: string, password: string): Promise<boolean> {
-  const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-  if (!error) return true;
-  if (/invalid login/i.test(error.message)) return false;
-  throw error;
 }
 
 // ---------- Terms & Privacy acceptance (legal_consents) ----------
