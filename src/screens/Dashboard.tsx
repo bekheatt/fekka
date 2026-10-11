@@ -10,6 +10,7 @@ import Logo from '../Logo';
 import HealthCard from '../features/HealthScore/HealthCard';
 import AffordSheet from '../features/Afford/AffordSheet';
 import { tourRef } from '../features/Tour/Tour';
+import SafeToSpendCard from '../features/SafeToSpend/SafeToSpendCard';
 
 type Go = (tab: string, action?: string) => void;
 
@@ -97,6 +98,7 @@ export default function Dashboard({ go }: { go: Go }) {
         </ScrollView>
       </View>
 
+      <SafeToSpendCard onAddIncome={() => go('spend', 'income')} />
       <View ref={tourRef('health')} collapsable={false}><HealthCard onAddIncome={() => go('spend', 'income')} /></View>
 
       {isNew ? (
