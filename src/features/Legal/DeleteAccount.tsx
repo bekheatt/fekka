@@ -1,6 +1,6 @@
 // Delete account (Settings → Legal & Privacy). Really deletes: the sign-in account and every server row
 // linked to it (Supabase delete_my_account + on delete cascade), then everything Fakka kept on this phone.
-// Email accounts confirm with their password; Google accounts and guests type DELETE.
+// Everyone confirms by typing DELETE (there are no password accounts).
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,7 +12,7 @@ import { C, themed } from '../../theme';
 import { t } from '../../i18n';
 import { Field } from '../../ui';
 import { useStore, hasAccount } from '../../store';
-import { deleteMyAccount, confirmPassword, signOutCloud } from '../../cloud/supabase';
+import { deleteMyAccount, signOutCloud } from '../../cloud/supabase';
 import { deleteAllReceipts } from '../../receipts';
 
 // Everything this app keeps on the phone outside the main data (which reset() clears)
@@ -28,14 +28,12 @@ export default function DeleteAccount({ visible, onClose }: { visible: boolean; 
   const { d, reset } = useStore();
   const st = d.settings;
   const online = hasAccount(st);
-  const usePassword = online && st.account === 'email';
-  const [pw, setPw] = useState('');
   const [typed, setTyped] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
-  const ready = usePassword ? pw.length > 0 : typed.trim().toUpperCase() === WORD;
-  const close = () => { if (busy) return; setPw(''); setTyped(''); setErr(''); onClose(); };
+  const ready = typed.trim().toUpperCase() === WORD;
+  const close = () => { if (busy) return; setTyped(''); setErr(''); onClose(); };
 
   const finish = async () => {
     await clearDevice();
@@ -48,13 +46,7 @@ export default function DeleteAccount({ visible, onClose }: { visible: boolean; 
     setErr('');
     setBusy(true);
     try {
-      if (online) {
-        if (usePassword && !(await confirmPassword(st.email ?? '', pw))) {
-          setBusy(false);
-          return setErr(t('Wrong password. Nothing was deleted.'));
-        }
-        await deleteMyAccount();
-      }
+      if (online) await deleteMyAccount();
       await finish();
     } catch (e: any) {
       setBusy(false);
@@ -98,13 +90,8 @@ export default function DeleteAccount({ visible, onClose }: { visible: boolean; 
           {online && <Text style={s.note}>{t('If you sign in again later, you will start with a new, empty account.')}</Text>}
 
           <View style={{ height: 18 }} />
-          {usePassword ? (
-            <Field label={t('Enter your password to confirm')} value={pw} onChangeText={(v: string) => { setPw(v); setErr(''); }}
-              secureTextEntry autoCapitalize="none" autoComplete="current-password" placeholder="••••••" hint={st.email} />
-          ) : (
-            <Field label={t('Type {w} to confirm', { w: WORD })} value={typed} onChangeText={(v: string) => { setTyped(v); setErr(''); }}
-              autoCapitalize="characters" autoCorrect={false} placeholder={WORD} />
-          )}
+          <Field label={t('Type {w} to confirm', { w: WORD })} value={typed} onChangeText={(v: string) => { setTyped(v); setErr(''); }}
+            autoCapitalize="characters" autoCorrect={false} placeholder={WORD} />
           {!!err && <Text style={s.err} accessibilityLiveRegion="assertive">{err}</Text>}
 
           <Pressable onPress={run} accessibilityRole="button" accessibilityState={{ disabled: !ready || busy }}

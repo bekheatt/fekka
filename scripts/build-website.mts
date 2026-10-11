@@ -347,9 +347,9 @@ const faqs: [string, string, string, string][] = [
   ['How do I delete my account?', 'إزاي أمسح حسابي؟',
     `In the app: Profile → Settings → Legal & Privacy → Delete account. It deletes your account and all your data for good. Can't open the app? See <a href="/delete-account/">Delete your account</a>.`,
     `من التطبيق: حسابي ← الإعدادات ← القانوني والخصوصية ← امسح الحساب. بيمسح حسابك وكل بياناتك نهائياً. مش قادر تفتح التطبيق؟ شوف <a href="/delete-account/">مسح الحساب</a>.`],
-  ['I forgot my password', 'نسيت الباسورد',
-    `Email us from the address you signed up with and we will help you get back in.`,
-    `ابعتلنا إيميل من نفس الإيميل اللي سجلت بيه وهنساعدك ترجع لحسابك.`],
+  ['How do I sign in?', 'إزاي أسجل دخول؟',
+    `With your Google account or your Apple ID, or as a guest without an account. ${NAME} has no passwords of its own, so there is nothing to forget.`,
+    `بحساب جوجل أو Apple ID، أو كضيف من غير حساب. ${NAME_AR} مفيهاش باسورد خاص بيها، فمفيش حاجة تنساها.`],
   [`Does ${NAME} connect to my bank?`, `${NAME_AR} بتتوصل بحسابي في البنك؟`,
     `No. ${NAME} never connects to your bank and never asks for card numbers, bank passwords or PINs. You decide what to add.`,
     `لا. ${NAME_AR} عمرها ما بتتوصل ببنكك ولا بتطلب رقم كارت أو باسورد أو PIN. إنت اللي بتقرر تضيف إيه.`],
@@ -413,12 +413,12 @@ write('delete-account/index.html', page({
 <p>${NAME} is developed by ${OWNER}. You can delete your account and all data linked to it at any time.</p>
 <h2>In the app</h2>
 <ul><li>Open ${NAME} and sign in.</li><li>Go to Profile → Settings → Legal &amp; Privacy → Delete account.</li>
-<li>Confirm with your password (email accounts) or by typing DELETE (Google accounts).</li></ul>
+<li>Confirm by typing DELETE.</li></ul>
 <p>Your account is deleted straight away and you return to the sign-in screen.</p>
 <h2>Without the app</h2>
 <p>Email <a href="mailto:${EMAIL}?subject=Delete%20my%20${NAME}%20account">${EMAIL}</a> from the email address linked to your account and ask us to delete it. We may ask you to confirm that the account is yours, and we will act on it within 30 days.</p>
 <h2>What is deleted</h2>
-<ul><li>Your sign-in account (email, or the Google account link).</li>
+<ul><li>Your sign-in account (the link to your Google or Apple account).</li>
 <li>All financial information synced to your account: income, spending, installments, loans, bills, gam'eya, savings, goals, price alerts, shop categories and scores.</li>
 <li>Bank-message transactions waiting in your inbox and your message-forwarding key.</li>
 <li>Your shop category votes and your Terms / Privacy acceptance records.</li></ul>
