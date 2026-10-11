@@ -98,6 +98,77 @@ footer a { color: var(--sub); }
 details { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px 20px; margin-bottom: 10px; }
 summary { cursor: pointer; font-weight: 600; } details p { color: var(--sub); margin: 10px 0 0; }
 .mail { font-size: clamp(20px, 4vw, 26px); font-weight: 600; text-decoration: none; word-break: break-all; }
+/* Ink & Electric — matches the app redesign */
+.hero { position: relative; overflow: hidden; margin-top: 24px; border-radius: 32px; padding: 64px 24px 56px; color: #fff;
+  background: radial-gradient(120% 90% at 85% 0%, #6B78FF 0%, transparent 55%), radial-gradient(90% 80% at 0% 100%, #1A26D9 0%, transparent 60%), #2B3BFF; }
+.hero::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(255,255,255,.14) 1px, transparent 1px); background-size: 22px 22px;
+  mask-image: linear-gradient(to bottom, #000, transparent 80%); -webkit-mask-image: linear-gradient(to bottom, #000, transparent 80%); }
+.hero > * { position: relative; z-index: 1; }
+.hero .logo { filter: drop-shadow(0 12px 32px rgba(10,16,120,.45)); }
+.hero p { color: rgba(255,255,255,.82); }
+.hero a, .hero .small { color: #fff; }
+.hero .small { opacity: .85; }
+.hero .pill { background: #fff; color: #2B3BFF; box-shadow: 0 10px 30px rgba(10,16,120,.35); }
+.pill { transition: transform .2s ease, box-shadow .2s ease; }
+.card { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: 0 14px 36px color-mix(in srgb, var(--accent) 16%, transparent); }
+.icon { background: var(--accent); color: #fff; box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 40%, transparent); }
+h2.section { background: linear-gradient(90deg, var(--ink), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.band { position: relative; overflow: hidden; background: radial-gradient(100% 120% at 100% 0%, #2B3BFF 0%, transparent 60%), #121726; }
+.band li::before { color: #8E97FF; }
+.lang:hover { border-color: var(--accent); color: var(--accent); }
+.doc article { border-top: 4px solid var(--accent); }
+details[open] { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+@media (prefers-reduced-motion: reduce) { .card, .pill { transition: none; } .card:hover { transform: none; } }
+`;
+
+// Home page only: Health Score spotlight and the app screen mockups
+const HOME_CSS = `/* Health Score spotlight + app screen mockups */
+.eyebrow { display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 999px; padding: 6px 12px; margin-bottom: 14px; }
+.spot { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; }
+.spot h2 { font-size: clamp(28px, 4.4vw, 44px); line-height: 1.08; letter-spacing: -.025em; font-weight: 600; margin: 0 0 14px; }
+.spot > div > p { color: var(--sub); margin: 0 0 22px; font-size: 18px; }
+.parts { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.parts li { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 15px; }
+.parts .bar { grid-column: 1 / -1; height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.parts .bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--sky)); }
+.parts b { font-weight: 600; color: var(--sub); }
+@media (max-width: 760px) { .spot { grid-template-columns: 1fr; gap: 28px; } }
+
+.phone { --p-bg:#EEEFF2; --p-card:#fff; --p-ink:#121726; --p-sub:#6E7480; --p-line:#E2E4E9; --p-blue:#2B3BFF;
+  width: 280px; max-width: 100%; aspect-ratio: 9 / 19; margin: 0 auto; border-radius: 46px; padding: 10px; background: #0B0D12;
+  box-shadow: 0 30px 70px color-mix(in srgb, var(--accent) 28%, transparent), inset 0 0 0 2px #2A2F3B; direction: ltr; text-align: left; }
+.scr { position: relative; height: 100%; border-radius: 36px; overflow: hidden; background: var(--p-bg); color: var(--p-ink); padding: 40px 14px 14px; font-size: 12px; line-height: 1.35; display: flex; flex-direction: column; gap: 9px; }
+.scr::before { content: ""; position: absolute; top: 10px; left: 50%; width: 76px; height: 20px; margin-left: -38px; border-radius: 999px; background: #0B0D12; }
+.scr .top { display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px; }
+.scr .top b { font-size: 19px; font-weight: 600; letter-spacing: -.4px; }
+.scr .top span, .scr .mut { color: var(--p-sub); font-size: 11px; }
+.pc { background: var(--p-card); border: 1px solid var(--p-line); border-radius: 18px; padding: 12px; }
+.pc.blue { background: var(--p-blue); border-color: var(--p-blue); color: #fff; }
+.pc.blue .mut { color: rgba(255,255,255,.75); }
+.big { font-size: 22px; font-weight: 600; letter-spacing: -.5px; }
+.score { display: flex; align-items: center; gap: 12px; }
+.score svg { flex: none; }
+.score .lab { font-size: 14px; font-weight: 600; }
+.pill-s { display: inline-block; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.2); color: #fff; margin-top: 4px; }
+.prow { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--p-line); }
+.prow:first-of-type { border-top: 0; }
+.dot { width: 28px; height: 28px; border-radius: 50%; flex: none; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 600; background: var(--p-blue); }
+.prow div { flex: 1; min-width: 0; }
+.prow em { font-style: normal; font-weight: 600; }
+.mbar { height: 6px; border-radius: 999px; background: var(--p-line); margin-top: 6px; overflow: hidden; }
+.mbar i { display: block; height: 100%; background: var(--p-blue); border-radius: inherit; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.green { color: #14A06B; } .red { color: #E5484D; }
+.tabs { margin-top: auto; display: flex; justify-content: space-around; background: var(--p-card); border: 1px solid var(--p-line); border-radius: 999px; padding: 9px; }
+.tabs i { width: 18px; height: 4px; border-radius: 999px; background: var(--p-line); } .tabs i:first-child { background: var(--p-blue); }
+
+.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.shots figure { margin: 0; }
+.shots figcaption { text-align: center; margin-top: 16px; font-weight: 600; }
+.shots figcaption .sub { display: block; font-weight: 400; color: var(--sub); font-size: 15px; }
+@media (max-width: 860px) { .shots { grid-template-columns: repeat(3, 78%); overflow-x: auto; scroll-snap-type: x mandatory; padding: 10px 4px 24px; margin: 0 -16px; padding-inline: 16px; } .shots figure { scroll-snap-align: center; } }
 `;
 
 // Picks Arabic or English from the last choice or the phone's language; the button switches
@@ -108,17 +179,18 @@ function set(x){h.lang=x;h.dir=x==='ar'?'rtl':'ltr';try{localStorage.setItem(k,x
 set(l);window.fakkaLang=function(){set(h.lang==='ar'?'en':'ar')};})();
 </script>`;
 
-type Page = { path: string; title: string; description: string; body: string; nav?: string; bilingual?: boolean };
+type Page = { path: string; title: string; description: string; body: string; nav?: string; bilingual?: boolean; css?: string };
 
-const page = ({ path, title, description, body, nav, bilingual = true }: Page) => `<!doctype html>
+const page = ({ path, title, description, body, nav, bilingual = true, css = '' }: Page) => `<!doctype html>
 <html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="https://${DOMAIN}${path}">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="https://${DOMAIN}${path}"><meta property="og:type" content="website">
+<meta property="og:image" content="https://${DOMAIN}/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="${NAME}: Know where every pound goes"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://${DOMAIN}/og.png">
 <meta name="theme-color" content="#2B3BFF">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<style>${CSS}</style>
+<style>${CSS}${css}</style>
 ${bilingual ? LANG_JS : ''}
 </head><body>
 <header><div class="wrap">
@@ -161,8 +233,49 @@ const features: [string, string, string, string, string][] = [
   [ICON.chart, 'Financial Health Score', 'مؤشر صحتك المالية', 'One number each month that shows how you are doing, and what to improve.', 'رقم واحد كل شهر يوريك ماشي إزاي، وتحسّن إيه.'],
 ];
 
+// Health Score weights, as in src/features/HealthScore/calculator.ts (WEIGHTS)
+const scoreParts: [string, string, number][] = [
+  ['Installment load', 'حمل الأقساط', 40], ['Emergency fund', 'فلوس الطوارئ', 20], ['Own vs owe', 'ليك وعليك', 15],
+  ['Savings mix', 'تنوّع الادخار', 15], ['Income stability', 'ثبات الدخل', 10],
+];
+
+// App screens drawn in HTML (sample numbers, English like the app's default)
+const tabs = '<div class="tabs"><i></i><i></i><i></i><i></i></div>';
+const shots: [string, string, string, string, string, string][] = [
+  ['Installments screen', `
+      <div class="top"><b>Installments</b><span>3 active</span></div>
+      <div class="pc blue"><div class="mut">Left to pay</div><div class="big">L.E 58,400</div><div class="mut">Debt-free in Aug 2027</div></div>
+      <div class="pc">
+        <div class="prow"><span class="dot">P</span><div>Phone<div class="mbar"><i style="width:50%"></i></div></div><em>6/12</em></div>
+        <div class="prow"><span class="dot" style="background:#14A06B">F</span><div>Fridge<div class="mbar"><i style="width:75%"></i></div></div><em>18/24</em></div>
+        <div class="prow"><span class="dot" style="background:#8E97FF">L</span><div>Laptop<div class="mbar"><i style="width:20%"></i></div></div><em>2/10</em></div>
+      </div>
+      <div class="pc"><div class="mut">Next 30 days</div><div class="big">L.E 5,900</div><div class="mut">18% of your income</div></div>`,
+    'Installments', 'الأقساط', "See when you'll be debt-free", 'اعرف هتخلص إمتى'],
+  ['Gold and savings screen', `
+      <div class="top"><b>Savings</b><span>Today's prices</span></div>
+      <div class="pc blue"><div class="mut">Total savings</div><div class="big">L.E 186,300</div><div class="mut">+L.E 3,120 this week</div></div>
+      <div class="pc">
+        <div class="prow"><span class="dot" style="background:#C9A227">21</span><div>Gold 21K<div class="mut">25 g</div></div><em>L.E 118K</em></div>
+        <div class="prow"><span class="dot" style="background:#14A06B">$</span><div>Dollars<div class="mut">$900</div></div><em>L.E 45.9K</em></div>
+        <div class="prow"><span class="dot">L.E</span><div>Cash<div class="mut">Bank & home</div></div><em>L.E 22.4K</em></div>
+      </div>
+      <div class="pc"><div class="mut">Savings mix</div><div class="mbar" style="height:10px;display:flex"><i style="width:63%"></i><i style="width:25%;background:#14A06B;border-radius:0"></i><i style="width:12%;background:#8E97FF;border-radius:0"></i></div></div>`,
+    'Gold & savings', 'الدهب والادخار', "Valued at today's prices", 'بأسعار النهارده'],
+  ['Bills screen', `
+      <div class="top"><b>Bills</b><span>October</span></div>
+      <div class="pc blue"><div class="mut">Due this month</div><div class="big">L.E 4,280</div><div class="mut">2 paid · 3 coming up</div></div>
+      <div class="pc">
+        <div class="prow"><span class="dot" style="background:#14A06B">✓</span><div>Internet<div class="mut">Paid · Oct 2</div></div><em>L.E 450</em></div>
+        <div class="prow"><span class="dot">E</span><div>Electricity<div class="mut">Due Sat</div></div><em>L.E 640</em></div>
+        <div class="prow"><span class="dot" style="background:#F2994A">S</span><div>School fees<div class="mut">Due Oct 25</div></div><em>L.E 2,900</em></div>
+      </div>
+      <div class="pc"><div class="mut">Reminder</div>Electricity is due tomorrow</div>`,
+    'Bills', 'الفواتير', 'A reminder before every due date', 'تنبيه قبل كل ميعاد'],
+];
+
 write('index.html', page({
-  path: '/', title: `${NAME} · Your money, made simple`,
+  path: '/', title: `${NAME} · Your money, made simple`, css: HOME_CSS,
   description: `${NAME} (${NAME_AR}) tracks your installments, bills, gam'eya, gold and savings in one calm place. Made for Egypt.`,
   body: `
 <div class="hero">
@@ -173,9 +286,45 @@ write('index.html', page({
   <span class="small">${b('Questions?', 'عندك سؤال؟')} <a href="mailto:${EMAIL}">${EMAIL}</a></span>
 </div>
 <section>
+  <div class="spot">
+    <div>
+      <span class="eyebrow">${b(`Only in ${NAME}`, `حصرياً في ${NAME_AR}`)}</span>
+      <h2>${b('One score for your whole financial life', 'رقم واحد لحياتك المالية كلها')}</h2>
+      <p>${b('Your Financial Health Score, from 0 to 100, looks at everything you owe and own and tells you how you are really doing, and what to fix first.', 'مؤشر صحتك المالية من 0 لـ 100 بيبص على كل اللي عليك واللي ليك، ويقولك إنت ماشي إزاي بجد، وتصلّح إيه الأول.')}</p>
+      <ul class="parts">
+        ${scoreParts.map(([en, ar, w]) => `<li>${b(en, ar)}<b>${w}%</b><span class="bar"><i style="width:${w}%"></i></span></li>`).join('\n        ')}
+      </ul>
+    </div>
+    <div class="phone" role="img" aria-label="${NAME} home screen showing a Financial Health Score of 72"><div class="scr">
+      <div class="top"><b>Good morning</b><span>Oct</span></div>
+      <div class="pc blue score">
+        <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="7"/><circle cx="32" cy="32" r="26" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-dasharray="117.6 163.4" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" font-size="17" font-weight="600" fill="#fff">72</text></svg>
+        <div><div class="mut">Financial Health</div><div class="lab">Good, keep going</div><span class="pill-s">+4 this month</span></div>
+      </div>
+      <div class="two">
+        <div class="pc"><div class="mut">You own</div><div class="big">412K</div></div>
+        <div class="pc"><div class="mut">You owe</div><div class="big">96K</div></div>
+      </div>
+      <div class="pc"><div class="mut">Due this week</div>
+        <div class="prow"><span class="dot">P</span><div>Phone installment<div class="mut">Thu · 6 of 12</div></div><em>L.E 2,150</em></div>
+        <div class="prow"><span class="dot" style="background:#8E97FF">E</span><div>Electricity<div class="mut">Sat</div></div><em>L.E 640</em></div>
+      </div>
+      ${tabs}
+    </div></div>
+  </div>
+</section>
+<section>
   <h2 class="section">${b('Everything you pay, in one place', 'كل اللي بتدفعه، في مكان واحد')}</h2>
   <div class="grid">
     ${features.map(([icon, en, ar, pen, par]) => `<div class="card"><div class="icon" aria-hidden="true">${icon}</div><h3>${b(en, ar)}</h3><p>${b(pen, par)}</p></div>`).join('\n    ')}
+  </div>
+</section>
+<section>
+  <h2 class="section">${b('See it in action', 'شوفه وهو شغال')}</h2>
+  <div class="shots">
+    ${shots.map(([label, screen, en, ar, sen, sar]) => `<figure><div class="phone" role="img" aria-label="${label}"><div class="scr">${screen}
+      ${tabs}
+    </div></div><figcaption>${b(en, ar)}<span class="sub">${b(sen, sar)}</span></figcaption></figure>`).join('\n    ')}
   </div>
 </section>
 <section>
@@ -286,6 +435,7 @@ write('404.html', page({
 }));
 
 writeFileSync(new URL('favicon.svg', root), favicon);
+copyFileSync(new URL('../assets/og.png', import.meta.url), new URL('og.png', root)); // link preview (1200x630) for WhatsApp, X, etc.
 writeFileSync(new URL('CNAME', root), `${DOMAIN}\n`); // GitHub Pages custom domain (ignored by other hosts)
 writeFileSync(new URL('.nojekyll', root), ''); // GitHub Pages: serve the files exactly as they are
 writeFileSync(new URL('robots.txt', root), `User-agent: *\nAllow: /\nSitemap: https://${DOMAIN}/sitemap.xml\n`);
