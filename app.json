@@ -2,14 +2,17 @@
   "expo": {
     "name": "Fakka",
     "slug": "fekka",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.fekka.app",
+      "buildNumber": "1",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "Fakka uses Face ID to keep your finances private."
+        "NSFaceIDUsageDescription": "Fakka uses Face ID to keep your finances private.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "privacyManifests": {
         "NSPrivacyTracking": false,
@@ -23,7 +26,12 @@
       }
     },
     "android": {
-      "package": "com.fekka.app"
+      "package": "com.fekka.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2B3BFF"
+      }
     },
     "plugins": [
       [
@@ -40,7 +48,20 @@
           "photosPermission": "Fakka lets you attach receipt photos. Photos stay on your phone."
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 140,
+          "resizeMode": "contain",
+          "backgroundColor": "#2B3BFF",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#3B4BFF"
+          }
+        }
+      ]
     ],
     "extra": {
       "supportsRTL": true

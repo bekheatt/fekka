@@ -16,6 +16,7 @@ import LegalDoc from '../features/Legal/LegalDoc';
 import YourData from '../features/Legal/YourData';
 import DeleteAccount from '../features/Legal/DeleteAccount';
 import type { LegalDocKey } from '../features/Legal/documents';
+import { APP_VERSION } from '../features/Legal/consent';
 
 const CLOUD_TEXT = { off: 'Saved on this device', saving: 'Saving to your account…', saved: 'Saved to your account', error: "Couldn't save to your account" } as const;
 
@@ -156,7 +157,7 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
 
       <Section>{t('About')}</Section>
       <Card>
-        <View style={s.about}><Text style={s.aboutLabel}>{t('Version')}</Text><Text style={s.aboutVal}>1.1.0</Text></View>
+        <View style={s.about}><Text style={s.aboutLabel}>{t('Version')}</Text><Text style={s.aboutVal}>{APP_VERSION}</Text></View>
         <View style={[s.about, { borderTopWidth: 1, borderColor: C.line }]}><Text style={s.aboutLabel}>{APP_NAME} · {APP_NAME_AR}</Text><Text style={s.aboutVal}>{t('Made for Egypt 🇪🇬')}</Text></View>
       </Card>
       <Text style={s.legal}>{t('valU, Souhoola, Klivvr, Sympl, Contact, Aman, Forsa, Halan, Premium, InstaPay and the bank names shown are trademarks of their owners. {app} is not affiliated with or endorsed by them.', { app: APP_NAME })}</Text>
