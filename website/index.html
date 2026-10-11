@@ -5,7 +5,7 @@
 <link rel="canonical" href="https://fakkaeg.com/">
 <meta property="og:title" content="Fakka · Your money, made simple"><meta property="og:description" content="Fakka (فكّة) tracks your installments, bills, gam'eya, gold and savings in one calm place. Made for Egypt."><meta property="og:url" content="https://fakkaeg.com/"><meta property="og:type" content="website">
 <meta property="og:image" content="https://fakkaeg.com/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Fakka: Know where every pound goes"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://fakkaeg.com/og.png">
-<meta name="theme-color" content="#F5F6F8" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0C0E13" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FDFDFE">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/fonts/Outfit_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
 <style>
@@ -13,171 +13,107 @@
 @font-face { font-family: Outfit; font-weight: 600; font-display: swap; src: url(/fonts/Outfit_600SemiBold.ttf) format("truetype"); }
 @font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 400; font-display: swap; src: url(/fonts/IBMPlexSansArabic_400Regular.ttf) format("truetype"); }
 @font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 600; font-display: swap; src: url(/fonts/IBMPlexSansArabic_600SemiBold.ttf) format("truetype"); }
-:root {
-  --bg: #F5F6F8; --surface: #FCFCFD; --tint: #ECEEFF; --ink: #0F1218; --sub: #545B68; --line: #E1E4EA;
-  --accent: #2B3BFF; --on-accent: #FCFCFD; --accent-soft: #C9CEFF; --shadow: 230 40% 30%;
-  --r: 24px; --r-sm: 16px; --ease: cubic-bezier(.16, 1, .3, 1); color-scheme: light;
-}
-@media (prefers-color-scheme: dark) { :root {
-  --bg: #0C0E13; --surface: #151820; --tint: #1A1E33; --ink: #ECEEF3; --sub: #A0A7B4; --line: #262B36;
-  --accent: #5563FF; --on-accent: #FCFCFD; --accent-soft: #2A3170; --shadow: 230 60% 2%; color-scheme: dark;
-} }
+:root { --bg: #FDFDFE; --soft: #F3F4F7; --ink: #111318; --sub: #5E6572; --line: #E6E8ED; --accent: #2B3BFF; --ease: cubic-bezier(.16, 1, .3, 1); color-scheme: light; }
 * { box-sizing: border-box; }
 html[lang=en] [data-l=ar], html[lang=ar] [data-l=en] { display: none; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 Outfit, "IBM Plex Sans Arabic", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 html[lang=ar] body { font-family: "IBM Plex Sans Arabic", Outfit, system-ui, sans-serif; }
 img { display: block; max-width: 100%; height: auto; }
 a { color: var(--accent); text-underline-offset: 3px; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
-.ic { flex: none; }
-.wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-@media (max-width: 767px) { .wrap { padding: 0 16px; } }
 h1, h2, h3 { font-weight: 600; margin: 0; text-wrap: balance; }
 p { margin: 0; }
+.ic { flex: none; }
+.wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 767px) { .wrap { padding: 0 20px; } }
 
 /* Header */
-.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px); border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
-.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
-.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 600; font-size: 20px; letter-spacing: -.02em; }
-.nav { display: flex; align-items: center; gap: 4px; font-size: 15px; }
-.nav a { color: var(--sub); text-decoration: none; padding: 8px 12px; border-radius: 999px; transition: color .2s, background-color .2s; }
-.nav a:hover { color: var(--ink); background: var(--surface); }
-.nav a[aria-current] { color: var(--ink); }
-.lang { margin-inline-start: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; transition: border-color .2s, transform .15s var(--ease); }
-.lang:hover { border-color: var(--accent); }
+.top { position: sticky; top: 0; z-index: 10; background: rgb(253 253 254 / .86); backdrop-filter: saturate(1.6) blur(16px); -webkit-backdrop-filter: saturate(1.6) blur(16px); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
+.brand { display: inline-flex; align-items: center; gap: 9px; color: var(--ink); text-decoration: none; font-weight: 600; font-size: 19px; letter-spacing: -.02em; }
+.nav { display: flex; align-items: center; gap: 22px; font-size: 15px; }
+.nav a { color: var(--sub); text-decoration: none; transition: color .2s; }
+.nav a:hover, .nav a[aria-current] { color: var(--ink); }
+.lang { border: 0; background: var(--soft); color: var(--ink); border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; transition: background-color .2s, transform .15s var(--ease); }
+.lang:hover { background: var(--line); }
 .lang:active { transform: scale(.97); }
-@media (max-width: 640px) { .nav .opt { display: none; } }
+@media (max-width: 640px) { .nav .opt { display: none; } .nav { gap: 14px; } }
 
-/* Buttons and the store badge */
-.pill { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; border-radius: 999px; padding: 14px 22px; font-weight: 600; font-size: 16px; text-decoration: none; transition: transform .2s var(--ease), box-shadow .2s var(--ease), background-color .2s; }
-.pill.solid { background: var(--accent); color: var(--on-accent); box-shadow: 0 10px 28px -12px hsl(233 100% 50% / .55); }
-.pill.solid:hover { transform: translateY(-2px); box-shadow: 0 16px 34px -14px hsl(233 100% 50% / .6); }
-.pill.solid:active { transform: translateY(0) scale(.98); }
-.soon { display: inline-flex; align-items: center; gap: 12px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 10px 20px 10px 12px; }
-html[dir=rtl] .soon { padding: 10px 12px 10px 20px; }
-.soon .ic { width: 38px; height: 38px; padding: 9px; border-radius: 50%; background: var(--accent); color: var(--on-accent); }
-.soon small { display: block; color: var(--sub); font-size: 13px; line-height: 1.2; }
-.soon strong { display: block; font-weight: 600; font-size: 16px; line-height: 1.3; }
+/* Buttons */
+.pill { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; border-radius: 999px; padding: 13px 24px; font-weight: 600; font-size: 16px; text-decoration: none; background: var(--accent); color: #FDFDFE; transition: transform .2s var(--ease), background-color .2s; }
+.pill:hover { background: #1F2EE6; }
+.pill:active { transform: scale(.98); }
+.soon { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; padding: 9px 18px; border-radius: 999px; background: var(--soft); color: var(--ink); font-size: 15px; font-weight: 600; }
+.soon .ic { color: var(--accent); }
 
-/* Hero: words on one side, the coin on the other */
-.hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; padding-block: 56px 72px; min-height: min(calc(100dvh - 64px), 860px); }
-.hero h1 { font-size: clamp(42px, 6.2vw, 78px); line-height: 1.02; letter-spacing: -.035em; }
-html[lang=ar] .hero h1 { line-height: 1.2; letter-spacing: 0; }
-.hero h1 em { font-style: normal; color: var(--accent); }
-.hero p { margin: 22px 0 34px; color: var(--sub); font-size: clamp(18px, 1.6vw, 21px); max-width: 30ch; }
-.hero figure { margin: 0; position: relative; }
-.hero figure img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 58% 50%; border-radius: var(--r); box-shadow: 0 40px 80px -40px hsl(var(--shadow) / .45); }
+/* Phone frame around a real screenshot */
+.phone { width: min(290px, 74vw); margin: 0 auto; padding: 9px; border-radius: 48px; background: #15171C; box-shadow: 0 0 0 1px #2A2D35 inset, 0 50px 90px -40px rgb(17 19 40 / .45); }
+.screen { width: 100%; aspect-ratio: 828 / 1792; object-fit: cover; border-radius: 39px; background: var(--soft); }
+.screen.ph { display: grid; place-items: center; color: var(--sub); font-size: 14px; }
+
+/* Hero: centred message, the app below it, cropped by a soft fade */
+.hero { text-align: center; padding-top: clamp(56px, 9vh, 96px); }
+.hero h1 { font-size: clamp(44px, 7vw, 84px); line-height: 1.02; letter-spacing: -.04em; max-width: 12ch; margin: 0 auto; }
+html[lang=ar] .hero h1 { line-height: 1.25; letter-spacing: 0; }
+.hero p { margin: 22px auto 0; color: var(--sub); font-size: clamp(18px, 1.7vw, 21px); max-width: 34ch; }
+.trio { display: flex; justify-content: center; align-items: flex-start; gap: 28px; margin-top: 64px; height: clamp(420px, 52vw, 620px); overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent); mask-image: linear-gradient(to bottom, #000 72%, transparent); }
+.trio .phone { margin: 0; flex: none; }
+.trio > :nth-child(2) .phone { width: min(330px, 80vw); }
+.trio > :nth-child(1), .trio > :nth-child(3) { margin-top: 72px; }
+@media (max-width: 860px) { .trio > :nth-child(1), .trio > :nth-child(3) { display: none; } .trio { height: 520px; } }
+
+/* Feature rows: words beside a phone */
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; padding-block: clamp(72px, 11vh, 128px); }
+.row.flip > :first-child { order: 2; }
+.row h2 { font-size: clamp(32px, 4.2vw, 52px); line-height: 1.06; letter-spacing: -.035em; max-width: 13ch; }
+html[lang=ar] .row h2 { line-height: 1.35; letter-spacing: 0; }
+.row p { margin-top: 18px; color: var(--sub); font-size: 19px; max-width: 34ch; }
 @media (max-width: 860px) {
-  .hero { grid-template-columns: 1fr; gap: 36px; min-height: 0; padding-block: 24px 48px; }
-  .hero figure img { aspect-ratio: 4 / 3; }
+  .row { grid-template-columns: 1fr; gap: 44px; text-align: center; padding-block: 64px; }
+  .row.flip > :first-child { order: 0; }
+  .row h2, .row p { margin-inline: auto; }
 }
 
-/* The meaning of the name */
-.meaning { padding: 96px 0; }
-.meaning p { font-size: clamp(26px, 3.4vw, 44px); line-height: 1.22; letter-spacing: -.02em; max-width: 26ch; font-weight: 600; }
-html[lang=ar] .meaning p { letter-spacing: 0; line-height: 1.5; }
-.meaning p span.quiet { color: var(--sub); }
-.meaning .ar-word { color: var(--accent); font-family: "IBM Plex Sans Arabic", sans-serif; }
+/* Everything else: a quiet grid, no boxes */
+.more { padding-block: clamp(72px, 10vh, 120px); border-top: 1px solid var(--line); }
+.more h2 { font-size: clamp(30px, 3.6vw, 44px); letter-spacing: -.03em; line-height: 1.1; text-align: center; }
+html[lang=ar] .more h2 { letter-spacing: 0; line-height: 1.4; }
+.list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px 40px; margin-top: 56px; }
+.list .ic { color: var(--accent); }
+.list h3 { margin-top: 14px; font-size: 19px; letter-spacing: -.01em; }
+.list p { margin-top: 6px; color: var(--sub); font-size: 16px; }
+@media (max-width: 860px) { .list { grid-template-columns: 1fr 1fr; gap: 40px 28px; } }
+@media (max-width: 520px) { .list { grid-template-columns: 1fr; } }
 
-/* Features: a bento of six, each tile with its own surface */
-.sec { padding: 72px 0; }
-.sec > .wrap > h2, .sec-head { font-size: clamp(30px, 4vw, 48px); letter-spacing: -.03em; line-height: 1.08; max-width: 18ch; margin-bottom: 40px; }
-html[lang=ar] .sec > .wrap > h2 { letter-spacing: 0; line-height: 1.35; }
-.bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: auto auto auto; gap: 16px; }
-.tile { position: relative; overflow: hidden; border-radius: var(--r); padding: 28px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; justify-content: flex-end; min-height: 230px; transition: transform .35s var(--ease), box-shadow .35s var(--ease); }
-.tile:hover { transform: translateY(-3px); box-shadow: 0 24px 48px -28px hsl(var(--shadow) / .4); }
-.tile h3 { font-size: 21px; letter-spacing: -.01em; line-height: 1.25; }
-.tile p { margin-top: 8px; color: var(--sub); font-size: 16px; max-width: 38ch; }
-.tile .ic { color: var(--accent); margin-bottom: auto; }
-.tile.score { grid-column: span 2; grid-row: span 2; background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-.tile.score p { color: color-mix(in srgb, var(--on-accent) 80%, transparent); font-size: 18px; }
-.tile.score h3 { font-size: 30px; }
-.tile.score .scale { font-size: clamp(64px, 9vw, 128px); font-weight: 600; letter-spacing: -.05em; line-height: .9; margin-bottom: auto; font-variant-numeric: tabular-nums; }
-.tile.score .scale small { font-size: .32em; letter-spacing: 0; margin: 0 .3em; color: color-mix(in srgb, var(--on-accent) 62%, transparent); vertical-align: .35em; }
-.tile.wide { grid-column: span 2; }
-.tile.tall { grid-row: span 2; border: 0; color: #F4F5F8; }
-.tile.tall img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-.tile.tall::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(8 10 16 / .88) 0%, rgb(8 10 16 / .35) 55%, rgb(8 10 16 / .05) 100%); z-index: 1; }
-.tile.tall > :not(img) { position: relative; z-index: 2; }
-.tile.tall p { color: rgb(244 245 248 / .82); }
-.tile.tall .ic { color: #F4F5F8; }
-.tile.tinted { background: var(--tint); border-color: transparent; }
-@media (max-width: 960px) {
-  .bento { grid-template-columns: repeat(2, 1fr); }
-  .tile.tall { grid-row: span 1; min-height: 320px; }
-}
-@media (max-width: 600px) {
-  .bento { grid-template-columns: 1fr; }
-  .tile.score, .tile.wide { grid-column: span 1; grid-row: span 1; }
-  .tile { min-height: 200px; padding: 24px; }
-}
+/* Privacy, on a soft band */
+.privacy { background: var(--soft); padding-block: clamp(72px, 10vh, 112px); }
+.privacy h2 { font-size: clamp(30px, 3.6vw, 44px); letter-spacing: -.03em; line-height: 1.1; text-align: center; }
+html[lang=ar] .privacy h2 { letter-spacing: 0; line-height: 1.4; }
+.privacy .wrap > p { margin: 14px auto 0; color: var(--sub); text-align: center; max-width: 46ch; }
+.checks { list-style: none; margin: 44px auto 0; padding: 0; max-width: 820px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px 40px; }
+.checks li { display: flex; gap: 12px; align-items: flex-start; }
+.checks .ic { color: var(--accent); margin-top: 3px; }
+@media (max-width: 640px) { .checks { grid-template-columns: 1fr; } }
 
-/* App screenshots */
-.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; align-items: end; }
-.shots figure { margin: 0; }
-.shots img { width: 100%; max-width: 300px; margin: 0 auto; border-radius: 40px; border: 8px solid #12141A; box-shadow: 0 40px 70px -40px hsl(var(--shadow) / .55); }
-.shots figure:nth-child(2) img { transform: translateY(-28px); }
-.shots figcaption { margin-top: 18px; text-align: center; color: var(--sub); }
-@media (max-width: 860px) {
-  .shots { grid-template-columns: repeat(3, 72%); overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -16px; padding: 8px 16px 20px; gap: 16px; }
-  .shots figure { scroll-snap-align: center; }
-  .shots figure:nth-child(2) img { transform: none; }
-}
-
-/* Made for Egypt: one full-bleed photo */
-.egypt { position: relative; margin: 72px 0; min-height: 640px; display: flex; align-items: flex-end; color: #F4F5F8; overflow: hidden; }
-.egypt > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; }
-.egypt::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(8 10 16 / .9) 0%, rgb(8 10 16 / .55) 45%, rgb(8 10 16 / .1) 100%); }
-.egypt .wrap { position: relative; z-index: 1; padding-top: 220px; padding-bottom: 64px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: end; }
-.egypt h2 { font-size: clamp(34px, 5vw, 64px); letter-spacing: -.035em; line-height: 1.02; max-width: 12ch; }
-html[lang=ar] .egypt h2 { letter-spacing: 0; line-height: 1.3; }
-.eyebrow { display: inline-block; margin-bottom: 16px; font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: rgb(244 245 248 / .78); }
-html[lang=ar] .eyebrow { letter-spacing: 0; font-size: 15px; }
-.points { display: grid; gap: 18px; }
-.points > div { display: grid; grid-template-columns: 26px 1fr; gap: 14px; align-items: start; }
-.points .ic { margin-top: 2px; color: #AEB5FF; }
-.points strong { display: block; font-weight: 600; }
-.points p { color: rgb(244 245 248 / .78); font-size: 16px; }
-@media (max-width: 860px) {
-  .egypt { min-height: 0; }
-  .egypt .wrap { grid-template-columns: 1fr; padding-top: 260px; gap: 32px; }
-}
-
-/* Privacy: a heading beside a grid of promises */
-.privacy { display: grid; grid-template-columns: .8fr 1.2fr; gap: 56px; align-items: start; }
-.privacy h2 { font-size: clamp(30px, 4vw, 48px); letter-spacing: -.03em; line-height: 1.08; }
-html[lang=ar] .privacy h2 { letter-spacing: 0; line-height: 1.35; }
-.privacy > div > p { margin-top: 18px; color: var(--sub); max-width: 36ch; }
-.promises { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.promise { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: center; padding: 16px; border-radius: var(--r-sm); background: var(--surface); border: 1px solid var(--line); }
-.promise .ic { width: 44px; height: 44px; padding: 11px; border-radius: 50%; background: var(--tint); color: var(--accent); }
-.promise span { font-size: 16px; line-height: 1.4; }
-@media (max-width: 860px) {
-  .privacy { grid-template-columns: 1fr; gap: 28px; }
-}
-@media (max-width: 560px) { .promises { grid-template-columns: 1fr; } }
-
-/* Closing: questions */
-.ask { margin-top: 72px; padding-block: 64px; text-align: center; border-top: 1px solid var(--line); }
-.ask h2 { font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -.02em; }
-.ask p { color: var(--sub); margin: 12px auto 28px; max-width: 44ch; }
+/* Questions */
+.ask { text-align: center; padding-block: clamp(72px, 10vh, 120px); }
+.ask h2 { font-size: clamp(28px, 3.4vw, 40px); letter-spacing: -.02em; }
+.ask p { color: var(--sub); margin: 12px auto 28px; max-width: 40ch; }
 
 /* Footer */
-footer { border-top: 1px solid var(--line); padding: 32px 0 44px; color: var(--sub); font-size: 14px; }
-footer .wrap { display: grid; grid-template-columns: 1fr auto; gap: 16px 32px; align-items: start; }
+footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--sub); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px 32px; }
 footer nav { display: flex; flex-wrap: wrap; gap: 8px 20px; }
 footer a { color: var(--sub); text-decoration: none; }
 footer a:hover { color: var(--ink); text-decoration: underline; }
-footer .credit { grid-column: 1 / -1; font-size: 13px; }
-@media (max-width: 760px) { footer .wrap { grid-template-columns: 1fr; } }
 
 /* Inner pages: support, legal documents, delete account */
 .page-head { padding: 64px 0 36px; }
-.page-head h1 { font-size: clamp(36px, 5vw, 56px); letter-spacing: -.03em; line-height: 1.05; }
+.page-head h1 { font-size: clamp(36px, 5vw, 56px); letter-spacing: -.035em; line-height: 1.05; }
 html[lang=ar] .page-head h1 { letter-spacing: 0; line-height: 1.3; }
 .page-head p { margin-top: 14px; color: var(--sub); font-size: 18px; max-width: 52ch; }
-.contact { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; padding: 28px; border-radius: var(--r); background: var(--tint); margin-bottom: 56px; }
+.contact { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; padding: 28px; border-radius: 24px; background: var(--soft); margin-bottom: 56px; }
 .contact strong { display: block; font-size: 20px; font-weight: 600; color: var(--ink); }
 .contact > span { color: var(--sub); }
 .faq h2 { font-size: 28px; letter-spacing: -.02em; margin-bottom: 18px; }
@@ -188,35 +124,33 @@ summary::-webkit-details-marker { display: none; }
 summary::after { content: "+"; font-weight: 400; font-size: 26px; line-height: 1; color: var(--accent); transition: transform .25s var(--ease); }
 details[open] summary::after { transform: rotate(45deg); }
 details p { color: var(--sub); padding: 0 2px 22px; max-width: 70ch; }
-.doc { display: grid; grid-template-columns: 240px 1fr; gap: 56px; align-items: start; padding-bottom: 32px; }
-.toc { position: sticky; top: 88px; font-size: 14px; }
+.doc { display: grid; grid-template-columns: 240px 1fr; gap: 56px; align-items: start; padding-bottom: 48px; }
+.doc.single { grid-template-columns: 1fr; }
+.toc { position: sticky; top: 84px; font-size: 14px; }
 .toc strong { display: block; margin-bottom: 10px; font-weight: 600; }
 .toc ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
 .toc a { display: block; color: var(--sub); text-decoration: none; padding: 5px 0; line-height: 1.35; }
 .toc a:hover { color: var(--accent); }
 article { max-width: 72ch; direction: ltr; text-align: left; }
-article h2 { font-size: 24px; letter-spacing: -.01em; margin: 44px 0 10px; scroll-margin-top: 88px; }
+article h2 { font-size: 24px; letter-spacing: -.01em; margin: 44px 0 10px; scroll-margin-top: 84px; }
 article h3 { font-size: 18px; margin: 24px 0 6px; }
 article p { white-space: pre-line; margin: 0 0 14px; }
 article .meta { color: var(--sub); }
 article ul { padding-inline-start: 22px; margin: 0 0 14px; }
 article li { margin-bottom: 6px; }
-.note { padding: 14px 18px; border-radius: var(--r-sm); background: var(--tint); margin-bottom: 28px; }
+.note { padding: 14px 18px; border-radius: 16px; background: var(--soft); margin-bottom: 28px; }
 @media (max-width: 860px) {
   .doc { grid-template-columns: 1fr; gap: 24px; }
-  .toc { position: static; padding: 18px; border-radius: var(--r-sm); background: var(--surface); border: 1px solid var(--line); }
+  .toc { position: static; padding: 18px; border-radius: 16px; background: var(--soft); }
 }
-.lost { min-height: 60dvh; display: grid; align-content: center; justify-items: start; gap: 18px; padding: 64px 0; }
+.lost { min-height: 60dvh; display: grid; align-content: center; justify-items: center; text-align: center; gap: 18px; padding: 64px 0; }
 .lost h1 { font-size: clamp(36px, 5vw, 56px); letter-spacing: -.03em; }
 
-/* Motion: things settle in once, as you reach them (only when the phone allows motion) */
+/* Motion: a gentle settle as things come into view (skipped when the phone asks for less motion) */
 @media (prefers-reduced-motion: no-preference) {
-  .js .rise { opacity: 0; transform: translateY(22px); transition: opacity .8s var(--ease), transform .8s var(--ease); transition-delay: calc(var(--i, 0) * 70ms); }
+  .js .rise { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(var(--i, 0) * 80ms); }
   .js .rise.in { opacity: 1; transform: none; }
-  .hero figure img { animation: settle 1.2s var(--ease) both; }
-  @keyframes settle { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
 }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
 </style>
 <script>
 (function(){var h=document.documentElement,k='fakka-lang',l;h.classList.add('js');try{l=localStorage.getItem(k)}catch(e){}
@@ -241,84 +175,56 @@ set(l);window.fakkaLang=function(){set(h.lang==='ar'?'en':'ar')};})();
 </div></header>
 <main>
 <section class="wrap hero">
-  <div>
-    <h1 class="rise"><span data-l="en">Know where every <em>pound</em> goes</span><span data-l="ar">اعرف كل <em>جنيه</em> بيروح فين</span></h1>
-    <p class="rise" style="--i:1"><span data-l="en">Installments, bills, gam'eya, gold and savings, all in one calm place on your iPhone.</span><span data-l="ar">الأقساط والفواتير والجمعيات والدهب والادخار، كلها في مكان واحد هادي على الآيفون.</span></p>
-    <div class="soon rise" style="--i:2"><svg class="ic" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM72,64H184V192H72Zm8-32h96a8,8,0,0,1,8,8v8H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8v-8H184v8A8,8,0,0,1,176,224Z"/></svg><span><small><span data-l="en">Coming soon</span><span data-l="ar">قريباً</span></small><strong><span data-l="en">On the App Store</span><span data-l="ar">على App Store</span></strong></span></div>
-  </div>
-  <figure><img class="" src="/img/coin.jpg" width="1600" height="1067" alt="An Egyptian one pound coin standing on its edge" fetchpriority="high" decoding="async"></figure>
-</section>
-
-<section class="meaning"><div class="wrap">
-  <p class="rise"><span data-l="en">In Egypt, <span class="ar-word">فكّة</span> means small change. <span class="quiet">Fakka keeps track of it, and of everything bigger.</span></span><span data-l="ar"><span class="ar-word">فكّة</span> يعني الفلوس الصغيرة. <span class="quiet">وفكّة بتتابعها، وتتابع كل حاجة أكبر منها كمان.</span></span></p>
-</div></section>
-
-<section class="sec" id="features"><div class="wrap">
-  <h2 class="rise"><span data-l="en">Everything you pay, in one place</span><span data-l="ar">كل اللي بتدفعه، في مكان واحد</span></h2>
-  <div class="bento">
-    <div class="tile score rise">
-      <div class="scale" aria-hidden="true">0<small><span data-l="en">to</span><span data-l="ar">لـ</span></small>100</div>
-      <h3><span data-l="en">Your Financial Health Score</span><span data-l="ar">مؤشر صحتك المالية</span></h3>
-      <p><span data-l="en">One number that weighs what you owe against what you own, and tells you what to fix first.</span><span data-l="ar">رقم واحد بيوزن اللي عليك قصاد اللي ليك، ويقولك تصلّح إيه الأول.</span></p>
-    </div>
-    <div class="tile wide rise" style="--i:1"><svg class="ic" width="28" height="28" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-68-76a12,12,0,1,1-12-12A12,12,0,0,1,140,132Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,132ZM96,172a12,12,0,1,1-12-12A12,12,0,0,1,96,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,140,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,172Z"/></svg>
-      <h3><span data-l="en">Installments and loans</span><span data-l="ar">الأقساط والقروض</span></h3>
-      <p><span data-l="en">Installment apps, bank loans and mortgages in one list, and the month you'll be debt-free.</span><span data-l="ar">تطبيقات التقسيط وقروض البنوك والتمويل العقاري في قايمة واحدة، والشهر اللي هتخلص فيه.</span></p>
-    </div>
-    <div class="tile rise" style="--i:2"><svg class="ic" width="28" height="28" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"/></svg>
-      <h3><span data-l="en">Bills and reminders</span><span data-l="ar">الفواتير والتنبيهات</span></h3>
-      <p><span data-l="en">Electricity, internet, school fees. A reminder the day before.</span><span data-l="ar">الكهرباء والإنترنت والمدارس. تنبيه قبلها بيوم.</span></p>
-    </div>
-    <div class="tile tall rise" style="--i:3"><img class="" src="/img/ataba-market.jpg" width="1000" height="1250" alt="" loading="lazy" decoding="async"><svg class="ic" width="28" height="28" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"/></svg>
-      <h3><span data-l="en">Gam'eya</span><span data-l="ar">الجمعية</span></h3>
-      <p><span data-l="en">Your turn, what you've paid and what you'll receive.</span><span data-l="ar">دورك، ودفعت كام، وهتقبض كام.</span></p>
-    </div>
-    <div class="tile tinted wide rise"><svg class="ic" width="28" height="28" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm0,32a8,8,0,0,1,8-8h64a8,8,0,1,1,0,16H96A8,8,0,0,1,88,144Z"/></svg>
-      <h3><span data-l="en">Bank messages, logged for you</span><span data-l="ar">رسايل البنك بتتسجل لوحدها</span></h3>
-      <p><span data-l="en">On iPhone, card payments add themselves from your bank's texts. Only the amount, shop and date are kept.</span><span data-l="ar">على الآيفون، مدفوعات الكارت بتضاف لوحدها من رسايل البنك. بنحفظ المبلغ والمحل والتاريخ بس.</span></p>
-    </div>
-    <div class="tile rise" style="--i:1"><svg class="ic" width="28" height="28" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M184,89.57V84c0-25.08-37.83-44-88-44S8,58.92,8,84v40c0,20.89,26.25,37.49,64,42.46V172c0,25.08,37.83,44,88,44s88-18.92,88-44V132C248,111.3,222.58,94.68,184,89.57ZM232,132c0,13.22-30.79,28-72,28-3.73,0-7.43-.13-11.08-.37C170.49,151.77,184,139,184,124V105.74C213.87,110.19,232,122.27,232,132ZM72,150.25V126.46A183.74,183.74,0,0,0,96,128a183.74,183.74,0,0,0,24-1.54v23.79A163,163,0,0,1,96,152,163,163,0,0,1,72,150.25Zm96-40.32V124c0,8.39-12.41,17.4-32,22.87V123.5C148.91,120.37,159.84,115.71,168,109.93ZM96,56c41.21,0,72,14.78,72,28s-30.79,28-72,28S24,97.22,24,84,54.79,56,96,56ZM24,124V109.93c8.16,5.78,19.09,10.44,32,13.57v23.37C36.41,141.4,24,132.39,24,124Zm64,48v-4.17c2.63.1,5.29.17,8,.17,3.88,0,7.67-.13,11.39-.35A121.92,121.92,0,0,0,120,171.41v23.46C100.41,189.4,88,180.39,88,172Zm48,26.25V174.4a179.48,179.48,0,0,0,24,1.6,183.74,183.74,0,0,0,24-1.54v23.79a165.45,165.45,0,0,1-48,0Zm64-3.38V171.5c12.91-3.13,23.84-7.79,32-13.57V172C232,180.39,219.59,189.4,200,194.87Z"/></svg>
-      <h3><span data-l="en">Gold and savings</span><span data-l="ar">الدهب والادخار</span></h3>
-      <p><span data-l="en">Gold 21K and 24K, dollars and euros at today's prices.</span><span data-l="ar">دهب 21 و24 والدولار واليورو بأسعار النهارده.</span></p>
-    </div>
-  </div>
-</div></section>
-
-
-<section class="egypt">
-  <img class="" src="/img/ataba.jpg" width="2000" height="1500" alt="Ataba Square in downtown Cairo at dusk, with shops, traffic and a Banque Misr branch" loading="lazy" decoding="async">
-  <div class="wrap">
-    <div class="rise"><span class="eyebrow"><span data-l="en">Made for Egypt</span><span data-l="ar">معمول لمصر</span></span><h2><span data-l="en">Built for how Egypt pays</span><span data-l="ar">معمول على طريقة الدفع في مصر</span></h2></div>
-    <div class="points">
-      <div class="rise"><svg class="ic" width="24" height="24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M184,89.57V84c0-25.08-37.83-44-88-44S8,58.92,8,84v40c0,20.89,26.25,37.49,64,42.46V172c0,25.08,37.83,44,88,44s88-18.92,88-44V132C248,111.3,222.58,94.68,184,89.57ZM232,132c0,13.22-30.79,28-72,28-3.73,0-7.43-.13-11.08-.37C170.49,151.77,184,139,184,124V105.74C213.87,110.19,232,122.27,232,132ZM72,150.25V126.46A183.74,183.74,0,0,0,96,128a183.74,183.74,0,0,0,24-1.54v23.79A163,163,0,0,1,96,152,163,163,0,0,1,72,150.25Zm96-40.32V124c0,8.39-12.41,17.4-32,22.87V123.5C148.91,120.37,159.84,115.71,168,109.93ZM96,56c41.21,0,72,14.78,72,28s-30.79,28-72,28S24,97.22,24,84,54.79,56,96,56ZM24,124V109.93c8.16,5.78,19.09,10.44,32,13.57v23.37C36.41,141.4,24,132.39,24,124Zm64,48v-4.17c2.63.1,5.29.17,8,.17,3.88,0,7.67-.13,11.39-.35A121.92,121.92,0,0,0,120,171.41v23.46C100.41,189.4,88,180.39,88,172Zm48,26.25V174.4a179.48,179.48,0,0,0,24,1.6,183.74,183.74,0,0,0,24-1.54v23.79a165.45,165.45,0,0,1-48,0Zm64-3.38V171.5c12.91-3.13,23.84-7.79,32-13.57V172C232,180.39,219.59,189.4,200,194.87Z"/></svg><div><strong><span data-l="en">Pounds first</span><span data-l="ar">الجنيه الأول</span></strong><p><span data-l="en">Every amount in L.E, with gold and dollars converted at live prices.</span><span data-l="ar">كل المبالغ بالجنيه، والدهب والدولار بيتحسبوا بالأسعار اللحظية.</span></p></div></div>
-      <div class="rise" style="--i:1"><svg class="ic" width="24" height="24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"/></svg><div><strong><span data-l="en">Gam'eya and installment apps</span><span data-l="ar">الجمعيات وتطبيقات التقسيط</span></strong><p><span data-l="en">The ways people here actually save and borrow, not a copy of a foreign app.</span><span data-l="ar">الطرق اللي الناس هنا بتدّخر وبتقسّط بيها فعلاً، مش نسخة من تطبيق أجنبي.</span></p></div></div>
-      <div class="rise" style="--i:2"><svg class="ic" width="24" height="24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm0,32a8,8,0,0,1,8-8h64a8,8,0,1,1,0,16H96A8,8,0,0,1,88,144Z"/></svg><div><strong><span data-l="en">Arabic and English</span><span data-l="ar">عربي وإنجليزي</span></strong><p><span data-l="en">Switch any time, with right-to-left done properly.</span><span data-l="ar">غيّر في أي وقت، والعربي من اليمين للشمال مظبوط.</span></p></div></div>
-    </div>
+  <h1 class="rise"><span data-l="en">Know where every pound goes.</span><span data-l="ar">اعرف كل جنيه بيروح فين.</span></h1>
+  <p class="rise" style="--i:1"><span data-l="en">Installments, bills, gam'eya, gold and savings. One calm app, made for Egypt.</span><span data-l="ar">الأقساط والفواتير والجمعيات والدهب والادخار. تطبيق واحد هادي، معمول لمصر.</span></p>
+  <span class="soon rise" style="--i:2"><svg class="ic" width="18" height="18" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM72,64H184V192H72Zm8-32h96a8,8,0,0,1,8,8v8H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8v-8H184v8A8,8,0,0,1,176,224Z"/></svg><span data-l="en">Coming soon on iPhone</span><span data-l="ar">قريباً على الآيفون</span></span>
+  <div class="trio">
+    <div class="rise" style="--i:3"><div class="phone"><img class="screen" src="/img/spend.png" width="828" height="1792" alt="Fakka spending screen with the week chart" loading="lazy" decoding="async"></div></div>
+    <div class="rise" style="--i:2"><div class="phone"><img class="screen" src="/img/home.png" width="828" height="1792" alt="Fakka home screen with the Financial Health Score" fetchpriority="high" decoding="async"></div></div>
+    <div class="rise" style="--i:4"><div class="phone"><img class="screen" src="/img/pay.png" width="828" height="1792" alt="Fakka payments screen with installments and loans" loading="lazy" decoding="async"></div></div>
   </div>
 </section>
 
-<section class="sec"><div class="wrap privacy">
-  <div class="rise"><h2><span data-l="en">Your money stays yours</span><span data-l="ar">فلوسك تفضل بتاعتك</span></h2>
-    <p><span data-l="en">Fakka never connects to your bank. You decide what goes in, and you can take it all out.</span><span data-l="ar">فكّة عمرها ما بتتوصل ببنكك. إنت اللي بتقرر تدخّل إيه، وتقدر تطلّع كل حاجة.</span></p></div>
-  <div class="promises">
-    <div class="promise rise" style="--i:0"><svg class="ic" width="22" height="22" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M72,128a134.63,134.63,0,0,1-14.16,60.47,8,8,0,1,1-14.32-7.12A118.8,118.8,0,0,0,56,128,71.73,71.73,0,0,1,83,71.8,8,8,0,1,1,93,84.29,55.76,55.76,0,0,0,72,128Zm56-8a8,8,0,0,0-8,8,184.12,184.12,0,0,1-23,89.1,8,8,0,0,0,14,7.76A200.19,200.19,0,0,0,136,128,8,8,0,0,0,128,120Zm0-32a40,40,0,0,0-40,40,8,8,0,0,0,16,0,24,24,0,0,1,48,0,214.09,214.09,0,0,1-20.51,92A8,8,0,1,0,146,226.83,230,230,0,0,0,168,128,40,40,0,0,0,128,88Zm0-64A104.11,104.11,0,0,0,24,128a87.76,87.76,0,0,1-5,29.33,8,8,0,0,0,15.09,5.33A103.9,103.9,0,0,0,40,128a88,88,0,0,1,176,0,282.24,282.24,0,0,1-5.29,54.45,8,8,0,0,0,6.3,9.4,8.22,8.22,0,0,0,1.55.15,8,8,0,0,0,7.84-6.45A298.37,298.37,0,0,0,232,128,104.12,104.12,0,0,0,128,24ZM94.4,152.17A8,8,0,0,0,85,158.42a151,151,0,0,1-17.21,45.44,8,8,0,0,0,13.86,8,166.67,166.67,0,0,0,19-50.25A8,8,0,0,0,94.4,152.17ZM128,56a72.85,72.85,0,0,0-9,.56,8,8,0,0,0,2,15.87A56.08,56.08,0,0,1,184,128a252.12,252.12,0,0,1-1.92,31A8,8,0,0,0,189,168a8.39,8.39,0,0,0,1,.06,8,8,0,0,0,7.92-7,266.48,266.48,0,0,0,2-33A72.08,72.08,0,0,0,128,56Zm57.93,128.25a8,8,0,0,0-9.75,5.75c-1.46,5.69-3.15,11.4-5,17a8,8,0,0,0,5,10.13,7.88,7.88,0,0,0,2.55.42,8,8,0,0,0,7.58-5.46c2-5.92,3.79-12,5.35-18.05A8,8,0,0,0,185.94,184.26Z"/></svg><span><span data-l="en">Lock it with Face ID or your fingerprint</span><span data-l="ar">اقفله بـ Face ID أو البصمة</span></span></div>
-    <div class="promise rise" style="--i:1"><svg class="ic" width="22" height="22" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM72,64H184V192H72Zm8-32h96a8,8,0,0,1,8,8v8H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8v-8H184v8A8,8,0,0,1,176,224Z"/></svg><span><span data-l="en">Use it as a guest: nothing leaves your phone</span><span data-l="ar">استخدمه كضيف: مفيش حاجة بتخرج من موبايلك</span></span></div>
-    <div class="promise rise" style="--i:0"><svg class="ic" width="22" height="22" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M53.92,34.62A8,8,0,1,0,42.08,45.38L61.32,66.55C25,88.84,9.38,123.2,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208a127.11,127.11,0,0,0,52.07-10.83l22,24.21a8,8,0,1,0,11.84-10.76Zm47.33,75.84,41.67,45.85a32,32,0,0,1-41.67-45.85ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.16,133.16,0,0,1,25,128c4.69-8.79,19.66-33.39,47.35-49.38l18,19.75a48,48,0,0,0,63.66,70l14.73,16.2A112,112,0,0,1,128,192Zm6-95.43a8,8,0,0,1,3-15.72,48.16,48.16,0,0,1,38.77,42.64,8,8,0,0,1-7.22,8.71,6.39,6.39,0,0,1-.75,0,8,8,0,0,1-8-7.26A32.09,32.09,0,0,0,134,96.57Zm113.28,34.69c-.42.94-10.55,23.37-33.36,43.8a8,8,0,1,1-10.67-11.92A132.77,132.77,0,0,0,231.05,128a133.15,133.15,0,0,0-23.12-30.77C185.67,75.19,158.78,64,128,64a118.37,118.37,0,0,0-19.36,1.57A8,8,0,1,1,106,49.79,134,134,0,0,1,128,48c34.88,0,66.57,13.26,91.66,38.35,18.83,18.83,27.3,37.62,27.65,38.41A8,8,0,0,1,247.31,131.26Z"/></svg><span><span data-l="en">No ads, no tracking, and we never sell your data</span><span data-l="ar">من غير إعلانات ولا تتبع، وعمرنا ما بنبيع بياناتك</span></span></div>
-    <div class="promise rise" style="--i:1"><svg class="ic" width="22" height="22" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M128,112a28,28,0,0,0-8,54.83V184a8,8,0,0,0,16,0V166.83A28,28,0,0,0,128,112Zm0,40a12,12,0,1,1,12-12A12,12,0,0,1,128,152Zm80-72H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z"/></svg><span><span data-l="en">Never asks for your bank or card passwords</span><span data-l="ar">عمره ما بيطلب باسورد البنك أو الكارت</span></span></div>
-    <div class="promise rise" style="--i:0"><svg class="ic" width="22" height="22" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg><span><span data-l="en">Delete your account any time, right in the app</span><span data-l="ar">امسح حسابك في أي وقت من جوه التطبيق</span></span></div>
-    <div class="promise rise" style="--i:1"><svg class="ic" width="22" height="22" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg><span><span data-l="en">Your account data can only be read by you</span><span data-l="ar">بيانات حسابك محدش يقدر يشوفها غيرك</span></span></div>
+<section class="wrap row">
+  <div class="rise"><h2><span data-l="en">Gold and savings, at today's prices.</span><span data-l="ar">الدهب والادخار، بأسعار النهارده.</span></h2>
+    <p><span data-l="en">Gold 21K and 24K, dollars and euros, all valued in pounds with live prices.</span><span data-l="ar">دهب 21 و24 والدولار واليورو، كلهم بيتحسبوا بالجنيه بالأسعار اللحظية.</span></p></div>
+  <div class="rise" style="--i:1"><div class="phone"><img class="screen" src="/img/save.png" width="828" height="1792" alt="Fakka savings screen with gold and dollars" loading="lazy" decoding="async"></div></div>
+</section>
+
+<section class="wrap more">
+  <h2 class="rise"><span data-l="en">And the rest of your money.</span><span data-l="ar">وباقي فلوسك.</span></h2>
+  <div class="list">
+    <div class="rise" style="--i:0"><svg class="ic" width="26" height="26" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M72,144H32a8,8,0,0,1,0-16H67.72l13.62-20.44a8,8,0,0,1,13.32,0l25.34,38,9.34-14A8,8,0,0,1,136,128h24a8,8,0,0,1,0,16H140.28l-13.62,20.44a8,8,0,0,1-13.32,0L88,126.42l-9.34,14A8,8,0,0,1,72,144ZM178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,.75,0,1.5,0,2.25a8,8,0,1,0,16-.5c0-.58,0-1.17,0-1.75A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46c0,53.61-77.76,102.15-96,112.8-10.83-6.31-42.63-26-66.68-52.21a8,8,0,1,0-11.8,10.82c31.17,34,72.93,56.68,74.69,57.63a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40Z"/></svg><h3><span data-l="en">Financial Health Score</span><span data-l="ar">مؤشر صحتك المالية</span></h3><p><span data-l="en">One number from 0 to 100, and what to fix first.</span><span data-l="ar">رقم واحد من 0 لـ 100، وتصلّح إيه الأول.</span></p></div>
+    <div class="rise" style="--i:1"><svg class="ic" width="26" height="26" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-68-76a12,12,0,1,1-12-12A12,12,0,0,1,140,132Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,132ZM96,172a12,12,0,1,1-12-12A12,12,0,0,1,96,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,140,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,172Z"/></svg><h3><span data-l="en">Installments and loans</span><span data-l="ar">الأقساط والقروض</span></h3><p><span data-l="en">Installment apps, bank loans and mortgages, and the month you'll be debt-free.</span><span data-l="ar">تطبيقات التقسيط وقروض البنوك والتمويل العقاري، والشهر اللي هتخلص فيه.</span></p></div>
+    <div class="rise" style="--i:2"><svg class="ic" width="26" height="26" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z"/></svg><h3><span data-l="en">Bills and reminders</span><span data-l="ar">الفواتير والتنبيهات</span></h3><p><span data-l="en">Electricity, internet, school fees. A reminder the day before.</span><span data-l="ar">الكهرباء والإنترنت والمدارس. تنبيه قبلها بيوم.</span></p></div>
+    <div class="rise" style="--i:0"><svg class="ic" width="26" height="26" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"/></svg><h3><span data-l="en">Gam'eya</span><span data-l="ar">الجمعية</span></h3><p><span data-l="en">Your turn, what you've paid and what you'll receive.</span><span data-l="ar">دورك، ودفعت كام، وهتقبض كام.</span></p></div>
+    <div class="rise" style="--i:1"><svg class="ic" width="26" height="26" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm0,32a8,8,0,0,1,8-8h64a8,8,0,1,1,0,16H96A8,8,0,0,1,88,144Z"/></svg><h3><span data-l="en">Bank messages</span><span data-l="ar">رسايل البنك</span></h3><p><span data-l="en">Card payments add themselves from your bank's texts.</span><span data-l="ar">مدفوعات الكارت بتضاف لوحدها من رسايل البنك.</span></p></div>
+    <div class="rise" style="--i:2"><svg class="ic" width="26" height="26" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM72,64H184V192H72Zm8-32h96a8,8,0,0,1,8,8v8H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8v-8H184v8A8,8,0,0,1,176,224Z"/></svg><h3><span data-l="en">Arabic and English</span><span data-l="ar">عربي وإنجليزي</span></h3><p><span data-l="en">Switch any time, right-to-left done properly.</span><span data-l="ar">غيّر في أي وقت، والعربي مظبوط.</span></p></div>
   </div>
+</section>
+
+<section class="privacy"><div class="wrap">
+  <h2 class="rise"><span data-l="en">Private by design.</span><span data-l="ar">خصوصيتك أولاً.</span></h2>
+  <p class="rise" style="--i:1"><span data-l="en">You decide what goes in, and you can take it all out.</span><span data-l="ar">إنت اللي بتقرر تدخّل إيه، وتقدر تطلّع كل حاجة.</span></p>
+  <ul class="checks">
+    <li class="rise" style="--i:0"><svg class="ic" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg><span><span data-l="en">Locks with Face ID the moment you leave</span><span data-l="ar">بيتقفل بـ Face ID أول ما تخرج</span></span></li>
+    <li class="rise" style="--i:1"><svg class="ic" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg><span><span data-l="en">Never connects to your bank</span><span data-l="ar">عمره ما بيتوصل ببنكك</span></span></li>
+    <li class="rise" style="--i:0"><svg class="ic" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg><span><span data-l="en">Never asks for card or bank passwords</span><span data-l="ar">عمره ما بيطلب باسورد الكارت أو البنك</span></span></li>
+    <li class="rise" style="--i:1"><svg class="ic" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg><span><span data-l="en">No ads, no tracking, never sold</span><span data-l="ar">من غير إعلانات ولا تتبع، ومش بنبيع بياناتك</span></span></li>
+    <li class="rise" style="--i:0"><svg class="ic" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg><span><span data-l="en">Use it as a guest: nothing leaves your phone</span><span data-l="ar">استخدمه كضيف: مفيش حاجة بتخرج من موبايلك</span></span></li>
+    <li class="rise" style="--i:1"><svg class="ic" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg><span><span data-l="en">Your account data can only be read by you</span><span data-l="ar">بيانات حسابك محدش يقدر يشوفها غيرك</span></span></li>
+    <li class="rise" style="--i:0"><svg class="ic" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg><span><span data-l="en">Delete your account any time, in the app</span><span data-l="ar">امسح حسابك في أي وقت من التطبيق</span></span></li>
+  </ul>
 </div></section>
 
 <section class="wrap ask">
   <h2 class="rise"><span data-l="en">Questions?</span><span data-l="ar">عندك سؤال؟</span></h2>
-  <p class="rise" style="--i:1"><span data-l="en">A real person reads every email and answers as soon as possible.</span><span data-l="ar">شخص حقيقي بيقرا كل إيميل وبيرد في أقرب وقت.</span></p>
-  <a class="pill solid rise" style="--i:2" href="mailto:support@fakkaeg.com"><svg class="ic" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM203.43,64,128,133.15,52.57,64ZM216,192H40V74.19l82.59,75.71a8,8,0,0,0,10.82,0L216,74.19V192Z"/></svg><span data-l="en">Email us</span><span data-l="ar">ابعتلنا إيميل</span></a>
+  <p class="rise" style="--i:1"><span data-l="en">A real person reads every email.</span><span data-l="ar">شخص حقيقي بيقرا كل إيميل.</span></p>
+  <a class="pill rise" style="--i:2" href="mailto:support@fakkaeg.com"><svg class="ic" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM203.43,64,128,133.15,52.57,64ZM216,192H40V74.19l82.59,75.71a8,8,0,0,0,10.82,0L216,74.19V192Z"/></svg><span data-l="en">Email us</span><span data-l="ar">ابعتلنا إيميل</span></a>
 </section></main>
 <footer><div class="wrap">
   <span>© 2026 Ahmed Hesham Bekheat. <span data-l="en">Fakka is a personal finance tracker, not a bank or financial adviser.</span><span data-l="ar">فكّة تطبيق لمتابعة فلوسك، مش بنك ولا مستشار مالي.</span></span>
   <nav aria-label="Footer"><a href="/privacy/">Privacy Policy</a><a href="/terms/">Terms of Service</a><a href="/delete-account/">Delete account</a><a href="mailto:support@fakkaeg.com">support@fakkaeg.com</a></nav>
-  <span class="credit">Photos: Mohamed Marey and Ahmad Safwat on Unsplash.</span>
 </div></footer>
 <script>
 (function(){var els=document.querySelectorAll('.rise');if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return}
