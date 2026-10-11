@@ -58,7 +58,7 @@ type Ctx = {
   redoSetup: () => void;
   adopt: (saved: object, account: Partial<Settings>) => void;
   cloudStatus: CloudStatus; cloudError: string;
-  signInAs: (uid: string, account: Partial<Settings>) => Promise<void>;
+  signInAs: (uid: string, account: Partial<Settings>, keepPhone?: boolean) => Promise<void>;
   flush: () => Promise<unknown>;
 };
 const Store = createContext<Ctx>(null as any);
@@ -197,10 +197,11 @@ export function Provider({ children }: { children: React.ReactNode }) {
     return () => { clearInterval(timer); sub.remove(); };
   }, [online]);
 
-  // After signing in: bring back the account's data, or start the account from what's on this phone
-  const signInAs = async (uid: string, account: Partial<Settings>) => {
+  // After signing in: bring back the account's data, or start the account from what's on this phone.
+  // keepPhone: this phone's data replaces the account's (the next save overwrites the online copy).
+  const signInAs = async (uid: string, account: Partial<Settings>, keepPhone?: boolean) => {
     const saved = await startSync(uid);
-    if (saved) adopt(saved, account);
+    if (saved && !keepPhone) adopt(saved, account);
     else set(v => ({ ...v, settings: { ...v.settings, ...account } }));
   };
 

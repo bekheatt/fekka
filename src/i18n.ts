@@ -455,4 +455,20 @@ const AR: Record<string, string> = {
   'Off for guests': 'مقفولة للضيوف', 'Ads and tracking': 'إعلانات وتتبع', 'None. We never sell your data.': 'مفيش. وعمرنا ما بنبيع بياناتك.',
   'You accepted the Terms of Service and Privacy Policy (version {v}) on {d}.': 'وافقت على شروط الخدمة وسياسة الخصوصية (نسخة {v}) يوم {d}.',
   'Export my data': 'صدّر بياناتي', 'A copy of everything you entered, to save or send': 'نسخة من كل اللي دخلته، تحفظها أو تبعتها',
+  // Guest warning, way back to sign-in, required onboarding answers
+  'Continue as guest?': 'تكمّل كضيف؟',
+  "As a guest, your data is saved only on this phone. If you delete the app or lose your phone, it can't be recovered. You can connect a Google account later in Settings.": 'كضيف، بياناتك بتتحفظ على الموبايل ده بس. لو مسحت التطبيق أو الموبايل ضاع، مش هتقدر ترجّعها. تقدر تربط حساب Google بعدين من الإعدادات.',
+  "Let's set up your money in 2 minutes.": 'يلا نظبط فلوسك في دقيقتين.',
+  'Back to sign-in options': 'ارجع لطرق تسجيل الدخول',
+  'Add your name to continue': 'اكتب اسمك عشان تكمّل',
+  'Enter how much comes in each month to continue': 'اكتب دخلك في الشهر عشان تكمّل',
+  'Enter a day from 1 to 31': 'اكتب يوم من 1 لـ 31',
+  // Guest → connect a Google account in Settings
+  'Account': 'الحساب', 'Connect Google account': 'اربط حساب Google',
+  'Back up your data and use it on other phones': 'احفظ نسخة من بياناتك واستخدمها على أي موبايل تاني',
+  'This account already has data': 'الحساب ده فيه بيانات قبل كده',
+  'Which data do you want to keep? The other copy will be replaced.': 'عايز تحتفظ بأنهي بيانات؟ النسخة التانية هتتمسح ويتحط مكانها دي.',
+  "Use this phone's data": 'استخدم بيانات الموبايل ده', "Use account's data": 'استخدم بيانات الحساب',
+  "Couldn't connect your account": 'معرفناش نربط حسابك',
+  'Check your internet and try again. Your data is still on this phone.': 'اتأكد من النت وجرب تاني. بياناتك لسه موجودة على الموبايل.',
 };

@@ -54,12 +54,15 @@ export default function Onboarding() {
     inst: {}, loans: {}, bills: {}, gameya: { on: false, monthly: '', members: '', turn: '' },
     sav: {}, goal: { name: '', target: '' }, lock: true,
   });
+  const [tried, setTried] = useState(false); // tapped Continue before the step was filled: show why
   const fade = useRef(new Animated.Value(1)).current;
   const key = STEPS[step];
+  const guest = d.settings.account === 'guest';
 
   const move = (dir: 1 | -1) => {
     tap();
     Animated.timing(fade, { toValue: 0, duration: 120, useNativeDriver: true }).start(() => {
+      setTried(false);
       setStep(s => Math.max(0, Math.min(STEPS.length - 1, s + dir)));
       Animated.timing(fade, { toValue: 1, duration: 180, useNativeDriver: true }).start();
     });
@@ -105,8 +108,21 @@ export default function Onboarding() {
   };
 
   const optional = ['installments', 'loans', 'bills', 'gameya', 'savings', 'goal'].includes(key);
-  const canNext = key === 'work' ? !!x.work : true;
+  // The essentials the app needs to work: name, work, income (and pay day for employees)
+  const nameOk = !!x.name.trim();
+  const incomeOk = num(x.income) > 0;
+  const payOk = x.work !== 'employee' || (num(x.payDay) >= 1 && num(x.payDay) <= 31);
+  const canNext = key === 'name' ? nameOk : key === 'work' ? !!x.work : key === 'income' ? incomeOk && payOk : true;
   const progress = step / (STEPS.length - 1);
+
+  // Continue, or explain what's missing
+  const next = () => {
+    if (!canNext) { setTried(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); return; }
+    if (key === 'done') finish(); else move(1);
+  };
+
+  // Guests can go back and pick Google instead (consent and the rest stay as they are)
+  const backToSignIn = () => { tap(); set(v => ({ ...v, settings: { ...v.settings, account: undefined } })); };
 
   // ---------- step content ----------
   const body = () => {
@@ -115,7 +131,7 @@ export default function Onboarding() {
         <View style={{ alignItems: 'center', paddingTop: 30 }}>
           <Logo size={130} animated />
           <Text style={[s.h1, { textAlign: 'center', marginTop: 26 }]}>{t('Welcome to Fakka')}</Text>
-          <Text style={[s.p, { textAlign: 'center' }]}>{t("Let's set up your money in 2 minutes. Everything stays on your phone.")}</Text>
+          <Text style={[s.p, { textAlign: 'center' }]}>{guest ? t("Let's set up your money in 2 minutes. Everything stays on your phone.") : t("Let's set up your money in 2 minutes.")}</Text>
           <View style={s.langRow}>
             {(['en', 'ar'] as const).map(l => (
               <Pressable key={l} onPress={() => { tap(); setLanguage(l); }} style={[s.lang, d.settings.lang === l && s.langOn]}>
@@ -123,6 +139,11 @@ export default function Onboarding() {
               </Pressable>
             ))}
           </View>
+          {guest && (
+            <Pressable onPress={backToSignIn} hitSlop={8} style={{ marginTop: 22 }}>
+              <Text style={s.back}>{t('Back to sign-in options')}</Text>
+            </Pressable>
+          )}
         </View>
       );
 
@@ -130,7 +151,8 @@ export default function Onboarding() {
         <>
           <Q title={t("What should we call you?")} sub={t('Just your first name is fine')} />
           <TextInput style={s.bigInput} value={x.name} onChangeText={v => setX({ ...x, name: v })} placeholder={t('Your name')}
-            placeholderTextColor={C.sub} autoFocus returnKeyType="next" onSubmitEditing={() => move(1)} />
+            placeholderTextColor={C.sub} autoFocus returnKeyType="next" onSubmitEditing={next} />
+          {tried && !nameOk && <Text style={s.hint}>{t('Add your name to continue')}</Text>}
         </>
       );
 
@@ -158,7 +180,9 @@ export default function Onboarding() {
           <>
             <Q title={t('How much comes in?')} sub={t(q.hint)} />
             <In label={t(q.label)} value={x.income} onChange={(v: string) => setX({ ...x, income: v })} big placeholder="15,000" />
+            {(tried || !!x.income) && !incomeOk && <Text style={[s.hint, s.hintIn]}>{t('Enter how much comes in each month to continue')}</Text>}
             {x.work === 'employee' && <In label={t('Which day do you get paid?')} value={x.payDay} onChange={(v: string) => setX({ ...x, payDay: v })} placeholder="25" />}
+            {x.work === 'employee' && (tried || !!x.payDay) && !payOk && <Text style={[s.hint, s.hintIn]}>{t('Enter a day from 1 to 31')}</Text>}
             <Text style={[s.lbl, { marginTop: 12 }]}>{t('Any other monthly income? (optional)')}</Text>
             <View style={s.pair}>
               <TextInput style={[s.input, { flex: 1.3 }]} value={x.extraName} onChangeText={v => setX({ ...x, extraName: v })} placeholder={t('e.g. Rent, side job')} placeholderTextColor={C.sub} />
@@ -299,8 +323,8 @@ export default function Onboarding() {
     <SafeAreaView style={s.wrap}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={s.top}>
-          {step > 0 && key !== 'done'
-            ? <Pressable onPress={() => move(-1)} hitSlop={12}><Ionicons name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'} size={26} color={C.ink} /></Pressable>
+          {(step > 0 || guest) && key !== 'done'
+            ? <Pressable onPress={step === 0 ? backToSignIn : () => move(-1)} hitSlop={12}><Ionicons name={I18nManager.isRTL ? 'chevron-forward' : 'chevron-back'} size={26} color={C.ink} /></Pressable>
             : <View style={{ width: 26 }} />}
           <View style={s.bar}><View style={[s.barFill, { width: `${progress * 100}%` }]} /></View>
           {optional
@@ -315,7 +339,7 @@ export default function Onboarding() {
         </Animated.View>
 
         <View style={s.footer}>
-          <Pressable disabled={!canNext} onPress={() => (key === 'done' ? finish() : move(1))}
+          <Pressable onPress={next} accessibilityState={{ disabled: !canNext }}
             style={({ pressed }) => [s.next, !canNext && { opacity: 0.4 }, pressed && { opacity: 0.8 }]}>
             <Text style={s.nextTxt}>{t(key === 'welcome' ? "Let's start" : key === 'done' ? 'Go to my dashboard' : 'Continue')}</Text>
           </Pressable>
@@ -415,6 +439,8 @@ const s = themed(() => StyleSheet.create({
   input: { backgroundColor: C.card, borderRadius: 10, padding: 14, fontSize: 17, color: C.ink },
   inputBig: { fontSize: 28, fontWeight: '700' },
   hint: { fontSize: 13, color: C.sub, marginTop: 6 },
+  hintIn: { marginTop: -8, marginBottom: 12 }, // under an In field (which has its own bottom gap)
+  back: { fontSize: 15, fontWeight: '600', color: C.primary, textAlign: 'center' },
   pair: { flexDirection: 'row', gap: 10 },
   multi: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 15, paddingVertical: 11, borderRadius: 10, backgroundColor: C.card },

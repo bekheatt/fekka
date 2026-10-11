@@ -19,6 +19,11 @@ import { newConsent } from './features/Legal/consent';
 const say = (title: string, msg: string) =>
   Platform.OS === 'web' ? window.alert(`${title}\n\n${msg}`) : Alert.alert(title, msg);
 
+// Same, with Cancel and a confirm button; onYes runs only if they confirm
+const ask = (title: string, msg: string, yes: string, onYes: () => void) =>
+  Platform.OS === 'web' ? (window.confirm(`${title}\n\n${msg}`) && onYes())
+  : Alert.alert(title, msg, [{ text: t('Cancel'), style: 'cancel' }, { text: yes, onPress: onYes }]);
+
 // Supabase's messages, in plain words
 const friendly = (m: string) =>
   /rate limit/i.test(m) ? t('Too many tries. Wait a few minutes and try again.')
@@ -70,7 +75,11 @@ export default function Login() {
   const guest = () => {
     tap();
     if (needsAgree()) return;
-    set(v => ({ ...v, settings: { ...v.settings, account: 'guest', consent: newConsent(agreedAt!, 'guest') } }));
+    // Guests keep everything on this phone only, so say so before continuing
+    ask(t('Continue as guest?'),
+      t("As a guest, your data is saved only on this phone. If you delete the app or lose your phone, it can't be recovered. You can connect a Google account later in Settings."),
+      t('Continue as guest'),
+      () => set(v => ({ ...v, settings: { ...v.settings, account: 'guest', consent: newConsent(agreedAt!, 'guest') } })));
   };
 
   return (
