@@ -2,8 +2,8 @@
 // The Privacy Policy and Terms come from the same text the app shows (src/features/Legal/documents.ts),
 // so the website and the app can never disagree. Run after changing either document:
 //   node scripts/build-website.mts
-// Everything is plain HTML with self-hosted fonts: no trackers, no cookies, no outside requests.
-import { writeFileSync, mkdirSync, readFileSync, copyFileSync, rmSync } from 'node:fs';
+// Plain HTML + CSS with self-hosted fonts, icons (Phosphor, MIT) and real app screenshots: no trackers, no cookies, no outside requests.
+import { writeFileSync, mkdirSync, readFileSync, copyFileSync, rmSync, existsSync } from 'node:fs';
 import { LEGAL_DOCS, blocks, type LegalDocKey } from '../src/features/Legal/documents.ts';
 
 const brand = JSON.parse(readFileSync(new URL('../brand.json', import.meta.url), 'utf8'));
@@ -14,31 +14,46 @@ const OWNER = 'Ahmed Hesham Bekheat';
 const YEAR = new Date().getFullYear();
 
 const root = new URL('../website/', import.meta.url);
+const asset = (p: string) => new URL(`../assets/website/${p}`, import.meta.url);
 rmSync(root, { recursive: true, force: true });
 const write = (path: string, html: string) => {
   const url = new URL(path, root);
   mkdirSync(new URL('./', url), { recursive: true });
   writeFileSync(url, html);
 };
+const copy = (from: URL, to: string) => { mkdirSync(new URL('./', new URL(to, root)), { recursive: true }); copyFileSync(from, new URL(to, root)); };
 
 // Fonts from the app's own packages (SIL Open Font License)
 const FONTS = [
   ['outfit', 'Outfit_400Regular.ttf', '400Regular'], ['outfit', 'Outfit_600SemiBold.ttf', '600SemiBold'],
   ['ibm-plex-sans-arabic', 'IBMPlexSansArabic_400Regular.ttf', '400Regular'], ['ibm-plex-sans-arabic', 'IBMPlexSansArabic_600SemiBold.ttf', '600SemiBold'],
 ];
-mkdirSync(new URL('fonts/', root), { recursive: true });
-for (const [pkg, file, dir] of FONTS) copyFileSync(new URL(`../node_modules/@expo-google-fonts/${pkg}/${dir}/${file}`, import.meta.url), new URL(`fonts/${file}`, root));
+for (const [pkg, file, dir] of FONTS) copy(new URL(`../node_modules/@expo-google-fonts/${pkg}/${dir}/${file}`, import.meta.url), `fonts/${file}`);
+
+// Real app screenshots (iPhone, portrait) in assets/website/screens/. Until they exist the frames show a placeholder,
+// so the site must not be published before they are all there.
+const SHOTS = { home: 'Fakka home screen with the Financial Health Score', pay: 'Fakka payments screen with installments and loans', save: 'Fakka savings screen with gold and dollars', spend: 'Fakka spending screen with the week chart' } as const;
+type Shot = keyof typeof SHOTS;
+const missing = (Object.keys(SHOTS) as Shot[]).filter(f => !existsSync(asset(`screens/${f}.png`)));
+for (const f of Object.keys(SHOTS) as Shot[]) if (!missing.includes(f)) copy(asset(`screens/${f}.png`), `img/${f}.png`);
+if (missing.length) console.warn(`App screenshots missing: ${missing.join(', ')}. Add them to assets/website/screens/ before publishing.`);
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 // The same text in English and Arabic; the page shows one, by the visitor's choice or phone language
 const b = (en: string, ar: string) => `<span data-l="en">${en}</span><span data-l="ar">${ar}</span>`;
+// Phosphor icon, inlined so it takes the text colour
+const icon = (name: string, size = 22) => readFileSync(asset(`icons/${name}.svg`), 'utf8').trim()
+  .replace('<svg ', `<svg class="ic" width="${size}" height="${size}" aria-hidden="true" focusable="false" `);
+// A phone frame around a real screenshot (828 x 1792, iPhone)
+const phone = (f: Shot, eager = false) => missing.includes(f)
+  ? `<div class="phone"><div class="screen ph">${b('App screenshot', 'صورة من التطبيق')}</div></div>`
+  : `<div class="phone"><img class="screen" src="/img/${f}.png" width="828" height="1792" alt="${SHOTS[f]}"${eager ? ' fetchpriority="high"' : ' loading="lazy"'} decoding="async"></div>`;
 
 // The app's logo: three coins, the front one with ف (drawn the same way as src/Logo.tsx)
 const logo = (size: number) => `<svg class="logo" width="${size}" height="${size}" viewBox="0 0 100 100" aria-hidden="true">
-  <circle cx="50" cy="50" r="50" fill="var(--accent)" opacity=".18"/>
-  <g><circle cx="35" cy="39" r="29.1" fill="var(--pale)" stroke="var(--sky)" stroke-width="3.7"/><circle cx="35" cy="39" r="22.3" fill="none" stroke="var(--sky)" stroke-width="1.2" opacity=".6"/></g>
-  <g><circle cx="65" cy="37" r="29.1" fill="var(--sky)" stroke="var(--accent)" stroke-width="3.7"/><circle cx="65" cy="37" r="22.3" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".6"/></g>
-  <g><circle cx="50" cy="63" r="29.1" fill="#fff" stroke="var(--accent)" stroke-width="3.7"/><circle cx="50" cy="63" r="22.3" fill="none" stroke="var(--accent)" stroke-width="1.2" opacity=".6"/>
+  <g><circle cx="35" cy="39" r="29.1" fill="#D8DBFF" stroke="#8E97FF" stroke-width="3.7"/></g>
+  <g><circle cx="65" cy="37" r="29.1" fill="#8E97FF" stroke="#2B3BFF" stroke-width="3.7"/></g>
+  <g><circle cx="50" cy="63" r="29.1" fill="#fff" stroke="#2B3BFF" stroke-width="3.7"/>
   <text x="50" y="66" text-anchor="middle" dominant-baseline="middle" font-size="31" font-weight="700" fill="#2B3BFF" font-family="IBM Plex Sans Arabic, Tahoma, sans-serif">ف</text></g>
 </svg>`;
 
@@ -49,296 +64,260 @@ const favicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
 <text x="50" y="66" text-anchor="middle" dominant-baseline="middle" font-size="31" font-weight="700" fill="#2B3BFF" font-family="Tahoma, sans-serif">ف</text>
 </svg>`;
 
+// Bright and minimal: near-white, one accent (the app's Electric Blue). Light only, by choice.
+// Shapes: phones and soft panels rounded, everything you tap is a full pill.
 const CSS = `
 @font-face { font-family: Outfit; font-weight: 400; font-display: swap; src: url(/fonts/Outfit_400Regular.ttf) format("truetype"); }
 @font-face { font-family: Outfit; font-weight: 600; font-display: swap; src: url(/fonts/Outfit_600SemiBold.ttf) format("truetype"); }
 @font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 400; font-display: swap; src: url(/fonts/IBMPlexSansArabic_400Regular.ttf) format("truetype"); }
 @font-face { font-family: "IBM Plex Sans Arabic"; font-weight: 600; font-display: swap; src: url(/fonts/IBMPlexSansArabic_600SemiBold.ttf) format("truetype"); }
-:root { --bg:#EEEFF2; --card:#fff; --ink:#121726; --sub:#6E7480; --line:#E2E4E9; --soft:#F3F4F6; --accent:#2B3BFF; --sky:#8E97FF; --pale:#D8DBFF; --hero:#2B3BFF; color-scheme: light; }
-@media (prefers-color-scheme: dark) { :root { --bg:#0B0D12; --card:#151821; --ink:#EEF0F6; --sub:#8A909C; --line:#252A35; --soft:#1C2029; --accent:#4D5BFF; --sky:#9AA2FF; --pale:#D3D7FF; --hero:#3B4BFF; color-scheme: dark; } }
+:root { --bg: #FDFDFE; --soft: #F3F4F7; --ink: #111318; --sub: #5E6572; --line: #E6E8ED; --accent: #2B3BFF; --ease: cubic-bezier(.16, 1, .3, 1); color-scheme: light; }
 * { box-sizing: border-box; }
 html[lang=en] [data-l=ar], html[lang=ar] [data-l=en] { display: none; }
+html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 Outfit, "IBM Plex Sans Arabic", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 html[lang=ar] body { font-family: "IBM Plex Sans Arabic", Outfit, system-ui, sans-serif; }
-a { color: var(--accent); }
-.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
-header { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
-header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: 20px; letter-spacing: -.3px; }
-nav { display: flex; align-items: center; gap: 18px; font-size: 15px; }
-nav a { color: var(--sub); text-decoration: none; } nav a:hover, nav a[aria-current] { color: var(--ink); }
-.lang { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; }
-@media (max-width: 560px) { nav .hide-sm { display: none; } }
-.hero { text-align: center; padding: 72px 0 56px; }
-.hero h1 { font-size: clamp(38px, 7vw, 64px); line-height: 1.05; letter-spacing: -.03em; font-weight: 600; margin: 22px 0 14px; }
-.hero p { color: var(--sub); font-size: clamp(17px, 2.4vw, 20px); max-width: 560px; margin: 0 auto; }
-.pill { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; background: var(--accent); color: #fff; border-radius: 999px; padding: 14px 24px; font-weight: 600; text-decoration: none; }
-.small { display: block; margin-top: 14px; font-size: 14px; color: var(--sub); }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 24px; }
-.card h3 { margin: 14px 0 6px; font-size: 19px; font-weight: 600; letter-spacing: -.2px; }
-.card p { margin: 0; color: var(--sub); font-size: 16px; }
-.icon { width: 44px; height: 44px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); display: grid; place-items: center; font-size: 22px; }
-section { padding: 28px 0; }
-h2.section { font-size: clamp(26px, 4vw, 36px); letter-spacing: -.02em; font-weight: 600; margin: 0 0 18px; }
-.band { background: var(--hero); color: #fff; border-radius: 24px; padding: 32px 24px; }
-.band h2 { margin: 0 0 14px; font-size: clamp(24px, 4vw, 32px); font-weight: 600; }
-.band ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; }
-.band li { padding-inline-start: 28px; position: relative; color: #E7E9FF; }
-.band li::before { content: "✓"; position: absolute; inset-inline-start: 0; color: #fff; font-weight: 600; }
-footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 40px; color: var(--sub); font-size: 14px; }
-footer .row { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; }
-footer a { color: var(--sub); }
-.doc { max-width: 760px; margin: 32px auto 0; }
-.doc article { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 28px 24px; direction: ltr; text-align: left; }
-.doc h1 { font-size: clamp(30px, 5vw, 40px); line-height: 1.15; letter-spacing: -.02em; font-weight: 600; margin: 0 0 12px; }
-.doc h2 { font-size: 21px; font-weight: 600; margin: 30px 0 8px; } .doc h3 { font-size: 17px; font-weight: 600; margin: 18px 0 6px; }
-.doc p { white-space: pre-line; margin: 0 0 12px; } .doc .meta { color: var(--sub); font-size: 15px; } .doc li { margin-bottom: 6px; }
-.note { background: var(--soft); border-radius: 14px; padding: 12px 14px; color: var(--sub); font-size: 15px; margin-bottom: 14px; }
-details { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px 20px; margin-bottom: 10px; }
-summary { cursor: pointer; font-weight: 600; } details p { color: var(--sub); margin: 10px 0 0; }
-.mail { font-size: clamp(20px, 4vw, 26px); font-weight: 600; text-decoration: none; word-break: break-all; }
-/* Ink & Electric — matches the app redesign */
-.hero { position: relative; overflow: hidden; margin-top: 24px; border-radius: 32px; padding: 64px 24px 56px; color: #fff;
-  background: radial-gradient(120% 90% at 85% 0%, #6B78FF 0%, transparent 55%), radial-gradient(90% 80% at 0% 100%, #1A26D9 0%, transparent 60%), #2B3BFF; }
-.hero::after { content: ""; position: absolute; inset: 0; pointer-events: none;
-  background-image: radial-gradient(rgba(255,255,255,.14) 1px, transparent 1px); background-size: 22px 22px;
-  mask-image: linear-gradient(to bottom, #000, transparent 80%); -webkit-mask-image: linear-gradient(to bottom, #000, transparent 80%); }
-.hero > * { position: relative; z-index: 1; }
-.hero .logo { filter: drop-shadow(0 12px 32px rgba(10,16,120,.45)); }
-.hero p { color: rgba(255,255,255,.82); }
-.hero a, .hero .small { color: #fff; }
-.hero .small { opacity: .85; }
-.hero .pill { background: #fff; color: #2B3BFF; box-shadow: 0 10px 30px rgba(10,16,120,.35); }
-.pill { transition: transform .2s ease, box-shadow .2s ease; }
-.card { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
-.card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: 0 14px 36px color-mix(in srgb, var(--accent) 16%, transparent); }
-.icon { background: var(--accent); color: #fff; box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 40%, transparent); }
-h2.section { background: linear-gradient(90deg, var(--ink), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.band { position: relative; overflow: hidden; background: radial-gradient(100% 120% at 100% 0%, #2B3BFF 0%, transparent 60%), #121726; }
-.band li::before { color: #8E97FF; }
-.lang:hover { border-color: var(--accent); color: var(--accent); }
-.doc article { border-top: 4px solid var(--accent); }
-details[open] { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
-@media (prefers-reduced-motion: reduce) { .card, .pill { transition: none; } .card:hover { transform: none; } }
-`;
+img { display: block; max-width: 100%; height: auto; }
+a { color: var(--accent); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+h1, h2, h3 { font-weight: 600; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.ic { flex: none; }
+.wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 767px) { .wrap { padding: 0 20px; } }
 
-// Home page only: Health Score spotlight and the app screen mockups
-const HOME_CSS = `/* Health Score spotlight + app screen mockups */
-.eyebrow { display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 999px; padding: 6px 12px; margin-bottom: 14px; }
-.spot { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; }
-.spot h2 { font-size: clamp(28px, 4.4vw, 44px); line-height: 1.08; letter-spacing: -.025em; font-weight: 600; margin: 0 0 14px; }
-.spot > div > p { color: var(--sub); margin: 0 0 22px; font-size: 18px; }
-.parts { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-.parts li { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 15px; }
-.parts .bar { grid-column: 1 / -1; height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
-.parts .bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--sky)); }
-.parts b { font-weight: 600; color: var(--sub); }
-@media (max-width: 760px) { .spot { grid-template-columns: 1fr; gap: 28px; } }
+/* Header */
+.top { position: sticky; top: 0; z-index: 10; background: rgb(253 253 254 / .86); backdrop-filter: saturate(1.6) blur(16px); -webkit-backdrop-filter: saturate(1.6) blur(16px); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
+.brand { display: inline-flex; align-items: center; gap: 9px; color: var(--ink); text-decoration: none; font-weight: 600; font-size: 19px; letter-spacing: -.02em; }
+.nav { display: flex; align-items: center; gap: 22px; font-size: 15px; }
+.nav a { color: var(--sub); text-decoration: none; transition: color .2s; }
+.nav a:hover, .nav a[aria-current] { color: var(--ink); }
+.lang { border: 0; background: var(--soft); color: var(--ink); border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; transition: background-color .2s, transform .15s var(--ease); }
+.lang:hover { background: var(--line); }
+.lang:active { transform: scale(.97); }
+@media (max-width: 640px) { .nav .opt { display: none; } .nav { gap: 14px; } }
 
-.phone { --p-bg:#EEEFF2; --p-card:#fff; --p-ink:#121726; --p-sub:#6E7480; --p-line:#E2E4E9; --p-blue:#2B3BFF;
-  width: 280px; max-width: 100%; aspect-ratio: 9 / 19; margin: 0 auto; border-radius: 46px; padding: 10px; background: #0B0D12;
-  box-shadow: 0 30px 70px color-mix(in srgb, var(--accent) 28%, transparent), inset 0 0 0 2px #2A2F3B; direction: ltr; text-align: left; }
-.scr { position: relative; height: 100%; border-radius: 36px; overflow: hidden; background: var(--p-bg); color: var(--p-ink); padding: 40px 14px 14px; font-size: 12px; line-height: 1.35; display: flex; flex-direction: column; gap: 9px; }
-.scr::before { content: ""; position: absolute; top: 10px; left: 50%; width: 76px; height: 20px; margin-left: -38px; border-radius: 999px; background: #0B0D12; }
-.scr .top { display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px; }
-.scr .top b { font-size: 19px; font-weight: 600; letter-spacing: -.4px; }
-.scr .top span, .scr .mut { color: var(--p-sub); font-size: 11px; }
-.pc { background: var(--p-card); border: 1px solid var(--p-line); border-radius: 18px; padding: 12px; }
-.pc.blue { background: var(--p-blue); border-color: var(--p-blue); color: #fff; }
-.pc.blue .mut { color: rgba(255,255,255,.75); }
-.big { font-size: 22px; font-weight: 600; letter-spacing: -.5px; }
-.score { display: flex; align-items: center; gap: 12px; }
-.score svg { flex: none; }
-.score .lab { font-size: 14px; font-weight: 600; }
-.pill-s { display: inline-block; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.2); color: #fff; margin-top: 4px; }
-.prow { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--p-line); }
-.prow:first-of-type { border-top: 0; }
-.dot { width: 28px; height: 28px; border-radius: 50%; flex: none; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 600; background: var(--p-blue); }
-.prow div { flex: 1; min-width: 0; }
-.prow em { font-style: normal; font-weight: 600; }
-.mbar { height: 6px; border-radius: 999px; background: var(--p-line); margin-top: 6px; overflow: hidden; }
-.mbar i { display: block; height: 100%; background: var(--p-blue); border-radius: inherit; }
-.two { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-.green { color: #14A06B; } .red { color: #E5484D; }
-.tabs { margin-top: auto; display: flex; justify-content: space-around; background: var(--p-card); border: 1px solid var(--p-line); border-radius: 999px; padding: 9px; }
-.tabs i { width: 18px; height: 4px; border-radius: 999px; background: var(--p-line); } .tabs i:first-child { background: var(--p-blue); }
+/* Buttons */
+.pill { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; border-radius: 999px; padding: 13px 24px; font-weight: 600; font-size: 16px; text-decoration: none; background: var(--accent); color: #FDFDFE; transition: transform .2s var(--ease), background-color .2s; }
+.pill:hover { background: #1F2EE6; }
+.pill:active { transform: scale(.98); }
+.soon { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; padding: 9px 18px; border-radius: 999px; background: var(--soft); color: var(--ink); font-size: 15px; font-weight: 600; }
+.soon .ic { color: var(--accent); }
 
-.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.shots figure { margin: 0; }
-.shots figcaption { text-align: center; margin-top: 16px; font-weight: 600; }
-.shots figcaption .sub { display: block; font-weight: 400; color: var(--sub); font-size: 15px; }
-@media (max-width: 860px) { .shots { grid-template-columns: repeat(3, 78%); overflow-x: auto; scroll-snap-type: x mandatory; padding: 10px 4px 24px; margin: 0 -16px; padding-inline: 16px; } .shots figure { scroll-snap-align: center; } }
+/* Phone frame around a real screenshot */
+.phone { width: min(290px, 74vw); margin: 0 auto; padding: 9px; border-radius: 48px; background: #15171C; box-shadow: 0 0 0 1px #2A2D35 inset, 0 50px 90px -40px rgb(17 19 40 / .45); }
+.screen { width: 100%; aspect-ratio: 828 / 1792; object-fit: cover; border-radius: 39px; background: var(--soft); }
+.screen.ph { display: grid; place-items: center; color: var(--sub); font-size: 14px; }
+
+/* Hero: centred message, the app below it, cropped by a soft fade */
+.hero { text-align: center; padding-top: clamp(56px, 9vh, 96px); }
+.hero h1 { font-size: clamp(44px, 7vw, 84px); line-height: 1.02; letter-spacing: -.04em; max-width: 12ch; margin: 0 auto; }
+html[lang=ar] .hero h1 { line-height: 1.25; letter-spacing: 0; }
+.hero p { margin: 22px auto 0; color: var(--sub); font-size: clamp(18px, 1.7vw, 21px); max-width: 34ch; }
+.trio { display: flex; justify-content: center; align-items: flex-start; gap: 28px; margin-top: 64px; height: clamp(420px, 52vw, 620px); overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent); mask-image: linear-gradient(to bottom, #000 72%, transparent); }
+.trio .phone { margin: 0; flex: none; }
+.trio > :nth-child(2) .phone { width: min(330px, 80vw); }
+.trio > :nth-child(1), .trio > :nth-child(3) { margin-top: 72px; }
+@media (max-width: 860px) { .trio > :nth-child(1), .trio > :nth-child(3) { display: none; } .trio { height: 520px; } }
+
+/* Feature rows: words beside a phone */
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; padding-block: clamp(72px, 11vh, 128px); }
+.row.flip > :first-child { order: 2; }
+.row h2 { font-size: clamp(32px, 4.2vw, 52px); line-height: 1.06; letter-spacing: -.035em; max-width: 13ch; }
+html[lang=ar] .row h2 { line-height: 1.35; letter-spacing: 0; }
+.row p { margin-top: 18px; color: var(--sub); font-size: 19px; max-width: 34ch; }
+@media (max-width: 860px) {
+  .row { grid-template-columns: 1fr; gap: 44px; text-align: center; padding-block: 64px; }
+  .row.flip > :first-child { order: 0; }
+  .row h2, .row p { margin-inline: auto; }
+}
+
+/* Everything else: a quiet grid, no boxes */
+.more { padding-block: clamp(72px, 10vh, 120px); border-top: 1px solid var(--line); }
+.more h2 { font-size: clamp(30px, 3.6vw, 44px); letter-spacing: -.03em; line-height: 1.1; text-align: center; }
+html[lang=ar] .more h2 { letter-spacing: 0; line-height: 1.4; }
+.list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px 40px; margin-top: 56px; }
+.list .ic { color: var(--accent); }
+.list h3 { margin-top: 14px; font-size: 19px; letter-spacing: -.01em; }
+.list p { margin-top: 6px; color: var(--sub); font-size: 16px; }
+@media (max-width: 860px) { .list { grid-template-columns: 1fr 1fr; gap: 40px 28px; } }
+@media (max-width: 520px) { .list { grid-template-columns: 1fr; } }
+
+/* Privacy, on a soft band */
+.privacy { background: var(--soft); padding-block: clamp(72px, 10vh, 112px); }
+.privacy h2 { font-size: clamp(30px, 3.6vw, 44px); letter-spacing: -.03em; line-height: 1.1; text-align: center; }
+html[lang=ar] .privacy h2 { letter-spacing: 0; line-height: 1.4; }
+.privacy .wrap > p { margin: 14px auto 0; color: var(--sub); text-align: center; max-width: 46ch; }
+.checks { list-style: none; margin: 44px auto 0; padding: 0; max-width: 820px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px 40px; }
+.checks li { display: flex; gap: 12px; align-items: flex-start; }
+.checks .ic { color: var(--accent); margin-top: 3px; }
+@media (max-width: 640px) { .checks { grid-template-columns: 1fr; } }
+
+/* Questions */
+.ask { text-align: center; padding-block: clamp(72px, 10vh, 120px); }
+.ask h2 { font-size: clamp(28px, 3.4vw, 40px); letter-spacing: -.02em; }
+.ask p { color: var(--sub); margin: 12px auto 28px; max-width: 40ch; }
+
+/* Footer */
+footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--sub); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px 32px; }
+footer nav { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+footer a { color: var(--sub); text-decoration: none; }
+footer a:hover { color: var(--ink); text-decoration: underline; }
+
+/* Inner pages: support, legal documents, delete account */
+.page-head { padding: 64px 0 36px; }
+.page-head h1 { font-size: clamp(36px, 5vw, 56px); letter-spacing: -.035em; line-height: 1.05; }
+html[lang=ar] .page-head h1 { letter-spacing: 0; line-height: 1.3; }
+.page-head p { margin-top: 14px; color: var(--sub); font-size: 18px; max-width: 52ch; }
+.contact { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; padding: 28px; border-radius: 24px; background: var(--soft); margin-bottom: 56px; }
+.contact strong { display: block; font-size: 20px; font-weight: 600; color: var(--ink); }
+.contact > span { color: var(--sub); }
+.faq h2 { font-size: 28px; letter-spacing: -.02em; margin-bottom: 18px; }
+details { border-bottom: 1px solid var(--line); }
+details:first-of-type { border-top: 1px solid var(--line); }
+summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 20px 2px; font-weight: 600; font-size: 18px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font-weight: 400; font-size: 26px; line-height: 1; color: var(--accent); transition: transform .25s var(--ease); }
+details[open] summary::after { transform: rotate(45deg); }
+details p { color: var(--sub); padding: 0 2px 22px; max-width: 70ch; }
+.doc { display: grid; grid-template-columns: 240px 1fr; gap: 56px; align-items: start; padding-bottom: 48px; }
+.doc.single { grid-template-columns: 1fr; }
+.toc { position: sticky; top: 84px; font-size: 14px; }
+.toc strong { display: block; margin-bottom: 10px; font-weight: 600; }
+.toc ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.toc a { display: block; color: var(--sub); text-decoration: none; padding: 5px 0; line-height: 1.35; }
+.toc a:hover { color: var(--accent); }
+article { max-width: 72ch; direction: ltr; text-align: left; }
+article h2 { font-size: 24px; letter-spacing: -.01em; margin: 44px 0 10px; scroll-margin-top: 84px; }
+article h3 { font-size: 18px; margin: 24px 0 6px; }
+article p { white-space: pre-line; margin: 0 0 14px; }
+article .meta { color: var(--sub); }
+article ul { padding-inline-start: 22px; margin: 0 0 14px; }
+article li { margin-bottom: 6px; }
+.note { padding: 14px 18px; border-radius: 16px; background: var(--soft); margin-bottom: 28px; }
+@media (max-width: 860px) {
+  .doc { grid-template-columns: 1fr; gap: 24px; }
+  .toc { position: static; padding: 18px; border-radius: 16px; background: var(--soft); }
+}
+.lost { min-height: 60dvh; display: grid; align-content: center; justify-items: center; text-align: center; gap: 18px; padding: 64px 0; }
+.lost h1 { font-size: clamp(36px, 5vw, 56px); letter-spacing: -.03em; }
+
+/* Motion: a gentle settle as things come into view (skipped when the phone asks for less motion) */
+@media (prefers-reduced-motion: no-preference) {
+  .js .rise { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(var(--i, 0) * 80ms); }
+  .js .rise.in { opacity: 1; transform: none; }
+}
 `;
 
 // Picks Arabic or English from the last choice or the phone's language; the button switches
 const LANG_JS = `<script>
-(function(){var h=document.documentElement,k='fakka-lang',l;try{l=localStorage.getItem(k)}catch(e){}
+(function(){var h=document.documentElement,k='fakka-lang',l;h.classList.add('js');try{l=localStorage.getItem(k)}catch(e){}
 if(!l)l=(navigator.language||'').slice(0,2)==='ar'?'ar':'en';
 function set(x){h.lang=x;h.dir=x==='ar'?'rtl':'ltr';try{localStorage.setItem(k,x)}catch(e){}}
 set(l);window.fakkaLang=function(){set(h.lang==='ar'?'en':'ar')};})();
 </script>`;
+const PLAIN_JS = `<script>document.documentElement.classList.add('js')</script>`;
+// Reveals .rise elements once, as they scroll into view
+const REVEAL_JS = `<script>
+(function(){var els=document.querySelectorAll('.rise');if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return}
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px',threshold:.12});
+els.forEach(function(e){io.observe(e)});})();
+</script>`;
 
-type Page = { path: string; title: string; description: string; body: string; nav?: string; bilingual?: boolean; css?: string };
+type Page = { path: string; title: string; description: string; body: string; nav?: string; bilingual?: boolean };
 
-const page = ({ path, title, description, body, nav, bilingual = true, css = '' }: Page) => `<!doctype html>
-<html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+const page = ({ path, title, description, body, nav, bilingual = true }: Page) => `<!doctype html>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="https://${DOMAIN}${path}">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="https://${DOMAIN}${path}"><meta property="og:type" content="website">
 <meta property="og:image" content="https://${DOMAIN}/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="${NAME}: Know where every pound goes"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://${DOMAIN}/og.png">
-<meta name="theme-color" content="#2B3BFF">
+<meta name="theme-color" content="#FDFDFE">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<style>${CSS}${css}</style>
-${bilingual ? LANG_JS : ''}
+<link rel="preload" href="/fonts/Outfit_600SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+<style>${CSS}</style>
+${bilingual ? LANG_JS : PLAIN_JS}
 </head><body>
-<header><div class="wrap">
-  <a class="brand" href="/">${logo(34)}<span>${bilingual ? b(NAME, NAME_AR) : NAME}</span></a>
-  <nav aria-label="Main">
+<header class="top"><div class="wrap">
+  <a class="brand" href="/">${logo(32)}<span>${bilingual ? b(NAME, NAME_AR) : NAME}</span></a>
+  <nav class="nav" aria-label="Main">
     <a href="/support/"${nav === 'support' ? ' aria-current="page"' : ''}>${bilingual ? b('Support', 'الدعم') : 'Support'}</a>
-    <a class="hide-sm" href="/privacy/"${nav === 'privacy' ? ' aria-current="page"' : ''}>${bilingual ? b('Privacy', 'الخصوصية') : 'Privacy'}</a>
-    <a class="hide-sm" href="/terms/"${nav === 'terms' ? ' aria-current="page"' : ''}>${bilingual ? b('Terms', 'الشروط') : 'Terms'}</a>
+    <a class="opt" href="/privacy/"${nav === 'privacy' ? ' aria-current="page"' : ''}>${bilingual ? b('Privacy', 'الخصوصية') : 'Privacy'}</a>
+    <a class="opt" href="/terms/"${nav === 'terms' ? ' aria-current="page"' : ''}>${bilingual ? b('Terms', 'الشروط') : 'Terms'}</a>
     ${bilingual ? `<button class="lang" type="button" onclick="fakkaLang()">${b('العربية', 'English')}</button>` : ''}
   </nav>
 </div></header>
-<main class="wrap">${body}</main>
+<main>${body}</main>
 <footer><div class="wrap">
-  <div class="row">
-    <span>© ${YEAR} ${OWNER}. ${bilingual ? b(`${NAME} is a personal finance tracker, not a bank or financial adviser.`, `${NAME_AR} تطبيق لمتابعة فلوسك، مش بنك ولا مستشار مالي.`) : `${NAME} is a personal finance tracker, not a bank or financial adviser.`}</span>
-    <span><a href="/privacy/">Privacy Policy</a> · <a href="/terms/">Terms of Service</a> · <a href="/delete-account/">Delete account</a> · <a href="mailto:${EMAIL}">${EMAIL}</a></span>
-  </div>
+  <span>© ${YEAR} ${OWNER}. ${bilingual ? b(`${NAME} is a personal finance tracker, not a bank or financial adviser.`, `${NAME_AR} تطبيق لمتابعة فلوسك، مش بنك ولا مستشار مالي.`) : `${NAME} is a personal finance tracker, not a bank or financial adviser.`}</span>
+  <nav aria-label="Footer"><a href="/privacy/">Privacy Policy</a><a href="/terms/">Terms of Service</a><a href="/delete-account/">Delete account</a><a href="mailto:${EMAIL}">${EMAIL}</a></nav>
 </div></footer>
+${REVEAL_JS}
 </body></html>
 `;
 
-// Line icons in the style of the app's Ionicons
-const svg = (d: string) => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
-const ICON = {
-  calendar: svg('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
-  bulb: svg('<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>'),
-  people: svg('<circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15.5 14.2c3 .2 5.5 2.6 5.5 5.8"/>'),
-  coins: svg('<ellipse cx="9" cy="7" rx="6" ry="3"/><path d="M3 7v5c0 1.7 2.7 3 6 3s6-1.3 6-3V7"/><path d="M9 18c0 1.7 2.7 3 6 3s6-1.3 6-3v-5c0-1.6-2.4-2.9-5.5-3"/>'),
-  chat: svg('<path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/>'),
-  chart: svg('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
-};
-
 // ---------- Home ----------
-const features: [string, string, string, string, string][] = [
-  [ICON.calendar, 'Installments & loans', 'الأقساط والقروض', 'Installment apps, bank loans and mortgages: see what is due, and when you will be debt-free.', 'تطبيقات التقسيط وقروض البنوك والتمويل العقاري: اعرف المستحق، وهتخلص إمتى.'],
-  [ICON.bulb, 'Bills & reminders', 'الفواتير والتنبيهات', 'Electricity, internet, school fees. A reminder the day before and on the day.', 'الكهرباء والإنترنت والمدارس. تنبيه قبلها بيوم وفي يومها.'],
-  [ICON.people, "Gam'eya", 'الجمعية', "Track your turn, what you have paid and what you will receive.", 'تابع دورك، ودفعت كام، وهتقبض كام.'],
-  [ICON.coins, 'Gold & savings', 'الدهب والادخار', 'Gold 21K and 24K, dollars and euros, valued at today\'s prices.', 'دهب 21 و24 والدولار واليورو، بأسعار النهارده.'],
-  [ICON.chat, 'Bank messages, logged for you', 'رسائل البنك بتتسجل لوحدها', 'On iPhone, turn on automatic logging and card payments add themselves.', 'على الآيفون، شغّل التسجيل التلقائي ومدفوعات الكارت بتضاف لوحدها.'],
-  [ICON.chart, 'Financial Health Score', 'مؤشر صحتك المالية', 'One number each month that shows how you are doing, and what to improve.', 'رقم واحد كل شهر يوريك ماشي إزاي، وتحسّن إيه.'],
+const others: [string, string, string, string, string][] = [
+  ['heartbeat', 'Financial Health Score', 'مؤشر صحتك المالية', 'One number from 0 to 100, and what to fix first.', 'رقم واحد من 0 لـ 100، وتصلّح إيه الأول.'],
+  ['calendar-dots', 'Installments and loans', 'الأقساط والقروض', "Installment apps, bank loans and mortgages, and the month you'll be debt-free.", 'تطبيقات التقسيط وقروض البنوك والتمويل العقاري، والشهر اللي هتخلص فيه.'],
+  ['receipt', 'Bills and reminders', 'الفواتير والتنبيهات', 'Electricity, internet, school fees. A reminder the day before.', 'الكهرباء والإنترنت والمدارس. تنبيه قبلها بيوم.'],
+  ['users-three', "Gam'eya", 'الجمعية', "Your turn, what you've paid and what you'll receive.", 'دورك، ودفعت كام، وهتقبض كام.'],
+  ['chat-text', 'Bank messages', 'رسايل البنك', "Card payments add themselves from your bank's texts.", 'مدفوعات الكارت بتضاف لوحدها من رسايل البنك.'],
+  ['device-mobile', 'Arabic and English', 'عربي وإنجليزي', 'Switch any time, right-to-left done properly.', 'غيّر في أي وقت، والعربي مظبوط.'],
 ];
-
-// Health Score weights, as in src/features/HealthScore/calculator.ts (WEIGHTS)
-const scoreParts: [string, string, number][] = [
-  ['Installment load', 'حمل الأقساط', 40], ['Emergency fund', 'فلوس الطوارئ', 20], ['Own vs owe', 'ليك وعليك', 15],
-  ['Savings mix', 'تنوّع الادخار', 15], ['Income stability', 'ثبات الدخل', 10],
-];
-
-// App screens drawn in HTML (sample numbers, English like the app's default)
-const tabs = '<div class="tabs"><i></i><i></i><i></i><i></i></div>';
-const shots: [string, string, string, string, string, string][] = [
-  ['Installments screen', `
-      <div class="top"><b>Installments</b><span>3 active</span></div>
-      <div class="pc blue"><div class="mut">Left to pay</div><div class="big">L.E 58,400</div><div class="mut">Debt-free in Aug 2027</div></div>
-      <div class="pc">
-        <div class="prow"><span class="dot">P</span><div>Phone<div class="mbar"><i style="width:50%"></i></div></div><em>6/12</em></div>
-        <div class="prow"><span class="dot" style="background:#14A06B">F</span><div>Fridge<div class="mbar"><i style="width:75%"></i></div></div><em>18/24</em></div>
-        <div class="prow"><span class="dot" style="background:#8E97FF">L</span><div>Laptop<div class="mbar"><i style="width:20%"></i></div></div><em>2/10</em></div>
-      </div>
-      <div class="pc"><div class="mut">Next 30 days</div><div class="big">L.E 5,900</div><div class="mut">18% of your income</div></div>`,
-    'Installments', 'الأقساط', "See when you'll be debt-free", 'اعرف هتخلص إمتى'],
-  ['Gold and savings screen', `
-      <div class="top"><b>Savings</b><span>Today's prices</span></div>
-      <div class="pc blue"><div class="mut">Total savings</div><div class="big">L.E 186,300</div><div class="mut">+L.E 3,120 this week</div></div>
-      <div class="pc">
-        <div class="prow"><span class="dot" style="background:#C9A227">21</span><div>Gold 21K<div class="mut">25 g</div></div><em>L.E 118K</em></div>
-        <div class="prow"><span class="dot" style="background:#14A06B">$</span><div>Dollars<div class="mut">$900</div></div><em>L.E 45.9K</em></div>
-        <div class="prow"><span class="dot">L.E</span><div>Cash<div class="mut">Bank & home</div></div><em>L.E 22.4K</em></div>
-      </div>
-      <div class="pc"><div class="mut">Savings mix</div><div class="mbar" style="height:10px;display:flex"><i style="width:63%"></i><i style="width:25%;background:#14A06B;border-radius:0"></i><i style="width:12%;background:#8E97FF;border-radius:0"></i></div></div>`,
-    'Gold & savings', 'الدهب والادخار', "Valued at today's prices", 'بأسعار النهارده'],
-  ['Bills screen', `
-      <div class="top"><b>Bills</b><span>October</span></div>
-      <div class="pc blue"><div class="mut">Due this month</div><div class="big">L.E 4,280</div><div class="mut">2 paid · 3 coming up</div></div>
-      <div class="pc">
-        <div class="prow"><span class="dot" style="background:#14A06B">✓</span><div>Internet<div class="mut">Paid · Oct 2</div></div><em>L.E 450</em></div>
-        <div class="prow"><span class="dot">E</span><div>Electricity<div class="mut">Due Sat</div></div><em>L.E 640</em></div>
-        <div class="prow"><span class="dot" style="background:#F2994A">S</span><div>School fees<div class="mut">Due Oct 25</div></div><em>L.E 2,900</em></div>
-      </div>
-      <div class="pc"><div class="mut">Reminder</div>Electricity is due tomorrow</div>`,
-    'Bills', 'الفواتير', 'A reminder before every due date', 'تنبيه قبل كل ميعاد'],
+const checks: [string, string][] = [
+  ['Locks with Face ID the moment you leave', 'بيتقفل بـ Face ID أول ما تخرج'],
+  ['Never connects to your bank', 'عمره ما بيتوصل ببنكك'],
+  ['Never asks for card or bank passwords', 'عمره ما بيطلب باسورد الكارت أو البنك'],
+  ['No ads, no tracking, never sold', 'من غير إعلانات ولا تتبع، ومش بنبيع بياناتك'],
+  ['Use it as a guest: nothing leaves your phone', 'استخدمه كضيف: مفيش حاجة بتخرج من موبايلك'],
+  ['Your account data can only be read by you', 'بيانات حسابك محدش يقدر يشوفها غيرك'],
+  ['Delete your account any time, in the app', 'امسح حسابك في أي وقت من التطبيق'],
 ];
 
 write('index.html', page({
-  path: '/', title: `${NAME} · Your money, made simple`, css: HOME_CSS,
+  path: '/', title: `${NAME} · Your money, made simple`,
   description: `${NAME} (${NAME_AR}) tracks your installments, bills, gam'eya, gold and savings in one calm place. Made for Egypt.`,
   body: `
-<div class="hero">
-  ${logo(112)}
-  <h1>${b('Know where every<br>pound goes', 'اعرف كل جنيه<br>بيروح فين')}</h1>
-  <p>${b("Installments, bills, gam'eya, gold and savings, all in one calm place. Made for Egypt.", 'الأقساط والفواتير والجمعيات والدهب والادخار، كلها في مكان واحد هادي. معمول لمصر.')}</p>
-  <span class="pill">${b('Coming soon on iPhone', 'قريباً على الآيفون')}</span>
-  <span class="small">${b('Questions?', 'عندك سؤال؟')} <a href="mailto:${EMAIL}">${EMAIL}</a></span>
-</div>
-<section>
-  <div class="spot">
-    <div>
-      <span class="eyebrow">${b(`Only in ${NAME}`, `حصرياً في ${NAME_AR}`)}</span>
-      <h2>${b('One score for your whole financial life', 'رقم واحد لحياتك المالية كلها')}</h2>
-      <p>${b('Your Financial Health Score, from 0 to 100, looks at everything you owe and own and tells you how you are really doing, and what to fix first.', 'مؤشر صحتك المالية من 0 لـ 100 بيبص على كل اللي عليك واللي ليك، ويقولك إنت ماشي إزاي بجد، وتصلّح إيه الأول.')}</p>
-      <ul class="parts">
-        ${scoreParts.map(([en, ar, w]) => `<li>${b(en, ar)}<b>${w}%</b><span class="bar"><i style="width:${w}%"></i></span></li>`).join('\n        ')}
-      </ul>
-    </div>
-    <div class="phone" role="img" aria-label="${NAME} home screen showing a Financial Health Score of 72"><div class="scr">
-      <div class="top"><b>Good morning</b><span>Oct</span></div>
-      <div class="pc blue score">
-        <svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="7"/><circle cx="32" cy="32" r="26" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-dasharray="117.6 163.4" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" font-size="17" font-weight="600" fill="#fff">72</text></svg>
-        <div><div class="mut">Financial Health</div><div class="lab">Good, keep going</div><span class="pill-s">+4 this month</span></div>
-      </div>
-      <div class="two">
-        <div class="pc"><div class="mut">You own</div><div class="big">412K</div></div>
-        <div class="pc"><div class="mut">You owe</div><div class="big">96K</div></div>
-      </div>
-      <div class="pc"><div class="mut">Due this week</div>
-        <div class="prow"><span class="dot">P</span><div>Phone installment<div class="mut">Thu · 6 of 12</div></div><em>L.E 2,150</em></div>
-        <div class="prow"><span class="dot" style="background:#8E97FF">E</span><div>Electricity<div class="mut">Sat</div></div><em>L.E 640</em></div>
-      </div>
-      ${tabs}
-    </div></div>
+<section class="wrap hero">
+  <h1 class="rise">${b('Know where every pound goes.', 'اعرف كل جنيه بيروح فين.')}</h1>
+  <p class="rise" style="--i:1">${b("Installments, bills, gam'eya, gold and savings. One calm app, made for Egypt.", 'الأقساط والفواتير والجمعيات والدهب والادخار. تطبيق واحد هادي، معمول لمصر.')}</p>
+  <span class="soon rise" style="--i:2">${icon('device-mobile', 18)}${b('Coming soon on iPhone', 'قريباً على الآيفون')}</span>
+  <div class="trio">
+    <div class="rise" style="--i:3">${phone('spend')}</div>
+    <div class="rise" style="--i:2">${phone('home', true)}</div>
+    <div class="rise" style="--i:4">${phone('pay')}</div>
   </div>
 </section>
-<section>
-  <h2 class="section">${b('Everything you pay, in one place', 'كل اللي بتدفعه، في مكان واحد')}</h2>
-  <div class="grid">
-    ${features.map(([icon, en, ar, pen, par]) => `<div class="card"><div class="icon" aria-hidden="true">${icon}</div><h3>${b(en, ar)}</h3><p>${b(pen, par)}</p></div>`).join('\n    ')}
+
+<section class="wrap row">
+  <div class="rise"><h2>${b("Gold and savings, at today's prices.", 'الدهب والادخار، بأسعار النهارده.')}</h2>
+    <p>${b('Gold 21K and 24K, dollars and euros, all valued in pounds with live prices.', 'دهب 21 و24 والدولار واليورو، كلهم بيتحسبوا بالجنيه بالأسعار اللحظية.')}</p></div>
+  <div class="rise" style="--i:1">${phone('save')}</div>
+</section>
+
+<section class="wrap more">
+  <h2 class="rise">${b('And the rest of your money.', 'وباقي فلوسك.')}</h2>
+  <div class="list">
+    ${others.map(([ic, en, ar, pen, par], i) => `<div class="rise" style="--i:${i % 3}">${icon(ic, 26)}<h3>${b(en, ar)}</h3><p>${b(pen, par)}</p></div>`).join('\n    ')}
   </div>
 </section>
-<section>
-  <h2 class="section">${b('See it in action', 'شوفه وهو شغال')}</h2>
-  <div class="shots">
-    ${shots.map(([label, screen, en, ar, sen, sar]) => `<figure><div class="phone" role="img" aria-label="${label}"><div class="scr">${screen}
-      ${tabs}
-    </div></div><figcaption>${b(en, ar)}<span class="sub">${b(sen, sar)}</span></figcaption></figure>`).join('\n    ')}
-  </div>
-</section>
-<section>
-  <div class="band">
-    <h2>${b('Private by design', 'خصوصيتك أولاً')}</h2>
-    <ul>
-      <li>${b('Lock it with Face ID or your fingerprint', 'اقفله بـ Face ID أو البصمة')}</li>
-      <li>${b('Use it as a guest: nothing leaves your phone', 'استخدمه كضيف: مفيش حاجة بتخرج من موبايلك')}</li>
-      <li>${b('No ads, no tracking, and we never sell your data', 'من غير إعلانات ولا تتبع، وعمرنا ما بنبيع بياناتك')}</li>
-      <li>${b('Never asks for your bank or card passwords', 'عمره ما بيطلب باسورد البنك أو الكارت')}</li>
-      <li>${b('Delete your account any time, right in the app', 'امسح حسابك في أي وقت من جوه التطبيق')}</li>
-      <li>${b('Your account data can only be read by you', 'بيانات حسابك محدش يقدر يشوفها غيرك')}</li>
-    </ul>
-  </div>
+
+<section class="privacy"><div class="wrap">
+  <h2 class="rise">${b('Private by design.', 'خصوصيتك أولاً.')}</h2>
+  <p class="rise" style="--i:1">${b('You decide what goes in, and you can take it all out.', 'إنت اللي بتقرر تدخّل إيه، وتقدر تطلّع كل حاجة.')}</p>
+  <ul class="checks">
+    ${checks.map(([en, ar], i) => `<li class="rise" style="--i:${i % 2}">${icon('shield-check', 20)}<span>${b(en, ar)}</span></li>`).join('\n    ')}
+  </ul>
+</div></section>
+
+<section class="wrap ask">
+  <h2 class="rise">${b('Questions?', 'عندك سؤال؟')}</h2>
+  <p class="rise" style="--i:1">${b('A real person reads every email.', 'شخص حقيقي بيقرا كل إيميل.')}</p>
+  <a class="pill rise" style="--i:2" href="mailto:${EMAIL}">${icon('envelope-simple', 20)}${b('Email us', 'ابعتلنا إيميل')}</a>
 </section>`,
 }));
 
@@ -371,32 +350,44 @@ write('support/index.html', page({
   path: '/support/', nav: 'support', title: `Support · ${NAME}`,
   description: `Get help with ${NAME}: contact support, delete your account, and answers to common questions.`,
   body: `
-<div class="doc">
-  <h1 style="font-size:clamp(32px,5vw,44px);letter-spacing:-.02em;font-weight:600;margin:0 0 8px">${b('How can we help?', 'نقدر نساعدك إزاي؟')}</h1>
-  <div class="card" style="margin:18px 0 26px">
-    <p style="margin:0 0 6px">${b('Email us and we will get back to you as soon as we can.', 'ابعتلنا إيميل وهنرد عليك في أقرب وقت.')}</p>
-    <a class="mail" href="mailto:${EMAIL}">${EMAIL}</a>
+<div class="wrap">
+  <div class="page-head"><h1>${b('How can we help?', 'نقدر نساعدك إزاي؟')}</h1>
+    <p>${b('Most answers are below. For anything else, email us.', 'أغلب الإجابات تحت. لأي حاجة تانية، ابعتلنا إيميل.')}</p></div>
+  <div class="contact">
+    <span><strong>${EMAIL}</strong>${b('We answer as soon as we can.', 'هنرد عليك في أقرب وقت.')}</span>
+    <a class="pill" href="mailto:${EMAIL}">${icon('envelope-simple', 20)}${b('Email us', 'ابعتلنا إيميل')}</a>
   </div>
-  <h2 class="section" style="font-size:24px">${b('Common questions', 'أسئلة شائعة')}</h2>
-  ${faqs.map(([qe, qa, ae, aa]) => `<details><summary>${b(qe, qa)}</summary><p>${b(ae, aa)}</p></details>`).join('\n  ')}
+  <section class="faq">
+    <h2>${b('Common questions', 'أسئلة شائعة')}</h2>
+    ${faqs.map(([qe, qa, ae, aa]) => `<details><summary>${b(qe, qa)}</summary><p>${b(ae, aa)}</p></details>`).join('\n    ')}
+  </section>
 </div>`,
 }));
 
 // ---------- Privacy Policy & Terms (English; the English text is the one that applies) ----------
 function legal(key: LegalDocKey, path: string) {
   const d = LEGAL_DOCS[key];
-  let html = `<h1>${esc(d.title)}</h1>`;
+  let html = '';
+  const toc: [string, string][] = [];
   let list = false;
   blocks(d.body.split('Fakka').join(NAME)).forEach((x, i) => {
     if (x.kind !== 'li' && list) { html += '</ul>'; list = false; }
     if (x.kind === 'li' && !list) { html += '<ul>'; list = true; }
     const text = esc(x.text).replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, m => `<a href="mailto:${m}">${m}</a>`).replace(/https:\/\/[^\s<]+/g, m => `<a href="${m}">${m}</a>`);
-    html += x.kind === 'h2' ? `<h2>${text}</h2>` : x.kind === 'h3' ? `<h3>${text}</h3>` : x.kind === 'li' ? `<li>${text}</li>` : `<p${i === 0 ? ' class="meta"' : ''}>${text}</p>`;
+    if (x.kind === 'h2') { const id = `s${toc.length + 1}`; toc.push([id, esc(x.text)]); html += `<h2 id="${id}">${text}</h2>`; }
+    else html += x.kind === 'h3' ? `<h3>${text}</h3>` : x.kind === 'li' ? `<li>${text}</li>` : `<p${i === 0 ? ' class="meta"' : ''}>${text}</p>`;
   });
   if (list) html += '</ul>';
   write(`${path}/index.html`, page({
-    path: `/${path}/`, nav: path, bilingual: false, title: `${d.title} · ${NAME}`,
-    description: `${NAME} ${d.title}.`, body: `<div class="doc"><article>${html}</article></div>`,
+    path: `/${path}/`, nav: path, bilingual: false, title: `${d.title} · ${NAME}`, description: `${NAME} ${d.title}.`,
+    body: `
+<div class="wrap">
+  <div class="page-head"><h1>${esc(d.title)}</h1></div>
+  <div class="doc">
+    <nav class="toc" aria-label="Contents"><strong>Contents</strong><ol>${toc.map(([id, t]) => `<li><a href="#${id}">${t}</a></li>`).join('')}</ol></nav>
+    <article>${html}</article>
+  </div>
+</div>`,
   }));
 }
 legal('privacy', 'privacy');
@@ -407,10 +398,13 @@ write('delete-account/index.html', page({
   path: '/delete-account/', title: `Delete your account · ${NAME}`,
   description: `How to delete your ${NAME} account and data, and what gets deleted.`,
   body: `
-<div class="doc"><article>
+<div class="wrap">
+  <div class="page-head"><h1>${b(`Delete your ${NAME} account`, 'امسح حسابك')}</h1>
+    <p>${b('You can delete your account and all data linked to it at any time.', 'تقدر تمسح حسابك وكل البيانات المرتبطة بيه في أي وقت.')}</p></div>
+  <div class="doc single">
+  <article>
 <div data-l="ar" dir="rtl" style="text-align:right" class="note">من التطبيق: حسابي ← الإعدادات ← القانوني والخصوصية ← امسح الحساب. مش قادر تفتح التطبيق؟ ابعت لـ ${EMAIL} من الإيميل المسجل بيه حسابك. التفاصيل الكاملة بالإنجليزي تحت.</div>
-<h1>Delete your ${NAME} account</h1>
-<p>${NAME} is developed by ${OWNER}. You can delete your account and all data linked to it at any time.</p>
+<p>${NAME} is developed by ${OWNER}.</p>
 <h2>In the app</h2>
 <ul><li>Open ${NAME} and sign in.</li><li>Go to Profile → Settings → Legal &amp; Privacy → Delete account.</li>
 <li>Confirm by typing DELETE.</li></ul>
@@ -425,13 +419,15 @@ write('delete-account/index.html', page({
 <h2>What may be kept</h2>
 <p>Deleted data may remain in encrypted backups held by our hosting provider for up to [BACKUP RETENTION PERIOD] before being overwritten. Aggregated shop category suggestions that no longer identify you may remain. We keep nothing else, unless the law requires it.</p>
 <p>See our <a href="/privacy/">Privacy Policy</a> for details.</p>
-</article></div>`,
+  </article>
+  </div>
+</div>`,
 }));
 
 // ---------- 404 ----------
 write('404.html', page({
   path: '/404.html', title: `Page not found · ${NAME}`, description: 'Page not found.',
-  body: `<div class="hero">${logo(90)}<h1 style="font-size:40px">${b('Page not found', 'الصفحة مش موجودة')}</h1><p><a href="/">${b('Back to the home page', 'ارجع للرئيسية')}</a></p></div>`,
+  body: `<div class="wrap lost"><h1>${b('This page is not here', 'الصفحة دي مش موجودة')}</h1><p>${b('It may have moved, or the link has a typo.', 'ممكن تكون اتنقلت، أو اللينك فيه غلطة.')}</p><a class="pill" href="/">${b('Go to the home page', 'ارجع للرئيسية')}</a></div>`,
 }));
 
 writeFileSync(new URL('favicon.svg', root), favicon);
