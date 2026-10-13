@@ -11,24 +11,7 @@ import { Card, Toggle, tap, pressedStyle } from '../../ui';
 import { t } from '../../i18n';
 import { APP_NAME } from '../../brand';
 import { newSmsKey, removeSmsKey, smsEndpoint } from '../../cloud/supabase';
-
-// **text** = the exact button name to look for on screen
-const GUIDE: { text: string; part?: string; copy?: boolean }[] = [
-  { part: 'Part 1 · Copy your link', text: 'Tap the box above to copy your personal link. You will paste it in step 9.' },
-  { part: 'Part 2 · Create the automation', text: 'Go to your home screen and open the **Shortcuts** app (it comes with every iPhone). If you deleted it, download "Shortcuts" free from the App Store.' },
-  { text: 'At the bottom, tap **Automation**.' },
-  { text: 'Tap **+** at the top right (or **New Automation** if this is your first one). Scroll down and tap **Message**.' },
-  { text: 'Tap **Message Contains**, type **جم** and tap **Done**.' },
-  { text: 'Choose **Run Immediately** and turn off **Notify When Run**. Then tap **Next** at the top right.' },
-  { text: 'Tap **New Blank Automation**.' },
-  { part: 'Part 3 · Send the message to Fakka', text: 'Tap **Add Action**. In the search box type **Get Contents of URL** and tap it.' },
-  { text: 'Tap the blue word **URL**, then tap again and choose **Paste** to paste your link.' },
-  { text: 'Tap the small arrow **›** at the end of that line to show more options. Tap **Method** and change it from GET to **POST**.' },
-  { text: 'Under **Request Body**, make sure **JSON** is selected. Tap **Add new field** and choose **Text**.' },
-  { text: 'Tap **Key** and type **text** (small letters). Then tap **Text** next to it, and choose **Shortcut Input** in the bar above the keyboard.' },
-  { text: 'Tap **Done** at the top right. That\'s it!' },
-  { part: 'Part 4 · Try it', text: 'Send yourself an iMessage that says **خصم 58 جم ORACLE IRELAND**. Then open {app}: it will show the transaction so you can keep or discard it.' },
-];
+import ShortcutGuide from './ShortcutGuide';
 
 const bold = (s: string) => s.split('**').map((p, i) => (i % 2 ? <Text key={i} style={{ fontWeight: '700' }}>{p}</Text> : p));
 
@@ -37,6 +20,7 @@ export default function AutoLogSetup({ visible, onClose }: { visible: boolean; o
   const st = d.settings;
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [guide, setGuide] = useState(false);
   const online = hasAccount(st);
   const change = (patch: object) => set(x => ({ ...x, settings: { ...x.settings, ...patch } }));
 
@@ -106,16 +90,15 @@ export default function AutoLogSetup({ visible, onClose }: { visible: boolean; o
 
               {!!st.smsKey && (
                 <View style={s.steps}>
-                  {GUIDE.map((g, i) => (
-                    <View key={i}>
-                      {g.part && <Text style={s.part}>{t(g.part)}</Text>}
-                      <View style={s.step}>
-                        <Text style={s.stepN}>{i + 1}</Text>
-                        <Text style={s.stepTxt}>{bold(t(g.text, { app: APP_NAME }))}</Text>
-                      </View>
-                    </View>
-                  ))}
-                  <Text style={s.hint}>{bold(t('**Your bank writes EGP instead of جم?** Make a second automation the same way and type **EGP** in step 5. If you use both, make both.'))}</Text>
+                  <Pressable onPress={() => { tap(); setGuide(true); }} style={({ pressed }) => [s.primary, s.startBtn, pressed && pressedStyle]} accessibilityRole="button">
+                    <Ionicons name="list" size={20} color="#fff" />
+                    <Text style={s.primaryTxt}>{t('Start step-by-step setup')}</Text>
+                  </Pressable>
+                  <Text style={s.hint}>{t('About 3 minutes in the Shortcuts app. One step per screen.')}</Text>
+                  <View style={s.trouble}>
+                    <Text style={s.troubleTitle}>{t('Stopped working?')}</Text>
+                    <Text style={s.hint}>{bold(t('Check two things in your automation: the link is the newest one from this screen, and the field under Request Body is named **text**.'))}</Text>
+                  </View>
 
                   <View style={s.manage}>
                     <Pressable onPress={() => { tap(); makeKey(true); }} hitSlop={6}><Text style={s.link}>{t('Make a new link')}</Text></Pressable>
@@ -126,6 +109,7 @@ export default function AutoLogSetup({ visible, onClose }: { visible: boolean; o
             </>
           )}
         </ScrollView>
+        {!!st.smsKey && <ShortcutGuide visible={guide} onClose={() => setGuide(false)} link={smsEndpoint(st.smsKey)} />}
       </View>
     </Modal>
   );
@@ -145,10 +129,9 @@ const s = themed(() => StyleSheet.create({
   copyTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
   warn: { fontSize: 12, color: C.sub, marginTop: 8, lineHeight: 17 },
   steps: { gap: 12, marginTop: 18 },
-  part: { fontSize: 13, fontWeight: '700', color: C.primary, marginTop: 10, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.3 },
-  step: { flexDirection: 'row', gap: 10 },
-  stepN: { width: 22, height: 22, borderRadius: 11, backgroundColor: C.soft, color: C.primary, textAlign: 'center', lineHeight: 22, fontSize: 12, fontWeight: '700', overflow: 'hidden' },
-  stepTxt: { flex: 1, fontSize: 14, color: C.ink, lineHeight: 20 },
+  startBtn: { flexDirection: 'row', justifyContent: 'center', gap: 8 },
+  trouble: { backgroundColor: C.soft, borderRadius: 14, padding: 14, marginTop: 8 },
+  troubleTitle: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 2 },
   hint: { color: C.sub, fontSize: 13, lineHeight: 18, marginTop: 4 },
   manage: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 },
   link: { color: C.primary, fontSize: 15, fontWeight: '600' },
