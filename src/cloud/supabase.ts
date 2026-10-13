@@ -128,7 +128,7 @@ export async function deleteMyAccount(): Promise<void> {
   }
   const { error } = await supabase.rpc('delete_my_account');
   if (error) throw error;
-  await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+  // The caller signs this phone out afterwards (after closing the delete sheet)
 }
 
 // ---------- Terms & Privacy acceptance (legal_consents) ----------
