@@ -124,9 +124,6 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
         <Text style={[s.lbl, { marginTop: 10 }]}>{t('Theme')}</Text>
         <Segmented value={st.theme} onChange={k => change({ theme: k as any })}
           options={[{ key: 'system', label: t('System') }, { key: 'light', label: t('Light') }, { key: 'dark', label: t('Dark') }]} />
-        <Text style={[s.lbl, { marginTop: 10 }]}>{t('Color')}</Text>
-        <Segmented value={st.accent === 'copper' ? 'copper' : 'blue'} onChange={k => change({ accent: k as any })}
-          options={[{ key: 'blue', label: t('Blue') }, { key: 'copper', label: t('Copper') }]} />
       </Card>
 
       <Section>{t('Security')}</Section>
