@@ -100,7 +100,7 @@ const AR: Record<string, string> = {
   '{n} months': '{n} شهر', 'No debt': 'مفيش ديون', 'Your numbers': 'أرقامك', 'Expenses logged': 'مصاريف مسجلة',
   'Active installments': 'أقساط شغالة', 'Goals': 'الأهداف', 'Your name': 'اسمك',
   // settings
-  'Personalise Fakka': 'خصص فكّة', 'Appearance': 'المظهر', 'Language': 'اللغة', 'Theme': 'الثيم', 'System': 'تلقائي', 'Light': 'فاتح', 'Dark': 'داكن', 'Color': 'اللون', 'Blue': 'أزرق', 'Copper': 'نحاسي',
+  'Personalise Fakka': 'خصص فكّة', 'Appearance': 'المظهر', 'Language': 'اللغة', 'Theme': 'الثيم', 'System': 'تلقائي', 'Light': 'فاتح', 'Dark': 'داكن', 'Color': 'اللون', 'Blue': 'أزرق',
   'Security': 'الأمان', 'Lock with Face ID / fingerprint': 'قفل بالوجه / البصمة', 'Ask every time you open Fakka': 'يطلبها كل ما تفتح فكّة', 'Locks the moment you leave the app, like a banking app': 'بيقفل أول ما تخرج من التطبيق، زي تطبيقات البنوك',
   'Notifications': 'الإشعارات', 'Payment reminders': 'تذكير بالمدفوعات', 'The day before and on the due day, at 10 AM': 'قبلها بيوم ويوم الميعاد، الساعة 10 الصبح',
   'Data': 'البيانات', 'Delete all data': 'مسح كل البيانات', 'This removes everything you entered. It cannot be undone.': 'هيمسح كل حاجة دخلتها. مينفعش ترجعها.',
@@ -185,7 +185,7 @@ const AR: Record<string, string> = {
   // lock
   'Fakka is locked': 'فكّة مقفولة', 'Unlock': 'افتح', 'Unlock Fakka': 'افتح فكّة',
   // notifications
-  '{name} due tomorrow': '{name} مستحق بكرة', '{name} due today': '{name} مستحق النهارده', 'Payment of {x}': 'دفعة {x}',
+  '{name} due tomorrow': '{name} مستحق بكرة', '{name} due today': '{name} مستحق النهارده', '{name} due in a few days': '{name} مستحق كمان كام يوم', 'Payment of {x}': 'دفعة {x}',
 
   // onboarding
   'Welcome to Fakka': 'أهلاً بيك في فكّة', "Let's set up your money in 2 minutes. Everything stays on your phone.": 'يلا نظبط فلوسك في دقيقتين. كل حاجة بتفضل على موبايلك.',
@@ -464,6 +464,33 @@ const AR: Record<string, string> = {
   'Add your name to continue': 'اكتب اسمك عشان تكمّل',
   'Enter how much comes in each month to continue': 'اكتب دخلك في الشهر عشان تكمّل',
   'Enter a day from 1 to 31': 'اكتب يوم من 1 لـ 31',
+  'Enter an amount to save': 'اكتب المبلغ عشان تحفظ',
+  // Financial health card boxes
+  'Safety net': 'الاحتياطي', 'Debt': 'الديون', 'Good': 'كويس', 'Okay': 'متوسط', 'Weak': 'ضعيف',
+  // Automatic logging: full-screen Shortcuts walkthrough
+  'Start step-by-step setup': 'ابدأ الإعداد خطوة بخطوة',
+  'About 3 minutes in the Shortcuts app. One step per screen.': 'حوالي 3 دقايق في تطبيق Shortcuts. كل خطوة في شاشة لوحدها.',
+  'Stopped working?': 'بطّل يشتغل؟',
+  'Check two things in your automation: the link is the newest one from this screen, and the field under Request Body is named **text**.': 'اتأكد من حاجتين في الـ Automation: إن اللينك هو الأحدث من الشاشة دي، وإن الخانة اللي تحت Request Body اسمها **text**.',
+  'Step {n} of {m}': 'خطوة {n} من {m}',
+  'Finish': 'خلصت', 'Copy link': 'انسخ اللينك', 'Link copied': 'اتنسخ اللينك', 'Try it': 'جرّبه',
+  'Copy your personal link': 'انسخ اللينك بتاعك',
+  'Tap the button below. You will paste this link into Shortcuts in step 9.': 'دوس على الزرار اللي تحت. هتلصق اللينك ده في Shortcuts في خطوة 9.',
+  'Open Shortcuts': 'افتح Shortcuts',
+  'Go to Automation': 'روح لـ Automation',
+  'Make a new automation': 'اعمل Automation جديدة',
+  'Pick bank messages': 'اختار رسايل البنك',
+  'Let it run by itself': 'خليها تشتغل لوحدها',
+  'Start from blank': 'ابدأ من الصفر',
+  'Add the web action': 'ضيف أكشن الإنترنت',
+  'Paste your link': 'الصق اللينك بتاعك',
+  'Nothing to paste? Tap Copy link above, then go back to Shortcuts.': 'مفيش حاجة تتلصق؟ دوس انسخ اللينك اللي فوق، وارجع لـ Shortcuts.',
+  'Change GET to POST': 'غيّر GET لـ POST',
+  'Add a field': 'ضيف خانة',
+  'Name the field "text"': 'سمّي الخانة "text"',
+  "Don't skip this. If the grey word **Key** is still showing, the field has no name. It must say **text**, and next to it the blue **Shortcut Input**.": 'متفوّتش الخطوة دي. لو كلمة **Key** الرمادي لسه ظاهرة، يبقى الخانة ملهاش اسم. لازم يكون مكتوب **text**، وجنبها **Shortcut Input** باللون الأزرق.',
+  'Save it': 'احفظها',
+  'Made a new link, or deleted your account and signed up again? Open this automation and paste the new link (step 9). The old one stops working.': 'عملت لينك جديد، أو مسحت حسابك وسجّلت تاني؟ افتح الـ Automation دي والصق اللينك الجديد (خطوة 9). القديم بيبطّل يشتغل.',
   // Guest → connect a Google account in Settings
   'Account': 'الحساب', 'Connect Google account': 'اربط حساب Google', 'Connect Apple account': 'اربط حساب Apple',
   'Back up your data and use it on other phones': 'احفظ نسخة من بياناتك واستخدمها على أي موبايل تاني',

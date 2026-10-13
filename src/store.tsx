@@ -21,7 +21,7 @@ export type PriceAlert = { id: string; kind: string; dir: 'above' | 'below'; pri
 export type Income = { id: string; source: string; monthly: number; day?: number; oneOff?: string; src?: string; transfer?: boolean }; // transfer = arrived by InstaPay / wallet / bank transfer
 export type Saving = { id: string; kind: string; qty: number; name?: string; price?: number };
 export type Work = 'employee' | 'freelancer' | 'business' | 'student' | 'retired' | 'other';
-export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; accent?: 'blue' | 'copper'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; account?: 'guest' | 'google' | 'apple' | 'email'; email?: string; uid?: string;
+export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'light' | 'dark'; lock: boolean; notify: boolean; since: string; onboarded: boolean; work?: Work; hideAmounts?: boolean; account?: 'guest' | 'google' | 'apple' | 'email'; email?: string; uid?: string;
   smsKey?: string;       // personal key in the iPhone Shortcut link (this phone only)
   smsAutoKeep?: boolean; // add transactions from bank messages without asking
   toured?: boolean;      // false = show the first-run tour on Home (new users, or 'Replay tour')
@@ -89,7 +89,7 @@ export function gameyaStatus(g: Gameya) {
 export const ALERT_NAMES: Record<string, string> = { gold21: 'Gold 21K', gold24: 'Gold 24K', usd: 'US Dollar', eur: 'Euro' };
 
 const resolveTheme = (s: Settings) => (s.theme === 'system' ? (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light') : s.theme);
-const paint = (s: Settings) => applyTheme(resolveTheme(s), s.accent === 'copper' ? 'copper' : 'blue');
+const paint = (s: Settings) => applyTheme(resolveTheme(s));
 
 // Free sources, no key needed: open.er-api.com (USD/EUR→EGP), api.gold-api.com (gold $/oz)
 async function fetchLiveRates() {
@@ -165,7 +165,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
   const applyRemote = (merged: any) => setD(x => {
     const next: Data = withDevice({ ...empty(), ...merged }, x);
     const s = next.settings, p = x.settings;
-    if (s.theme !== p.theme || s.accent !== p.accent || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
+    if (s.theme !== p.theme || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
       setLang(s.lang); setHidden(!!s.hideAmounts); paint(s);
       setTimeout(() => setVersion(v => v + 1), 0);
     }
@@ -232,21 +232,24 @@ export function Provider({ children }: { children: React.ReactNode }) {
 
   // Follow phone dark/light when theme = system
   useEffect(() => {
-    const sub = Appearance.addChangeListener(() => {
-      // iOS fires this when the app goes to the background or a Face ID prompt shows —
-      // only redraw if the colours really changed, and only while the app is on screen.
-      if (d.settings.theme !== 'system' || AppState.currentState !== 'active') return;
+    const follow = () => {
+      if (d.settings.theme !== 'system') return;
       const next = resolveTheme(d.settings);
       if (next !== (isDark() ? 'dark' : 'light')) { applyTheme(next); setVersion(v => v + 1); }
-    });
-    return () => sub.remove();
+    };
+    // iOS fires this when the app goes to the background or a Face ID prompt shows, so only act
+    // while the app is on screen. A switch made from Control Center arrives while the app is
+    // "inactive", so look again the moment it's back in front.
+    const look = Appearance.addChangeListener(() => { if (AppState.currentState === 'active') follow(); });
+    const back = AppState.addEventListener('change', st => { if (st === 'active') follow(); });
+    return () => { look.remove(); back.remove(); };
   }, [d.settings.theme]);
 
   const set = (fn: (d: Data) => Data) => setD(prev => {
     const next = fn(prev);
     if (next.settings !== prev.settings) {
       const s = next.settings, p = prev.settings;
-      if (s.theme !== p.theme || s.accent !== p.accent || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
+      if (s.theme !== p.theme || s.lang !== p.lang || s.hideAmounts !== p.hideAmounts) {
         setLang(s.lang);
         setHidden(!!s.hideAmounts);
         paint(s);
@@ -278,7 +281,7 @@ export function Provider({ children }: { children: React.ReactNode }) {
     setVersion(v => v + 1);
   };
 
-  const reset = () => { stopSync(); const e = empty(); e.settings = { ...e.settings, lang: d.settings.lang, theme: d.settings.theme, accent: d.settings.accent }; setD(e); };
+  const reset = () => { stopSync(); const e = empty(); e.settings = { ...e.settings, lang: d.settings.lang, theme: d.settings.theme }; setD(e); };
   const redoSetup = () => set(x => ({ ...x, settings: { ...x.settings, onboarded: false } }));
 
   if (!ready) return null;

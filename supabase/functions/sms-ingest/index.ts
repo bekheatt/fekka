@@ -27,13 +27,19 @@ const localStamp = (d: Date) => `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d
 
 async function readText(req: Request) {
   const type = req.headers.get('content-type') ?? '';
+  // The field should be called "text", but a Shortcut whose field was left unnamed (or misnamed)
+  // still sends the message as its only value, so fall back to the longest text value
+  const longest = (vals: unknown[]) => vals.filter(v => typeof v === 'string').sort((a, b) => (b as string).length - (a as string).length)[0] as string | undefined;
   if (type.includes('json')) {
     const body = await req.json().catch(() => ({}));
-    return typeof body?.text === 'string' ? body.text : body?.text != null ? String(body.text) : '';
+    if (typeof body === 'string') return body;
+    if (body?.text != null) return String(body.text);
+    return body && typeof body === 'object' ? longest(Object.values(body)) ?? '' : '';
   }
   if (type.includes('form')) {
     const form = await req.formData().catch(() => null);
-    return String(form?.get('text') ?? '');
+    if (form?.get('text') != null) return String(form.get('text'));
+    return form ? longest([...form.values()]) ?? '' : '';
   }
   return await req.text();
 }

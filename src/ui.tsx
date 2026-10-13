@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Pressable, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, Animated, PanResponder, Switch, AccessibilityInfo, Easing } from 'react-native';
+import { View, Pressable, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, Animated, PanResponder, Switch, AccessibilityInfo, Easing, I18nManager } from 'react-native';
 import { Text, TextInput } from './fonts';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -10,6 +10,18 @@ import { t } from './i18n';
 export const pressedStyle = { opacity: 0.85, transform: [{ scale: 0.98 }] };
 
 export const tap = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+
+// A sideways-scrolling row. In Arabic the iPhone still opens it at the left end, which cuts off the
+// first item on the right, so jump to the start (the right end) once the row knows its size.
+export const HScroll = ({ children, ...p }: any) => {
+  const ref = useRef<ScrollView>(null);
+  return (
+    <ScrollView ref={ref} horizontal showsHorizontalScrollIndicator={false} {...p}
+      onContentSizeChange={() => { if (I18nManager.isRTL) ref.current?.scrollToEnd({ animated: false }); }}>
+      {children}
+    </ScrollView>
+  );
+};
 
 export const Header = ({ title, subtitle, right }: { title: string; subtitle?: string; right?: React.ReactNode }) => (
   <View style={s.header}>
@@ -71,6 +83,8 @@ export const Row = ({ icon, color, title, sub, value, valueColor, onDelete, onPr
   };
 
   const pan = useRef(PanResponder.create({
+    // Capture: take a sideways drag before the tappable row inside (or the page scroll) keeps it
+    onMoveShouldSetPanResponderCapture: (_, g) => !!onDelete && Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
     onMoveShouldSetPanResponder: (_, g) => !!onDelete && Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
     onPanResponderTerminationRequest: () => false,
     onPanResponderMove: (_, g) => {
@@ -148,15 +162,21 @@ export const Chips = ({ options, value, onChange, colors, translate = true }: { 
   </View>
 );
 
-export const Field = ({ label, hint, style, ...p }: any) => (
+// error: red text under the field (and a red outline), e.g. when Save was tapped with no amount
+export const Field = ({ label, hint, error, style, ...p }: any) => (
   <View style={{ marginBottom: 16 }}>
     <Text style={s.label}>{label}</Text>
-    <TextInput placeholderTextColor={C.sub + '99'} {...p} style={[s.input, style]} />
-    {!!hint && <Text style={s.hint}>{hint}</Text>}
+    <TextInput placeholderTextColor={C.sub + '99'} {...p} style={[s.input, !!error && s.inputErr, style]} />
+    {!!error ? <Text style={s.err} accessibilityLiveRegion="polite">{error}</Text> : !!hint && <Text style={s.hint}>{hint}</Text>}
   </View>
 );
 
-export const Sheet = ({ visible, title, onClose, onSave, children, saveLabel }: any) => (
+// Amounts: a positive number is required before anything can be saved
+export const amountError = (tried: boolean, v: string | undefined) => (tried && !(num(v ?? '') > 0) ? t('Enter an amount to save') : '');
+
+// onSave can return false when something is missing: the sheet stays open and buzzes.
+// onDelete (when editing) adds a Delete button under Save that asks first.
+export const Sheet = ({ visible, title, onClose, onSave, children, saveLabel, onDelete, deleteName }: any) => (
   <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.card }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={s.sheetHead}>
@@ -166,9 +186,15 @@ export const Sheet = ({ visible, title, onClose, onSave, children, saveLabel }: 
       </View>
       <ScrollView contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
         {children}
-        <Pressable onPress={() => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); onSave(); }} style={({ pressed }) => [s.saveBtn, pressed && pressedStyle]}>
+        <Pressable onPress={() => { const ok = onSave() !== false; Haptics.notificationAsync(ok ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error).catch(() => {}); }} style={({ pressed }) => [s.saveBtn, pressed && pressedStyle]}>
           <Text style={s.saveTxt}>{saveLabel ?? t('Save ')}</Text>
         </Pressable>
+        {!!onDelete && (
+          <Pressable onPress={() => { tap(); confirmDelete(deleteName ?? title, onDelete); }} accessibilityRole="button" style={({ pressed }) => [s.delBtn, pressed && { opacity: 0.6 }]}>
+            <Ionicons name="trash-outline" size={18} color={C.red} />
+            <Text style={s.delTxt}>{t('Delete')}</Text>
+          </Pressable>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   </Modal>
@@ -214,7 +240,10 @@ export const Check = ({ on, onPress, color }: { on: boolean; onPress: () => void
   </Pressable>
 );
 
-export const num = (t?: string) => parseFloat((t ?? '').replace(/,/g, '')) || 0;
+// Arabic keyboards type ٠١٢٣… and ٫ — read those too
+export const num = (t?: string) => parseFloat((t ?? '')
+  .replace(/[٠-٩]/g, c => String(c.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, c => String(c.charCodeAt(0) - 0x06f0))
+  .replace(/٫/g, '.').replace(/[,٬]/g, '')) || 0;
 
 // Screens fade and drift up gently when you switch tabs
 export const Screen = ({ children }: { children: React.ReactNode }) => {
@@ -234,7 +263,7 @@ export const Screen = ({ children }: { children: React.ReactNode }) => {
 };
 
 const s = themed(() => StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 18 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 10, marginBottom: 18 },
   title: { fontSize: 28, fontWeight: '700', color: C.ink, letterSpacing: -0.4 },
   subtitle: { fontSize: 15, color: C.sub, marginTop: 3 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 30, marginBottom: 12, paddingHorizontal: 2 },
@@ -264,6 +293,10 @@ const s = themed(() => StyleSheet.create({
   label: { fontSize: 14, fontWeight: '600', color: C.ink, marginBottom: 7 },
   input: { backgroundColor: C.soft, borderRadius: 14, padding: 15, fontSize: 17, color: C.ink },
   hint: { fontSize: 13, color: C.sub, marginTop: 6 },
+  err: { fontSize: 13, color: C.red, marginTop: 6, fontWeight: '500' },
+  inputErr: { borderWidth: 1.5, borderColor: C.red },
+  delBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14, marginTop: 6 },
+  delTxt: { color: C.red, fontSize: 16, fontWeight: '600' },
   sheetHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 18, borderBottomWidth: 1, borderColor: C.line },
   sheetTitle: { fontSize: 17, fontWeight: '600', color: C.ink },
   cancel: { fontSize: 16, color: C.sub, width: 50 },

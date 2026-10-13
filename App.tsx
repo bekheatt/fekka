@@ -207,7 +207,8 @@ function Shell() {
       {!d.settings.onboarded && <View style={StyleSheet.absoluteFill}><Onboarding /></View>}
       {!d.settings.account && <View style={StyleSheet.absoluteFill}><Login /></View>}
       <LegalUpdate active={!splash && !locked} />
-      {locked && !splash && d.settings.onboarded && d.settings.account && <Lock resume={resume} onUnlock={() => setLocked(false)} />}
+      {/* Drawn under the opening animation too, so the money never shows while it fades out */}
+      {locked && d.settings.onboarded && d.settings.account && <Lock ready={!splash} resume={resume} onUnlock={() => setLocked(false)} />}
       {covered && !locked && <Cover />}
       {splash && <Splash onDone={() => setSplash(false)} />}
     </View>

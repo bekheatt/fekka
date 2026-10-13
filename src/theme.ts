@@ -12,22 +12,8 @@ const DARK: typeof LIGHT = {
   green: '#2BC48A', red: '#F2555A', orange: '#F5A55C', purple: '#9AA2FF', gold: '#4D5BFF', tabBar: '#151821',
 };
 
-// "Copper & Slate": the same look with a warm burnt-copper accent on the cool slate neutrals
-// (Settings → Appearance → Color). Warnings move from orange to amber so they don't blend with the copper.
-const COPPER_LIGHT: typeof LIGHT = {
-  ...LIGHT, navy: '#B8481A', primary: '#B8481A', accent: '#B8481A', sky: '#E8A07E', pale: '#F8DCCD',
-  hero: '#B8481A', purple: '#E8A07E', gold: '#B8481A', orange: '#D9A21B',
-};
-const COPPER_DARK: typeof LIGHT = {
-  ...DARK, navy: '#B8481A', primary: '#D9622B', accent: '#D9622B', sky: '#F0A989', pale: '#F8DCCD',
-  hero: '#B8481A', purple: '#F0A989', gold: '#D9622B', orange: '#E8B33A',
-};
-export type Accent = 'blue' | 'copper';
-const PALETTES = { blue: { light: LIGHT, dark: DARK }, copper: { light: COPPER_LIGHT, dark: COPPER_DARK } };
-
 export const C = { ...LIGHT };
 let mode: 'light' | 'dark' = 'light';
-let accent: Accent = 'blue';
 export const isDark = () => mode === 'dark';
 
 // Shared style rules, applied to every themed style sheet so all screens follow one system:
@@ -82,10 +68,9 @@ export function themed<T extends object>(fn: () => T): T {
   sheets.push(entry);
   return new Proxy({} as T, { get: (_, k) => { if (!entry.cache) entry.cache = build(fn); return entry.cache[k]; } });
 }
-export function applyTheme(m: 'light' | 'dark', a: Accent = accent) {
+export function applyTheme(m: 'light' | 'dark') {
   mode = m;
-  accent = a;
-  Object.assign(C, PALETTES[a][m]);
+  Object.assign(C, m === 'dark' ? DARK : LIGHT);
   sheets.forEach(s => { s.cache = null; });
 }
 
@@ -95,16 +80,19 @@ export const setHidden = (h: boolean) => { hidden = h; };
 export const isHidden = () => hidden;
 export const MASK = '•••••';
 const cur = () => (getLang() === 'ar' ? 'ج.م ' : 'L.E ');
+// Minus: "-L.E 500" in English; in Arabic it sits on the number ("ج.م ‎-500"). The invisible
+// left-to-right mark keeps it on the left of the digits instead of drifting to the far end.
+const signed = (neg: boolean, s: string) => (!neg ? cur() + s : getLang() === 'ar' ? cur() + '‎-' + s : '-' + cur() + s);
 export const le = (n: number) => {
   if (hidden) return cur() + MASK;
   const v = Math.round(n);
-  return (v < 0 ? '-' : '') + cur() + Math.abs(v).toLocaleString('en-US');
+  return signed(v < 0, Math.abs(v).toLocaleString('en-US'));
 };
 export const leShort = (n: number) => {
   if (hidden) return cur() + MASK;
   const a = Math.abs(n);
   const s = a >= 1e6 ? (a / 1e6).toFixed(1) + 'M' : a >= 1e4 ? (a / 1e3).toFixed(1) + 'K' : Math.round(a).toLocaleString('en-US');
-  return (n < 0 ? '-' : '') + cur() + s;
+  return signed(n < 0, s);
 };
 
 // Installment companies, by name only. Colours come from Fakka's own palette (not the companies' brand
