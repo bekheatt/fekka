@@ -40,9 +40,17 @@ const apple = async (path: 'token' | 'revoke', form: Record<string, string>) =>
     body: new URLSearchParams({ client_id: CLIENT, client_secret: await clientSecret(), ...form }),
   });
 
-Deno.serve(async req => {
+Deno.serve(req => handle(req).catch(e => {
+  console.error('apple-token crashed', String(e?.message ?? e)); // e.g. a badly pasted private key
+  return reply(500, { error: 'Server error' });
+}));
+
+async function handle(req: Request): Promise<Response> {
   if (req.method !== 'POST') return reply(405, { error: 'POST only' });
-  if (!TEAM || !KEY_ID || !PEM) return reply(500, { error: 'Apple secrets are not set' });
+  if (!TEAM || !KEY_ID || !PEM) {
+    console.error('apple secrets missing', { team: !!TEAM, keyId: !!KEY_ID, key: !!PEM });
+    return reply(500, { error: 'Apple secrets are not set' });
+  }
 
   const jwt = (req.headers.get('Authorization') ?? '').replace(/^Bearer /, '');
   const { data: who } = await db.auth.getUser(jwt);
@@ -55,9 +63,12 @@ Deno.serve(async req => {
     if (typeof body.code !== 'string' || !body.code) return reply(400, { error: 'Missing code' });
     const res = await apple('token', { code: body.code, grant_type: 'authorization_code' });
     const out = await res.json().catch(() => ({}));
-    if (!res.ok || !out.refresh_token) return reply(502, { error: out.error ?? 'Apple refused the code' });
+    if (!res.ok || !out.refresh_token) {
+      console.error('apple token exchange failed', res.status, out.error, out.error_description);
+      return reply(502, { error: out.error ?? 'Apple refused the code' });
+    }
     const { error } = await db.from('apple_tokens').upsert({ user_id: uid, refresh_token: out.refresh_token, created_at: new Date().toISOString() });
-    if (error) return reply(500, { error: error.message });
+    if (error) { console.error('apple token save failed', error.message); return reply(500, { error: error.message }); }
     return reply(200, { ok: true });
   }
 
@@ -65,10 +76,13 @@ Deno.serve(async req => {
     const { data: row } = await db.from('apple_tokens').select('refresh_token').eq('user_id', uid).maybeSingle();
     if (!row) return reply(200, { ok: true, revoked: false }); // nothing kept (e.g. signed in before tokens were saved)
     const res = await apple('revoke', { token: row.refresh_token, token_type_hint: 'refresh_token' });
-    if (!res.ok) return reply(502, { error: `Apple revoke failed (${res.status})` });
+    if (!res.ok) {
+      console.error('apple revoke failed', res.status, await res.text().catch(() => ''));
+      return reply(502, { error: `Apple revoke failed (${res.status})` });
+    }
     await db.from('apple_tokens').delete().eq('user_id', uid);
     return reply(200, { ok: true, revoked: true });
   }
 
   return reply(400, { error: 'Unknown action' });
-});
+}
