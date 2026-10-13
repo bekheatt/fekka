@@ -11,11 +11,16 @@ const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SE
   auth: { persistSession: false },
 });
 
-const TEAM = Deno.env.get('APPLE_TEAM_ID') ?? '';
-const KEY_ID = Deno.env.get('APPLE_KEY_ID') ?? '';
-const CLIENT = Deno.env.get('APPLE_CLIENT_ID') ?? 'com.fekka.app';
-// Pasted keys sometimes arrive with "\n" typed out instead of real line breaks
-const PEM = (Deno.env.get('APPLE_PRIVATE_KEY') ?? '').replace(/\\n/g, '\n').trim();
+// Short values: drop stray spaces or quotes from pasting
+const env = (k: string) => (Deno.env.get(k) ?? '').replace(/[\s"']/g, '');
+const TEAM = env('APPLE_TEAM_ID');
+const KEY_ID = env('APPLE_KEY_ID');
+const CLIENT = env('APPLE_CLIENT_ID') || 'com.fekka.app';
+// Pasted keys arrive mangled (line breaks turned into spaces or "\n", headers missing), so keep
+// only the base64 body and rebuild the PEM shape the key importer expects
+const BODY = (Deno.env.get('APPLE_PRIVATE_KEY') ?? '')
+  .replace(/-----(BEGIN|END) PRIVATE KEY-----/g, '').replace(/\\n/g, '').replace(/[^A-Za-z0-9+/=]/g, '');
+const PEM = BODY && `-----BEGIN PRIVATE KEY-----\n${BODY.match(/.{1,64}/g)!.join('\n')}\n-----END PRIVATE KEY-----`;
 
 const reply = (status: number, body: object) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
