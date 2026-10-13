@@ -10,7 +10,6 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.fekka.app",
       "usesAppleSignIn": true,
-      "buildNumber": "1",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Fakka uses Face ID to keep your finances private.",
         "ITSAppUsesNonExemptEncryption": false
@@ -28,7 +27,6 @@
     },
     "android": {
       "package": "com.fekka.app",
-      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2B3BFF"
