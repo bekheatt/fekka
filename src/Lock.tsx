@@ -19,7 +19,7 @@ export async function canUseLock() {
   return hw && level !== LocalAuthentication.SecurityLevel.NONE;
 }
 
-export default function Lock({ onUnlock, resume = 0 }: { onUnlock: () => void; resume?: number }) {
+export default function Lock({ onUnlock, resume = 0, ready = true }: { onUnlock: () => void; resume?: number; ready?: boolean }) {
   const [busy, setBusy] = useState(false);
   const running = useRef(false);
 
@@ -37,11 +37,12 @@ export default function Lock({ onUnlock, resume = 0 }: { onUnlock: () => void; r
     }
   };
 
-  // Ask as soon as the lock appears, and every time you come back to the app
+  // Ask as soon as the lock is visible (after the opening animation), and every time you come back to the app
   useEffect(() => {
+    if (!ready) return;
     const id = setTimeout(tryUnlock, 350);
     return () => clearTimeout(id);
-  }, [resume]);
+  }, [resume, ready]);
 
   return (
     <View style={s.wrap}>
