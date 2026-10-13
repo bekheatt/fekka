@@ -12,3 +12,4 @@ android/
 design-backup/
 brag-output/
 .claude/settings.local.json
+*.p8

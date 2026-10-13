@@ -14,6 +14,7 @@ import { Field } from '../../ui';
 import { useStore, hasAccount } from '../../store';
 import { deleteMyAccount, signOutCloud } from '../../cloud/supabase';
 import { deleteAllReceipts } from '../../receipts';
+import { stopSync } from '../../cloud/sync';
 
 // Everything this app keeps on the phone outside the main data (which reset() clears)
 async function clearDevice() {
@@ -36,6 +37,7 @@ export default function DeleteAccount({ visible, onClose }: { visible: boolean; 
   const close = () => { if (busy) return; setTyped(''); setErr(''); onClose(); };
 
   const finish = async () => {
+    if (online) await signOutCloud();
     await clearDevice();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     reset(); // back to the sign-in screen with an empty app
@@ -46,8 +48,11 @@ export default function DeleteAccount({ visible, onClose }: { visible: boolean; 
     setErr('');
     setBusy(true);
     try {
-      if (online) await deleteMyAccount();
-      await finish();
+      if (online) { await deleteMyAccount(); stopSync(); } // gone from the server; stop saving to it
+      // Close this sheet first, then swap to the sign-in screen: on iPhone a sheet whose screen
+      // disappears underneath it stays stuck on the spinner
+      setBusy(false); setTyped(''); onClose();
+      setTimeout(() => { finish().catch(() => reset()); }, 450);
     } catch (e: any) {
       setBusy(false);
       if (String(e?.message) === 'SIGN_IN_AGAIN') {

@@ -26,7 +26,7 @@ export default function YourData({ visible, onClose, onDelete }: { visible: bool
 
   const rows: { icon: any; title: string; sub: string }[] = [
     online
-      ? { icon: 'cloud-done', title: t('Your account'), sub: t('{e} · signed in with {how}', { e: st.email ?? '', how: st.account === 'google' ? 'Google' : t('email') }) }
+      ? { icon: 'cloud-done', title: t('Your account'), sub: t('{e} · signed in with {how}', { e: st.email ?? '', how: st.account === 'google' ? 'Google' : st.account === 'apple' ? 'Apple' : t('email') }) }
       : { icon: 'phone-portrait', title: t('Guest mode'), sub: t('Nothing is sent to our servers') },
     { icon: 'server', title: t('Your money data'), sub: online ? t('On this phone, and in your account on secure servers in the EU (Germany)') : t('Only on this phone') },
     { icon: 'image', title: t('Receipt photos'), sub: t('Only on this phone, never uploaded') },

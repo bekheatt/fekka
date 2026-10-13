@@ -9,7 +9,7 @@ import { Header, Section, Card, Screen, Toggle, Segmented, tap } from '../ui';
 import { t } from '../i18n';
 import { canUseLock } from '../Lock';
 import { askPermission } from '../notify';
-import { signOutCloud, signInGoogle, loadUserData, recordConsent } from '../cloud/supabase';
+import { signOutCloud, signInGoogle, signInApple, appleAvailable, loadUserData, recordConsent } from '../cloud/supabase';
 import { hasAccount } from '../store';
 import AutoLogSetup from '../features/SmsImport/AutoLogSetup';
 import LegalDoc from '../features/Legal/LegalDoc';
@@ -42,15 +42,18 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
   const [autoLog, setAutoLog] = React.useState(false);
   const change = (patch: Partial<S>) => set(x => ({ ...x, settings: { ...x.settings, ...patch } }));
 
-  // Guest → Google account. A new account starts from this phone's data; one that already
+  // Guest → Google or Apple account. A new account starts from this phone's data; one that already
   // has Fakka data asks which copy to keep, so nothing is replaced without asking.
-  const [connecting, setConnecting] = React.useState(false);
-  const connectGoogle = async () => {
+  const [connecting, setConnecting] = React.useState<'google' | 'apple' | null>(null);
+  const [hasApple, setHasApple] = React.useState(false);
+  React.useEffect(() => { appleAvailable().then(setHasApple).catch(() => {}); }, []);
+  const connect = async (kind: 'google' | 'apple') => {
+    if (connecting) return;
     tap();
-    setConnecting(true);
+    setConnecting(kind);
     try {
-      const u = await signInGoogle();
-      if (!u) return; // closed the Google page
+      const u = kind === 'apple' ? await signInApple() : await signInGoogle();
+      if (!u) return; // closed the Google page / Apple sheet
       let keepPhone = true;
       if (hasRecords((await loadUserData(u.uid))?.data)) {
         const pick = await new Promise<'phone' | 'account' | null>(res => Alert.alert(
@@ -67,14 +70,14 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
         keepPhone = pick === 'phone';
       }
       // They already accepted the Terms as a guest; this records it for the account
-      const consent = newConsent(new Date().toISOString(), 'google');
+      const consent = newConsent(new Date().toISOString(), kind);
       // lock/notify/onboarded/toured: this phone's own choices, even when taking the account's data
-      await signInAs(u.uid, { account: 'google', email: u.email, uid: u.uid, consent, lock: st.lock, notify: st.notify, onboarded: st.onboarded, toured: st.toured }, keepPhone);
-      recordConsent(consent, 'google').catch(() => {});
+      await signInAs(u.uid, { account: kind, email: u.email, uid: u.uid, consent, lock: st.lock, notify: st.notify, onboarded: st.onboarded, toured: st.toured }, keepPhone);
+      recordConsent(consent, kind).catch(() => {});
     } catch {
       await signOutCloud();
       Alert.alert(t("Couldn't connect your account"), t('Check your internet and try again. Your data is still on this phone.'));
-    } finally { setConnecting(false); }
+    } finally { setConnecting(null); }
   };
 
   const setLanguage = (lang: 'en' | 'ar') => {
@@ -153,14 +156,23 @@ export default function Settings({ onBack }: { onBack?: () => void }) {
       {!online && (<>
         <Section>{t('Account')}</Section>
         <Card>
-          {/* Sign in with Apple goes here too, as a second row */}
-          <Pressable onPress={connectGoogle} disabled={connecting} style={[s.danger, connecting && { opacity: 0.6 }]} accessibilityRole="button">
+          {hasApple && (
+            <Pressable onPress={() => connect('apple')} disabled={!!connecting} style={[s.danger, { borderBottomWidth: 1, borderColor: C.line }, !!connecting && { opacity: 0.6 }]} accessibilityRole="button">
+              <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="logo-apple" size={18} color={C.ink} /></View>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Connect Apple account')}</Text>
+                <Text style={s.aboutVal}>{t('Back up your data and use it on other phones')}</Text>
+              </View>
+              {connecting === 'apple' ? <ActivityIndicator color={C.primary} /> : <Ionicons name="chevron-forward" size={18} color={C.sub} />}
+            </Pressable>
+          )}
+          <Pressable onPress={() => connect('google')} disabled={!!connecting} style={[s.danger, !!connecting && { opacity: 0.6 }]} accessibilityRole="button">
             <View style={[s.icon, { backgroundColor: C.soft }]}><Ionicons name="logo-google" size={18} color="#4285F4" /></View>
             <View style={{ flex: 1 }}>
               <Text style={[s.dangerTxt, { color: C.ink }]}>{t('Connect Google account')}</Text>
               <Text style={s.aboutVal}>{t('Back up your data and use it on other phones')}</Text>
             </View>
-            {connecting ? <ActivityIndicator color={C.primary} /> : <Ionicons name="chevron-forward" size={18} color={C.sub} />}
+            {connecting === 'google' ? <ActivityIndicator color={C.primary} /> : <Ionicons name="chevron-forward" size={18} color={C.sub} />}
           </Pressable>
         </Card>
       </>)}

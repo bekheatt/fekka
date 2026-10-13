@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { type Consent, APP_VERSION, PLATFORM } from '../features/Legal/consent';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -54,6 +55,30 @@ export async function signInGoogle(): Promise<CloudUser | null> {
   return { uid: s.user.id, email: s.user.email ?? '' };
 }
 
+// Apple: Apple's own sign-in sheet (iPhone only), then the same Supabase account system.
+// Returns null if the person closed the sheet. `name` is the first name Apple shares, only on the very first sign-in.
+export async function signInApple(): Promise<(CloudUser & { name: string }) | null> {
+  let cred: AppleAuthentication.AppleAuthenticationCredential;
+  try {
+    cred = await AppleAuthentication.signInAsync({
+      requestedScopes: [AppleAuthentication.AppleAuthenticationScope.FULL_NAME, AppleAuthentication.AppleAuthenticationScope.EMAIL],
+    });
+  } catch (e: any) {
+    if (e?.code === 'ERR_REQUEST_CANCELED') return null;
+    throw e;
+  }
+  if (!cred.identityToken) throw new Error('Apple did not finish signing in. Please try again.');
+  const { data, error } = await supabase.auth.signInWithIdToken({ provider: 'apple', token: cred.identityToken });
+  if (error) throw error;
+  // Keep Apple's token on the server so it can be revoked if the account is deleted (never blocks signing in)
+  if (cred.authorizationCode) supabase.functions.invoke('apple-token', { body: { action: 'save', code: cred.authorizationCode } }).catch(() => {});
+  return { uid: data.user.id, email: data.user.email ?? '', name: cred.fullName?.givenName?.trim() ?? '' };
+}
+
+// Apple sign-in exists only on iPhone (Android would need Apple's web flow)
+export const appleAvailable = (): Promise<boolean> =>
+  Platform.OS === 'ios' ? AppleAuthentication.isAvailableAsync() : Promise.resolve(false);
+
 export async function signOutCloud() {
   await supabase.auth.signOut().catch(() => {});
 }
@@ -95,11 +120,15 @@ export async function saveUserData(appData: object, baseRev: number): Promise<nu
 // Signing in again afterwards starts a brand-new account.
 export async function deleteMyAccount(): Promise<void> {
   // Make sure the sign-in is still valid first, so a stale session can't make the delete silently fail
-  const { error: refreshErr } = await supabase.auth.refreshSession();
+  const { data: fresh, error: refreshErr } = await supabase.auth.refreshSession();
   if (refreshErr) throw refreshErr.name === 'AuthRetryableFetchError' ? refreshErr : new Error('SIGN_IN_AGAIN'); // offline vs. signed out
+  // Apple accounts: revoke Fakka's Apple sign-in first (Apple requirement). Best effort, so it never blocks deleting.
+  if (fresh.user?.app_metadata?.providers?.includes('apple')) {
+    await supabase.functions.invoke('apple-token', { body: { action: 'revoke' } }).catch(() => {});
+  }
   const { error } = await supabase.rpc('delete_my_account');
   if (error) throw error;
-  await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+  // The caller signs this phone out afterwards (after closing the delete sheet)
 }
 
 // ---------- Terms & Privacy acceptance (legal_consents) ----------
