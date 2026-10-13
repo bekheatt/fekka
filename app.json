@@ -2,6 +2,7 @@
   "expo": {
     "name": "Fakka",
     "slug": "fekka",
+    "owner": "bekeats-team",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -64,7 +65,10 @@
       ]
     ],
     "extra": {
-      "supportsRTL": true
+      "supportsRTL": true,
+      "eas": {
+        "projectId": "7c3be7f3-abed-4039-899b-b1194a8c82e7"
+      }
     },
     "scheme": "fakka"
   }
