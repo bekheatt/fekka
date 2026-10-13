@@ -7,7 +7,7 @@ import * as Haptics from 'expo-haptics';
 import { C, EXPENSE_CATS, themed } from './theme';
 import { useStore, uid } from './store';
 import { t } from './i18n';
-import { tap, pressedStyle } from './ui';
+import { tap, pressedStyle, HScroll } from './ui';
 import { pickReceipt, deleteReceipt } from './receipts';
 
 // Fast "on the go" expense entry: big keypad, one tap category, optional receipt photo.
@@ -71,7 +71,7 @@ export default function QuickAdd({ visible, onClose, initial }: { visible: boole
           {tried && <Text style={s.err} accessibilityLiveRegion="polite">{t('Enter an amount to save')}</Text>}
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.cats} style={{ flexGrow: 0 }}>
+        <HScroll contentContainerStyle={s.cats} style={{ flexGrow: 0 }}>
           {EXPENSE_CATS.map(c => {
             const on = c.name === cat;
             return (
@@ -81,7 +81,7 @@ export default function QuickAdd({ visible, onClose, initial }: { visible: boole
               </Pressable>
             );
           })}
-        </ScrollView>
+        </HScroll>
 
         <View style={s.noteRow}>
           <TextInput style={s.note} value={note} onChangeText={setNote} placeholder={t('Note (optional)')} placeholderTextColor={C.sub} />

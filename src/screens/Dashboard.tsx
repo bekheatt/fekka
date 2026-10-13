@@ -4,7 +4,7 @@ import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, EXPENSE_CATS, themed, isHidden } from '../theme';
 import { useStore, useTotals, daysUntil, daysLate, goalValue, ym } from '../store';
-import { Card, Row, Section, Screen, tap, Progress, Check, SplitBar, Empty, pressedStyle } from '../ui';
+import { Card, Row, Section, Screen, tap, Progress, Check, SplitBar, Empty, pressedStyle, HScroll } from '../ui';
 import { t, locale } from '../i18n';
 import Logo from '../Logo';
 import HealthCard from '../features/HealthScore/HealthCard';
@@ -90,12 +90,12 @@ export default function Dashboard({ go }: { go: Go }) {
       </View>
 
       <View ref={tourRef('quick')} collapsable={false}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={n.pills}>
+        <HScroll contentContainerStyle={n.pills}>
           <Pill icon="remove" label={t('Expense')} primary onPress={() => go('spend', 'expense')} />
           <Pill icon="add" label={t('Income')} onPress={() => go('spend', 'income')} />
           <Pill icon="calendar-outline" label={t('Payment')} onPress={() => go('pay', 'installment')} />
           <Pill icon="pricetag-outline" label={t('Afford?')} onPress={() => setAfford(true)} />
-        </ScrollView>
+        </HScroll>
       </View>
 
       <SafeToSpendCard onAddIncome={() => go('spend', 'income')} />

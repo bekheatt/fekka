@@ -25,7 +25,10 @@ export const fontFor = (weight?: TextStyle['fontWeight']) =>
 const withFont = (style: any) => {
   const flat = StyleSheet.flatten(style) ?? {};
   if (flat.fontFamily) return style; // an explicit family (e.g. icons) wins
-  return [style, { fontFamily: fontFor(flat.fontWeight), fontWeight: 'normal' as const }];
+  // In Arabic, text that fills a wide box lined up on the left (the phone's own language decides
+  // "natural"); 'left' means the start side and flips to the right in right-to-left layouts
+  const align = getLang() === 'ar' && (flat.textAlign == null || flat.textAlign === 'auto') ? { textAlign: 'left' as const } : null;
+  return [style, { fontFamily: fontFor(flat.fontWeight), fontWeight: 'normal' as const }, align];
 };
 
 export const Text = forwardRef<RNText, TextProps>((p, ref) => <RNText ref={ref} {...p} style={withFont(p.style)} />);

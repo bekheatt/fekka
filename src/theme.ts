@@ -80,16 +80,19 @@ export const setHidden = (h: boolean) => { hidden = h; };
 export const isHidden = () => hidden;
 export const MASK = '•••••';
 const cur = () => (getLang() === 'ar' ? 'ج.م ' : 'L.E ');
+// Minus: "-L.E 500" in English; in Arabic it sits on the number ("ج.م ‎-500"). The invisible
+// left-to-right mark keeps it on the left of the digits instead of drifting to the far end.
+const signed = (neg: boolean, s: string) => (!neg ? cur() + s : getLang() === 'ar' ? cur() + '‎-' + s : '-' + cur() + s);
 export const le = (n: number) => {
   if (hidden) return cur() + MASK;
   const v = Math.round(n);
-  return (v < 0 ? '-' : '') + cur() + Math.abs(v).toLocaleString('en-US');
+  return signed(v < 0, Math.abs(v).toLocaleString('en-US'));
 };
 export const leShort = (n: number) => {
   if (hidden) return cur() + MASK;
   const a = Math.abs(n);
   const s = a >= 1e6 ? (a / 1e6).toFixed(1) + 'M' : a >= 1e4 ? (a / 1e3).toFixed(1) + 'K' : Math.round(a).toLocaleString('en-US');
-  return (n < 0 ? '-' : '') + cur() + s;
+  return signed(n < 0, s);
 };
 
 // Installment companies, by name only. Colours come from Fakka's own palette (not the companies' brand

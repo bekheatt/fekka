@@ -4,7 +4,7 @@ import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, PROVIDERS, LOAN_TYPES, BILL_TYPES, themed } from '../theme';
 import { useStore, useTotals, uid, gameyaStatus, ym, daysUntil, daysLate, isPropertyLoan, propertyOwned } from '../store';
-import { Header, Section, Card, Row, Empty, Sheet, Field, Chips, num, tap, Screen, Hint, Check, Progress, amountError } from '../ui';
+import { Header, Section, Card, Row, Empty, Sheet, Field, Chips, num, tap, Screen, Hint, Check, Progress, amountError, HScroll } from '../ui';
 import { t } from '../i18n';
 import { dueLabel } from './Dashboard';
 import InterestCalculator from '../features/InterestCalc/InterestCalculator';
@@ -110,12 +110,12 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
         </Text>
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.btns}>
+      <HScroll contentContainerStyle={s.btns}>
         <AddChip icon="phone-portrait-outline" color={C.sky} label={t('Installment')} onPress={() => open('inst')} />
         <AddChip icon="flash-outline" color="#E8B93A" label={t('Bill')} onPress={() => open('bill')} />
         <AddChip icon="people-outline" color="#8E6FE0" label={t("Gam'eya")} onPress={() => open('gameya')} />
         <AddChip icon="business-outline" color={C.primary} label={t('Loan')} onPress={() => open('loan')} />
-      </ScrollView>
+      </HScroll>
 
       <Pressable onPress={() => { tap(); setCalc(true); }} style={({ pressed }) => [s.calc, pressed && { opacity: 0.7 }]}>
         <View style={s.calcIcon}><Ionicons name="calculator" size={20} color={C.accent} /></View>

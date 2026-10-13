@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Pressable, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, Animated, PanResponder, Switch, AccessibilityInfo, Easing } from 'react-native';
+import { View, Pressable, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, Animated, PanResponder, Switch, AccessibilityInfo, Easing, I18nManager } from 'react-native';
 import { Text, TextInput } from './fonts';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -10,6 +10,18 @@ import { t } from './i18n';
 export const pressedStyle = { opacity: 0.85, transform: [{ scale: 0.98 }] };
 
 export const tap = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+
+// A sideways-scrolling row. In Arabic the iPhone still opens it at the left end, which cuts off the
+// first item on the right, so jump to the start (the right end) once the row knows its size.
+export const HScroll = ({ children, ...p }: any) => {
+  const ref = useRef<ScrollView>(null);
+  return (
+    <ScrollView ref={ref} horizontal showsHorizontalScrollIndicator={false} {...p}
+      onContentSizeChange={() => { if (I18nManager.isRTL) ref.current?.scrollToEnd({ animated: false }); }}>
+      {children}
+    </ScrollView>
+  );
+};
 
 export const Header = ({ title, subtitle, right }: { title: string; subtitle?: string; right?: React.ReactNode }) => (
   <View style={s.header}>
@@ -251,7 +263,7 @@ export const Screen = ({ children }: { children: React.ReactNode }) => {
 };
 
 const s = themed(() => StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 18 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 10, marginBottom: 18 },
   title: { fontSize: 28, fontWeight: '700', color: C.ink, letterSpacing: -0.4 },
   subtitle: { fontSize: 15, color: C.sub, marginTop: 3 },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 30, marginBottom: 12, paddingHorizontal: 2 },

@@ -184,10 +184,10 @@ const s = themed(() => StyleSheet.create({
   headline: { fontSize: 16, fontWeight: '600', color: C.ink, lineHeight: 21 },
   factors: { flexDirection: 'row', gap: 8, marginTop: 18 },
   factor: { flex: 1, backgroundColor: C.bg, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 10 },
-  factorLabel: { fontSize: 11, color: C.sub, fontWeight: '500' },
+  factorLabel: { fontSize: 11, color: C.sub, fontWeight: '500', textAlign: 'left' }, // 'left' = the start side, also in Arabic
   factorRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
   factorDot: { width: 7, height: 7, borderRadius: 4 },
-  factorVal: { fontSize: 15, fontWeight: '600', color: C.ink },
+  factorVal: { fontSize: 15, fontWeight: '600', color: C.ink, textAlign: 'left' },
   cta: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: C.soft, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginTop: 14 },
   ctaTxt: { flex: 1, fontSize: 14, fontWeight: '600', color: C.primary },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8 },

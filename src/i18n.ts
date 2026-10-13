@@ -465,6 +465,8 @@ const AR: Record<string, string> = {
   'Enter how much comes in each month to continue': 'اكتب دخلك في الشهر عشان تكمّل',
   'Enter a day from 1 to 31': 'اكتب يوم من 1 لـ 31',
   'Enter an amount to save': 'اكتب المبلغ عشان تحفظ',
+  // Financial health card boxes
+  'Safety net': 'الاحتياطي', 'Debt': 'الديون', 'Good': 'كويس', 'Okay': 'متوسط', 'Weak': 'ضعيف',
   // Guest → connect a Google account in Settings
   'Account': 'الحساب', 'Connect Google account': 'اربط حساب Google', 'Connect Apple account': 'اربط حساب Apple',
   'Back up your data and use it on other phones': 'احفظ نسخة من بياناتك واستخدمها على أي موبايل تاني',
