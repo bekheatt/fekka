@@ -185,7 +185,7 @@ const AR: Record<string, string> = {
   // lock
   'Fakka is locked': 'فكّة مقفولة', 'Unlock': 'افتح', 'Unlock Fakka': 'افتح فكّة',
   // notifications
-  '{name} due tomorrow': '{name} مستحق بكرة', '{name} due today': '{name} مستحق النهارده', 'Payment of {x}': 'دفعة {x}',
+  '{name} due tomorrow': '{name} مستحق بكرة', '{name} due today': '{name} مستحق النهارده', '{name} due in a few days': '{name} مستحق كمان كام يوم', 'Payment of {x}': 'دفعة {x}',
 
   // onboarding
   'Welcome to Fakka': 'أهلاً بيك في فكّة', "Let's set up your money in 2 minutes. Everything stays on your phone.": 'يلا نظبط فلوسك في دقيقتين. كل حاجة بتفضل على موبايلك.',

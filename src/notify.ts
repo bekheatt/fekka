@@ -27,10 +27,15 @@ export async function scheduleReminders(d: Data) {
     for (const it of items) {
       const body = t('Payment of {x}', { x: le(it.amount) });
       const monthly = (day: number) => ({ type: Notifications.SchedulableTriggerInputTypes.MONTHLY, day, hour: 10, minute: 0, channelId: 'payments' } as const);
+      // Days 29-31 don't exist in every month, so those get one heads-up on the 28th instead
+      if (it.day > 28) {
+        await Notifications.scheduleNotificationAsync({ content: { title: t('{name} due in a few days', { name: it.name }), body }, trigger: monthly(28) });
+        continue;
+      }
       if (it.day > 1) {
         await Notifications.scheduleNotificationAsync({ content: { title: t('{name} due tomorrow', { name: it.name }), body }, trigger: monthly(it.day - 1) });
       }
-      await Notifications.scheduleNotificationAsync({ content: { title: t('{name} due today', { name: it.name }), body }, trigger: monthly(Math.min(it.day, 28)) });
+      await Notifications.scheduleNotificationAsync({ content: { title: t('{name} due today', { name: it.name }), body }, trigger: monthly(it.day) });
     }
   } catch {
     // notifications unavailable (e.g. some Expo Go limits) — ignore quietly
