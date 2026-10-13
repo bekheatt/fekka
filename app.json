@@ -9,6 +9,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.fekka.app",
+      "usesAppleSignIn": true,
       "buildNumber": "1",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Fakka uses Face ID to keep your finances private.",
@@ -41,6 +42,7 @@
         }
       ],
       "expo-notifications",
+      "expo-apple-authentication",
       [
         "expo-image-picker",
         {

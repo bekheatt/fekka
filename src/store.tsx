@@ -46,7 +46,7 @@ const KEY = 'fekka.v1';
 const OUNCE = 31.1035;
 
 // Signed in with a real online account (not a guest)
-export const hasAccount = (s: Settings) => (s.account === 'email' || s.account === 'google') && !!s.uid;
+export const hasAccount = (s: Settings) => (s.account === 'email' || s.account === 'google' || s.account === 'apple') && !!s.uid;
 
 export type CloudStatus = 'off' | 'saving' | 'saved' | 'error';
 type Ctx = {

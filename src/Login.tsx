@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable, Alert, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,7 +10,7 @@ import { tap } from './ui';
 import Logo from './Logo';
 import { Bubble } from './ui';
 import { APP_NAME, TAGLINE } from './brand';
-import { signInGoogle, recordConsent, CloudUser } from './cloud/supabase';
+import { signInGoogle, signInApple, appleAvailable, recordConsent, CloudUser } from './cloud/supabase';
 import * as Haptics from 'expo-haptics';
 import Agree from './features/Legal/Agree';
 import { newConsent } from './features/Legal/consent';
@@ -29,13 +29,16 @@ const friendly = (m: string) =>
   /rate limit/i.test(m) ? t('Too many tries. Wait a few minutes and try again.')
   : m;
 
-// Sign-in screen: Google (Supabase) and Apple (look-only for now), or guest. No email/password accounts.
+// Sign-in screen: Apple (iPhone only) and Google, both through Supabase, or guest. No email/password accounts.
 // Nothing continues (account or guest) until the Terms / Privacy Policy box is ticked.
 export default function Login() {
   const { set, signInAs } = useStore();
   const [busy, setBusy] = useState(false);
   const [agreedAt, setAgreedAt] = useState<string | null>(null); // when the box was ticked; null = not ticked
   const [warn, setWarn] = useState(false);
+  const [busyApple, setBusyApple] = useState(false);
+  const [hasApple, setHasApple] = useState(Platform.OS === 'ios');
+  useEffect(() => { appleAvailable().then(setHasApple).catch(() => setHasApple(false)); }, []);
   const agree = (on: boolean) => { setAgreedAt(on ? new Date().toISOString() : null); if (on) setWarn(false); };
 
   // Every way in goes through here: without the tick, explain instead of continuing
@@ -47,9 +50,10 @@ export default function Login() {
   };
 
   // After any sign-in: bring back saved data, or start the account from this device's data
-  const signedIn = async (u: CloudUser, kind: 'google') => {
+  // name: Apple shares the first name once, so onboarding comes already filled in
+  const signedIn = async (u: CloudUser, kind: 'google' | 'apple', name?: string) => {
     const consent = newConsent(agreedAt!, kind);
-    await signInAs(u.uid, { account: kind, email: u.email, uid: u.uid, consent });
+    await signInAs(u.uid, { account: kind, email: u.email, uid: u.uid, consent, ...(name ? { name } : {}) });
     recordConsent(consent, kind).catch(() => {}); // if offline, LegalUpdate saves it on a later app start
   };
 
@@ -66,10 +70,17 @@ export default function Login() {
     } finally { setBusy(false); }
   };
 
-  const soon = (who: string) => {
+  const apple = async () => {
     tap();
     if (needsAgree()) return;
-    say(t('Coming soon'), t('{who} sign-in is on the way. For now, continue as a guest.', { who }));
+    setBusyApple(true);
+    try {
+      const u = await signInApple();
+      if (u) await signedIn(u, 'apple', u.name);
+    } catch (e: any) {
+      const m = String(e?.message ?? e);
+      say(t('Sign-in failed'), /provider is not enabled/i.test(m) ? t('Apple sign-in is not switched on yet.') : friendly(m));
+    } finally { setBusyApple(false); }
   };
 
   const guest = () => {
@@ -77,7 +88,7 @@ export default function Login() {
     if (needsAgree()) return;
     // Guests keep everything on this phone only, so say so before continuing
     ask(t('Continue as guest?'),
-      t("As a guest, your data is saved only on this phone. If you delete the app or lose your phone, it can't be recovered. You can connect a Google account later in Settings."),
+      t("As a guest, your data is saved only on this phone. If you delete the app or lose your phone, it can't be recovered. You can connect an account later in Settings."),
       t('Continue as guest'),
       () => set(v => ({ ...v, settings: { ...v.settings, account: 'guest', consent: newConsent(agreedAt!, 'guest') } })));
   };
@@ -110,12 +121,14 @@ export default function Login() {
       <View style={s.buttons}>
         <Agree on={!!agreedAt} onChange={agree} warn={warn} />
 
-        <Pressable onPress={() => soon('Apple')} accessibilityState={{ disabled: !agreedAt }} style={({ pressed }) => [s.btn, s.apple, !agreedAt && s.off, pressed && s.pressed]}>
-          <Ionicons name="logo-apple" size={20} color="#fff" />
-          <Text style={[s.btnTxt, { color: '#fff' }]}>{t('Continue with Apple')}</Text>
-        </Pressable>
+        {hasApple && (
+          <Pressable onPress={busyApple || busy ? undefined : apple} accessibilityState={{ disabled: !agreedAt }} style={({ pressed }) => [s.btn, s.apple, !agreedAt && s.off, pressed && s.pressed]}>
+            {busyApple ? <ActivityIndicator color="#fff" /> : <Ionicons name="logo-apple" size={20} color="#fff" />}
+            <Text style={[s.btnTxt, { color: '#fff' }]}>{t('Continue with Apple')}</Text>
+          </Pressable>
+        )}
 
-        <Pressable onPress={busy ? undefined : google} accessibilityState={{ disabled: !agreedAt }} style={({ pressed }) => [s.btn, s.google, !agreedAt && s.off, pressed && s.pressed]}>
+        <Pressable onPress={busy || busyApple ? undefined : google} accessibilityState={{ disabled: !agreedAt }} style={({ pressed }) => [s.btn, s.google, !agreedAt && s.off, pressed && s.pressed]}>
           {busy ? <ActivityIndicator color={C.primary} /> : <Ionicons name="logo-google" size={18} color="#4285F4" />}
           <Text style={[s.btnTxt, { color: '#1F1F1F' }]}>{t('Continue with Google')}</Text>
         </Pressable>
