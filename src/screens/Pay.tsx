@@ -4,7 +4,7 @@ import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, PROVIDERS, LOAN_TYPES, BILL_TYPES, themed } from '../theme';
 import { useStore, useTotals, uid, gameyaStatus, ym, daysUntil, daysLate, isPropertyLoan, propertyOwned } from '../store';
-import { Header, Section, Card, Row, Empty, Sheet, Field, Chips, num, tap, Screen, Hint, Check, Progress } from '../ui';
+import { Header, Section, Card, Row, Empty, Sheet, Field, Chips, num, tap, Screen, Hint, Check, Progress, amountError } from '../ui';
 import { t } from '../i18n';
 import { dueLabel } from './Dashboard';
 import InterestCalculator from '../features/InterestCalc/InterestCalculator';
@@ -19,17 +19,19 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
   const [f, setF] = useState<any>({});
   const [editId, setEditId] = useState<string | null>(null);
   const [calc, setCalc] = useState(false);
+  const [tried, setTried] = useState(false); // tapped Save with something missing: show what
   const colors = Object.fromEntries(PROVIDERS.map(p => [p.name, p.color]));
   const upd = (k: string) => (v: string) => setF((x: any) => ({ ...x, [k]: v }));
 
   const open = (m: Mode) => {
-    setEditId(null);
+    setEditId(null); setTried(false);
     setF(m === 'inst' ? { provider: 'valU' } : m === 'loan' ? { type: 'Mortgage' } : m === 'bill' ? { cat: 'Electricity' } : m === 'gameya' ? { start: ym() } : {});
     setMode(m);
   };
 
   const edit = (kind: string, id: string) => {
     const S = (n: number) => String(n);
+    setTried(false);
     if (kind === 'inst') { const i = d.installments.find(y => y.id === id); if (!i) return; setF({ provider: i.provider, item: i.item, monthly: S(i.monthly), months: S(i.monthsLeft), day: S(i.dueDay) }); setMode('inst'); }
     if (kind === 'loan') { const l = d.loans.find(y => y.id === id); if (!l) return; setF({ type: l.type, lender: l.lender, monthly: S(l.monthly), remaining: S(l.remaining), day: S(l.dueDay), name: l.name ?? '', price: l.price ? S(l.price) : '', paid: l.paid ? S(l.paid) : '' }); setMode('loan'); }
     if (kind === 'bill') { const b = d.bills.find(y => y.id === id); if (!b) return; setF({ cat: b.cat, name: b.name, amount: S(b.amount), day: S(b.dueDay) }); setMode('bill'); }
@@ -54,7 +56,19 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
     const remaining = f.remaining?.trim() ? num(f.remaining) : Math.max(0, price - paid);
     return { remaining, name: f.name?.trim() || undefined, price: price || undefined, paid: price ? paid : undefined };
   };
+  // Every payment needs its monthly amount and a due day before it can be saved
+  const amountKey = mode === 'bill' ? 'amount' : 'monthly';
+  const dayError = tried && !(num(f.day) >= 1 && num(f.day) <= 31) ? t('Enter a day from 1 to 31') : '';
+  const remove = () => {
+    const id = editId;
+    if (mode === 'inst') set(x => ({ ...x, installments: x.installments.filter(y => y.id !== id) }));
+    if (mode === 'loan') set(x => ({ ...x, loans: x.loans.filter(y => y.id !== id) }));
+    if (mode === 'bill') set(x => ({ ...x, bills: x.bills.filter(y => y.id !== id) }));
+    if (mode === 'gameya') set(x => ({ ...x, gameyas: x.gameyas.filter(y => y.id !== id) }));
+    setMode(null); setEditId(null);
+  };
   const save = () => {
+    if (!(num(f[amountKey]) > 0) || !(num(f.day) >= 1 && num(f.day) <= 31)) { setTried(true); return false; }
     if (editId) {
       const members = Math.max(2, num(f.members) || 10);
       set(x => ({
@@ -197,33 +211,33 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
       </Card>
       <Hint>{t('Tip: tap an item to edit it, swipe left to delete')}</Hint>
 
-      <Sheet visible={mode === 'inst'} title={t(editId ? 'Edit installment' : 'New installment')} onClose={() => { setMode(null); setEditId(null); }} onSave={save}>
+      <Sheet visible={mode === 'inst'} title={t(editId ? 'Edit installment' : 'New installment')} onClose={() => { setMode(null); setEditId(null); }} onSave={save} onDelete={editId ? remove : undefined}>
         <Text style={s.lbl}>{t('Which app?')}</Text>
         <Chips options={PROVIDERS.map(p => p.name)} value={f.provider} onChange={upd('provider')} colors={colors} translate={false} />
         <Field label={t('What did you buy?')} placeholder={t('e.g. iPhone, fridge, course')} value={f.item} onChangeText={upd('item')} />
-        <Field label={t('Monthly amount (L.E)')} keyboardType="numeric" placeholder="2,500" value={f.monthly} onChangeText={upd('monthly')} />
+        <Field label={t('Monthly amount (L.E)')} keyboardType="numeric" placeholder="2,500" value={f.monthly} onChangeText={upd('monthly')} error={amountError(tried, f.monthly)} />
         <Field label={t('Months left')} keyboardType="numeric" placeholder="12" value={f.months} onChangeText={upd('months')} />
-        <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="5" hint={t("We'll remind you before it's due")} value={f.day} onChangeText={upd('day')} />
+        <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="5" hint={t("We'll remind you before it's due")} value={f.day} onChangeText={upd('day')} error={dayError} />
       </Sheet>
 
-      <Sheet visible={mode === 'bill'} title={t(editId ? 'Edit bill' : 'New bill')} onClose={() => { setMode(null); setEditId(null); }} onSave={save}>
+      <Sheet visible={mode === 'bill'} title={t(editId ? 'Edit bill' : 'New bill')} onClose={() => { setMode(null); setEditId(null); }} onSave={save} onDelete={editId ? remove : undefined}>
         <Text style={s.lbl}>{t('Type of bill')}</Text>
         <Chips options={BILL_TYPES.map(b => b.name)} value={f.cat} onChange={upd('cat')} colors={Object.fromEntries(BILL_TYPES.map(b => [b.name, b.color]))} />
         <Field label={t('Name (optional)')} placeholder={t('e.g. WE home internet')} value={f.name} onChangeText={upd('name')} />
-        <Field label={t('Usual amount (L.E)')} keyboardType="numeric" placeholder="600" value={f.amount} onChangeText={upd('amount')} />
-        <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="10" hint={t("We'll remind you before it's due")} value={f.day} onChangeText={upd('day')} />
+        <Field label={t('Usual amount (L.E)')} keyboardType="numeric" placeholder="600" value={f.amount} onChangeText={upd('amount')} error={amountError(tried, f.amount)} />
+        <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="10" hint={t("We'll remind you before it's due")} value={f.day} onChangeText={upd('day')} error={dayError} />
       </Sheet>
 
-      <Sheet visible={mode === 'gameya'} title={t(editId ? "Edit gam'eya" : "New gam'eya")} onClose={() => { setMode(null); setEditId(null); }} onSave={save}>
+      <Sheet visible={mode === 'gameya'} title={t(editId ? "Edit gam'eya" : "New gam'eya")} onClose={() => { setMode(null); setEditId(null); }} onSave={save} onDelete={editId ? remove : undefined}>
         <Field label={t('Name')} placeholder={t("e.g. Office gam'eya")} value={f.name} onChangeText={upd('name')} />
-        <Field label={t('Monthly share (L.E)')} keyboardType="numeric" placeholder="2,000" value={f.monthly} onChangeText={upd('monthly')} />
+        <Field label={t('Monthly share (L.E)')} keyboardType="numeric" placeholder="2,000" value={f.monthly} onChangeText={upd('monthly')} error={amountError(tried, f.monthly)} />
         <Field label={t('Number of members')} keyboardType="numeric" placeholder="10" value={f.members} onChangeText={upd('members')} />
         <Field label={t('Your turn (number)')} keyboardType="numeric" placeholder="4" value={f.turn} onChangeText={upd('turn')} />
         <Field label={t('First month')} placeholder="2026-09" value={f.start} onChangeText={upd('start')} hint={t('Format: YYYY-MM, e.g. 2026-09')} />
-        <Field label={t('Pay day of the month')} keyboardType="numeric" placeholder="1" value={f.day} onChangeText={upd('day')} />
+        <Field label={t('Pay day of the month')} keyboardType="numeric" placeholder="1" value={f.day} onChangeText={upd('day')} error={dayError} />
       </Sheet>
 
-      <Sheet visible={mode === 'loan'} title={t(editId ? 'Edit loan' : 'New loan')} onClose={() => { setMode(null); setEditId(null); }} onSave={save}>
+      <Sheet visible={mode === 'loan'} title={t(editId ? 'Edit loan' : 'New loan')} onClose={() => { setMode(null); setEditId(null); }} onSave={save} onDelete={editId ? remove : undefined}>
         <Text style={s.lbl}>{t('Type of loan')}</Text>
         <Chips options={LOAN_TYPES.map(x => x.name)} value={f.type} onChange={upd('type')} />
         {isMortgage ? <>
@@ -244,9 +258,9 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
           )}
         </> : null}
         <Field label={t('Bank')} placeholder={t('e.g. NBE, CIB, Banque Misr')} value={f.lender} onChangeText={upd('lender')} />
-        <Field label={t('Monthly payment (L.E)')} keyboardType="numeric" placeholder="8,000" value={f.monthly} onChangeText={upd('monthly')} />
+        <Field label={t('Monthly payment (L.E)')} keyboardType="numeric" placeholder="8,000" value={f.monthly} onChangeText={upd('monthly')} error={amountError(tried, f.monthly)} />
         {!isMortgage && <Field label={t('How much is left to pay? (L.E)')} keyboardType="numeric" placeholder="450,000" value={f.remaining} onChangeText={upd('remaining')} />}
-        <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="1" value={f.day} onChangeText={upd('day')} />
+        <Field label={t('Pay on which day of the month?')} keyboardType="numeric" placeholder="1" value={f.day} onChangeText={upd('day')} error={dayError} />
       </Sheet>
     </Screen>
   );

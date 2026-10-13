@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { C, le, SAVING_TYPES, GOAL_ICONS, themed, isHidden, MASK } from '../theme';
 import { askPermission } from '../notify';
 import { useStore, useTotals, uid, savingValue, goalValue, ym, monthsBetween, Goal, ALERT_NAMES } from '../store';
-import { Header, Section, Card, Row, Empty, AddBtn, Sheet, Field, Chips, num, Screen, Hint, tap, Progress, Segmented, SplitBar } from '../ui';
+import { Header, Section, Card, Row, Empty, AddBtn, Sheet, Field, Chips, num, Screen, Hint, tap, Progress, Segmented, SplitBar, amountError } from '../ui';
 import { t, locale } from '../i18n';
 
 const OTHER = 'Other…';
@@ -26,6 +26,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
   const [editId, setEditId] = useState<string | null>(null);
   const [dir, setDir] = useState<'add' | 'take'>('add');
   const upd = (k: string) => (v: string) => setF((x: any) => ({ ...x, [k]: v }));
+  const [tried, setTried] = useState(false); // tapped Save with no amount: show the red hint
 
   useEffect(() => {
     if (action === 'add') { setF({}); setOpen('hold'); }
@@ -37,9 +38,11 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
   const isOther = kind === OTHER;
   const ty = SAVING_TYPES.find(x => x.name === kind);
   const preview = isOther ? num(f.qty) * (num(f.price) || 1) : num(f.qty) * (ty ? d.rates[ty.key] ?? 0 : 0);
-  const close = () => { setF({}); setOpen(null); setFundId(null); setEditId(null); };
+  const close = () => { setF({}); setOpen(null); setFundId(null); setEditId(null); setTried(false); };
+  const missing = (v: string | undefined) => { if (num(v ?? '') > 0) return false; setTried(true); return true; };
 
   const saveHolding = () => {
+    if (missing(f.qty)) return false;
     const q = num(f.qty);
     if (editId) {
       if (q) set(x => ({ ...x, savings: x.savings.map(h => h.id !== editId ? h : h.kind === 'custom' ? { ...h, name: f.name?.trim() || h.name, qty: q, price: num(f.price) || 1 } : { ...h, qty: q }) }));
@@ -52,6 +55,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
     close();
   };
   const saveGoal = () => {
+    if (missing(f.target)) return false;
     const deadline = /^\d{4}-\d{2}$/.test(f.deadline ?? '') ? f.deadline : undefined;
     if (editId) {
       if (num(f.target)) set(x => ({ ...x, goals: x.goals.map(g => g.id !== editId ? g : { ...g, name: f.name?.trim() || g.name, icon: f.icon, unit: f.unit, target: num(f.target), saved: num(f.saved), deadline }) }));
@@ -62,6 +66,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
   };
   function fund(g: Goal) { setFundId(g.id); setDir('add'); setF({}); setOpen('fund'); }
   const saveFund = () => {
+    if (missing(f.amount)) return false;
     const v = num(f.amount);
     if (v && fundId) set(x => ({ ...x, goals: x.goals.map(g => {
       if (g.id !== fundId) return g;
@@ -83,13 +88,13 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
 
   const ALERT_KINDS = ['gold21', 'gold24', 'usd', 'eur'];
   const openAlert = () => { setF({ kind: 'gold21', dir: 'above', price: String(Math.round(d.rates.gold21 * 1.03)) }); setOpen('alert'); };
-  const saveAlert = async () => {
+  const saveAlert = () => {
+    if (missing(f.price)) return false;
     const price = num(f.price);
-    if (price) {
-      await askPermission().catch(() => false);
+    askPermission().catch(() => false).finally(() => {
       set(x => ({ ...x, alerts: [...x.alerts, { id: uid(), kind: f.kind, dir: f.dir, price, active: true }] }));
-    }
-    close();
+      close();
+    });
   };
 
   const subFor = (x: any) => {
@@ -218,26 +223,28 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
       <Hint>{t('Tip: tap an item to edit it, swipe left to delete')}</Hint>
 
       {/* Add holding */}
-      <Sheet visible={open === 'hold'} title={t(editId ? 'Edit savings' : 'Add savings')} onClose={close} onSave={saveHolding}>
+      <Sheet visible={open === 'hold'} title={t(editId ? 'Edit savings' : 'Add savings')} onClose={close} onSave={saveHolding}
+        onDelete={editId ? () => { const id = editId; set(z => ({ ...z, savings: z.savings.filter(y => y.id !== id) })); close(); } : undefined}>
         <Text style={s.lbl}>{t('What type?')}</Text>
         {!editId && <Chips options={[...SAVING_TYPES.map(x => x.name), OTHER]} value={kind} onChange={setKind} />}
         {isOther ? (
           <>
             <Field label={t('What is it?')} placeholder={t('e.g. Silver, stocks, car')} value={f.name} onChangeText={upd('name')} autoFocus />
-            <Field label={t('Total value (L.E)')} keyboardType="numeric" placeholder="0" value={f.qty} onChangeText={upd('qty')} style={s.big}
+            <Field label={t('Total value (L.E)')} keyboardType="numeric" placeholder="0" value={f.qty} onChangeText={upd('qty')} style={s.big} error={amountError(tried, f.qty)}
               hint={t('Or enter a quantity here and a price per unit below')} />
             <Field label={t('Price per unit in L.E (optional)')} keyboardType="numeric" placeholder={t('Leave empty if you entered the total')}
               value={f.price} onChangeText={upd('price')}
               hint={num(f.price) > 0 && num(f.qty) > 0 ? t('≈ {x} in total', { x: le(preview) }) : undefined} />
           </>
         ) : (
-          <Field label={t('How much? ({u})', { u: t(ty?.unit ?? '') })} keyboardType="numeric" autoFocus placeholder="0" value={f.qty} onChangeText={upd('qty')} style={s.big}
+          <Field label={t('How much? ({u})', { u: t(ty?.unit ?? '') })} keyboardType="numeric" autoFocus placeholder="0" value={f.qty} onChangeText={upd('qty')} style={s.big} error={amountError(tried, f.qty)}
             hint={preview > 0 && ty?.key !== 'egp' ? t("≈ {x} at today's price", { x: le(preview) }) : undefined} />
         )}
       </Sheet>
 
       {/* New goal */}
-      <Sheet visible={open === 'goal'} title={t(editId ? 'Edit goal' : 'New goal')} onClose={close} onSave={saveGoal}>
+      <Sheet visible={open === 'goal'} title={t(editId ? 'Edit goal' : 'New goal')} onClose={close} onSave={saveGoal}
+        onDelete={editId ? () => { const id = editId; set(x => ({ ...x, goals: x.goals.filter(y => y.id !== id) })); close(); } : undefined}>
         <Field label={t('What are you saving for?')} placeholder={t('e.g. Wedding, Car, Umrah')} value={f.name} onChangeText={upd('name')} autoFocus />
         <Text style={s.lbl}>{t('Icon')}</Text>
         <View style={s.icons}>
@@ -250,7 +257,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
         <Text style={s.lbl}>{t('Save in')}</Text>
         <Chips options={GOAL_UNITS.map(u => u.label)} value={GOAL_UNITS.find(u => u.key === f.unit)?.label ?? 'L.E'}
           onChange={v => setF((x: any) => ({ ...x, unit: GOAL_UNITS.find(u => u.label === v)!.key }))} />
-        <Field label={t('Target ({u})', { u: unitLabel(f.unit) })} keyboardType="numeric" placeholder="100,000" value={f.target} onChangeText={upd('target')} />
+        <Field label={t('Target ({u})', { u: unitLabel(f.unit) })} keyboardType="numeric" placeholder="100,000" value={f.target} onChangeText={upd('target')} error={amountError(tried, f.target)} />
         <Field label={t('Already saved ({u})', { u: unitLabel(f.unit) })} keyboardType="numeric" placeholder="0" value={f.saved} onChangeText={upd('saved')} />
         <Field label={t('Deadline (optional)')} placeholder="2027-06" value={f.deadline} onChangeText={upd('deadline')} hint={t('Format: YYYY-MM, e.g. 2026-09')} />
       </Sheet>
@@ -270,7 +277,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
               <Progress value={p} color={p >= 1 ? C.green : C.accent} height={10} />
               <View style={{ height: 16 }} />
               <Segmented value={dir} onChange={k => setDir(k as any)} options={[{ key: 'add', label: t('Add money') }, { key: 'take', label: t('Take out') }]} />
-              <Field label={t('Amount ({u})', { u: unitLabel(fundGoal.unit) })} keyboardType="numeric" autoFocus placeholder="0" value={f.amount} onChangeText={upd('amount')} style={[s.big, { color: dir === 'add' ? C.green : C.red }]}
+              <Field label={t('Amount ({u})', { u: unitLabel(fundGoal.unit) })} keyboardType="numeric" autoFocus placeholder="0" value={f.amount} onChangeText={upd('amount')} style={[s.big, { color: dir === 'add' ? C.green : C.red }]} error={amountError(tried, f.amount)}
                 hint={num(f.amount) > 0 ? t('New total: {x}', { x: fmtUnit(fundGoal.unit, Math.max(0, fundGoal.saved + (dir === 'add' ? 1 : -1) * num(f.amount))) }) : undefined} />
               {!!fundGoal.history?.length && (
                 <>
@@ -300,7 +307,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
         <Segmented value={f.dir ?? 'above'} onChange={k => setF((x: any) => ({ ...x, dir: k }))}
           options={[{ key: 'above', label: t('Goes above') }, { key: 'below', label: t('Drops below') }]} />
         <View style={{ height: 12 }} />
-        <Field label={t('Price in L.E')} keyboardType="numeric" value={f.price} onChangeText={upd('price')} style={s.big}
+        <Field label={t('Price in L.E')} keyboardType="numeric" value={f.price} onChangeText={upd('price')} style={s.big} error={amountError(tried, f.price)}
           hint={t('Now: {x}', { x: le(d.rates[f.kind] ?? 0) })} />
       </Sheet>
     </Screen>

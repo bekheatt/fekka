@@ -17,17 +17,19 @@ export default function QuickAdd({ visible, onClose, initial }: { visible: boole
   const [cat, setCat] = useState('Food');
   const [note, setNote] = useState('');
   const [receipt, setReceipt] = useState<string | undefined>();
+  const [tried, setTried] = useState(false); // tapped Save with no amount: say why nothing happened
 
   useEffect(() => {
     if (visible) {
       setAmt(initial?.amount ?? '');
       setCat(EXPENSE_CATS.some(c => c.name === initial?.cat) ? initial!.cat! : 'Food');
-      setNote(''); setReceipt(undefined);
+      setNote(''); setReceipt(undefined); setTried(false);
     }
   }, [visible]);
 
   const press = (k: string) => {
     Haptics.selectionAsync().catch(() => {});
+    setTried(false);
     setAmt(a => {
       if (k === '⌫') return a.slice(0, -1);
       if (k === '.' && a.includes('.')) return a;
@@ -40,7 +42,7 @@ export default function QuickAdd({ visible, onClose, initial }: { visible: boole
   const close = (keepReceipt = false) => { if (!keepReceipt) deleteReceipt(receipt); onClose(); };
   const save = () => {
     const v = parseFloat(amt);
-    if (!v) return;
+    if (!(v > 0)) { setTried(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {}); return; }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     set(x => ({ ...x, expenses: [{ id: uid(), cat, amount: v, note: note.trim(), date: new Date().toISOString(), receipt }, ...x.expenses] }));
     close(true);
@@ -66,6 +68,7 @@ export default function QuickAdd({ visible, onClose, initial }: { visible: boole
         <View style={s.amountBox}>
           <Text style={s.cur}>{t('L.E')}</Text>
           <Text style={[s.amount, { color: amt ? C.ink : C.sub }]} adjustsFontSizeToFit numberOfLines={1}>{shown}</Text>
+          {tried && <Text style={s.err} accessibilityLiveRegion="polite">{t('Enter an amount to save')}</Text>}
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.cats} style={{ flexGrow: 0 }}>
@@ -104,7 +107,7 @@ export default function QuickAdd({ visible, onClose, initial }: { visible: boole
           ))}
         </View>
 
-        <Pressable onPress={save} disabled={!parseFloat(amt)} style={({ pressed }) => [s.save, { backgroundColor: color }, !parseFloat(amt) && { opacity: 0.4 }, pressed && pressedStyle]}>
+        <Pressable onPress={save} style={({ pressed }) => [s.save, { backgroundColor: color }, !parseFloat(amt) && { opacity: 0.4 }, pressed && pressedStyle]}>
           <Text style={s.saveTxt}>{t('Save expense')}</Text>
         </Pressable>
       </SafeAreaView>
@@ -120,6 +123,7 @@ const s = themed(() => StyleSheet.create({
   amountBox: { alignItems: 'center', paddingVertical: 10, paddingHorizontal: 24 },
   cur: { fontSize: 16, fontWeight: '700', color: C.sub },
   amount: { fontSize: 60, fontWeight: '700', letterSpacing: -1.5 },
+  err: { color: C.red, fontSize: 14, fontWeight: '500', marginTop: 2 },
   cats: { gap: 8, paddingHorizontal: 18, paddingVertical: 10 },
   cat: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, backgroundColor: C.soft },
   catTxt: { fontWeight: '600', color: C.ink, fontSize: 15 },

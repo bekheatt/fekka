@@ -5,7 +5,7 @@ import { pickReceipt, deleteReceipt } from '../receipts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, EXPENSE_CATS, themed } from '../theme';
 import { useStore, useTotals, uid, ym } from '../store';
-import { Header, Section, Card, Row, Empty, AddBtn, Sheet, Field, num, tap, Screen, Hint, Segmented } from '../ui';
+import { Header, Section, Card, Row, Empty, AddBtn, Sheet, Field, num, tap, Screen, Hint, Segmented, amountError } from '../ui';
 import { t, locale } from '../i18n';
 import SmsImport from '../features/SmsImport/SmsImport';
 import { teach } from '../features/SmsImport/crowd';
@@ -26,6 +26,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
   const [receipt, setReceipt] = useState<string | undefined>();
   const [bigReceipt, setBigReceipt] = useState(false);
   const [sms, setSms] = useState(false);
+  const [tried, setTried] = useState(false); // tapped Save with no amount: show the red hint
   // Tapped day in the week chart: shows its amount in a little bubble
   const [sel, setSel] = useState<number | null>(null);
   const fade = useRef(new Animated.Value(0)).current;
@@ -49,7 +50,15 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
   const lastMonth = d.expenses.filter(e => ym(new Date(e.date)) === prevM).reduce((s, e) => s + e.amount, 0);
   const todaySpent = d.expenses.filter(e => new Date(e.date).toDateString() === today).reduce((s, e) => s + e.amount, 0);
 
-  const reset = () => { setAmt(''); setNote(''); setOpen(null); setEditId(null); setReceipt(undefined); setBigReceipt(false); };
+  const reset = () => { setAmt(''); setNote(''); setOpen(null); setEditId(null); setReceipt(undefined); setBigReceipt(false); setTried(false); };
+  // Cancel on a new expense throws away a photo taken for it (an edited one keeps its saved photo)
+  const cancel = () => { if (!editId && receipt) deleteReceipt(receipt); reset(); };
+  const remove = () => {
+    const id = editId;
+    if (open === 'exp') { const e = d.expenses.find(y => y.id === id); deleteReceipt(e?.receipt); if (receipt && receipt !== e?.receipt) deleteReceipt(receipt); set(x => ({ ...x, expenses: x.expenses.filter(y => y.id !== id) })); }
+    else set(x => ({ ...x, incomes: x.incomes.filter(y => y.id !== id) }));
+    reset();
+  };
   const editExpense = (e: any) => { setEditId(e.id); setCat(e.cat); setAmt(String(e.amount)); setNote(e.note); setReceipt(e.receipt); setOpen('exp'); };
   const snap = async (from: 'camera' | 'library') => { const uri = await pickReceipt(from); if (uri) setReceipt(uri); };
   const editIncome = (i: any) => { setEditId(i.id); setOnce(!!i.oneOff); setAmt(String(i.monthly)); setNote(i.source); setOpen('inc'); };
@@ -60,7 +69,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
     .sort((a, b) => (b.oneOff ? new Date(b.oneOff).getTime() : Infinity) - (a.oneOff ? new Date(a.oneOff).getTime() : Infinity));
   const save = () => {
     const v = num(amt);
-    if (!v) return reset();
+    if (!(v > 0)) { setTried(true); return false; }
     if (editId && open === 'exp') {
       // a new category for a shop from a bank SMS: remember it for that shop, and share it
       const old = d.expenses.find(e => e.id === editId);
@@ -168,7 +177,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
       </Card>
       <Hint>{t('Tip: tap an item to edit it, swipe left to delete')}</Hint>
 
-      <Sheet visible={open === 'exp'} title={t(editId ? 'Edit expense' : 'New expense')} onClose={reset} onSave={save}>
+      <Sheet visible={open === 'exp'} title={t(editId ? 'Edit expense' : 'New expense')} onClose={cancel} onSave={save} onDelete={editId ? remove : undefined}>
         <Text style={s.lbl}>{t('Category')}</Text>
         <View style={s.chips}>
           {EXPENSE_CATS.map(c => (
@@ -178,7 +187,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
             </Pressable>
           ))}
         </View>
-        <Field label={t('How much? (L.E)')} keyboardType="numeric" autoFocus={!editId} placeholder="0" value={amt} onChangeText={setAmt} style={s.big} />
+        <Field label={t('How much? (L.E)')} keyboardType="numeric" autoFocus={!editId} placeholder="0" value={amt} onChangeText={setAmt} style={s.big} error={amountError(tried, amt)} />
         <Field label={t('Note (optional)')} placeholder={t('e.g. Koshary, Uber, electricity')} value={note} onChangeText={setNote} />
         <Text style={s.lbl}>{t('Receipt (optional)')}</Text>
         {receipt ? (
@@ -198,14 +207,14 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
         )}
       </Sheet>
 
-      <Sheet visible={open === 'inc'} title={t(editId ? 'Edit income' : 'New income')} onClose={reset} onSave={save}>
+      <Sheet visible={open === 'inc'} title={t(editId ? 'Edit income' : 'New income')} onClose={cancel} onSave={save} onDelete={editId ? remove : undefined}>
         <Segmented value={once ? 'once' : 'monthly'} onChange={k => setOnce(k === 'once')}
           options={[{ key: 'monthly', label: t('Every month') }, { key: 'once', label: t('One-time') }]} />
         <Text style={[s.lbl, { color: C.sub, fontWeight: '400', marginTop: 4 }]}>
           {t(once ? 'A single payment: a freelance job, bonus or Eid money' : 'Salary, pension, rent: anything that comes every month')}
         </Text>
         <Field label={t('Where does it come from?')} placeholder={t(once ? 'e.g. Logo design for client' : 'Salary')} value={note} onChangeText={setNote} />
-        <Field label={t(once ? 'Amount (L.E)' : 'Monthly amount (L.E)')} keyboardType="numeric" placeholder="25,000" value={amt} onChangeText={setAmt} style={s.big} />
+        <Field label={t(once ? 'Amount (L.E)' : 'Monthly amount (L.E)')} keyboardType="numeric" placeholder="25,000" value={amt} onChangeText={setAmt} style={s.big} error={amountError(tried, amt)} />
       </Sheet>
     </Screen>
   );

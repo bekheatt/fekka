@@ -464,6 +464,7 @@ const AR: Record<string, string> = {
   'Add your name to continue': 'اكتب اسمك عشان تكمّل',
   'Enter how much comes in each month to continue': 'اكتب دخلك في الشهر عشان تكمّل',
   'Enter a day from 1 to 31': 'اكتب يوم من 1 لـ 31',
+  'Enter an amount to save': 'اكتب المبلغ عشان تحفظ',
   // Guest → connect a Google account in Settings
   'Account': 'الحساب', 'Connect Google account': 'اربط حساب Google', 'Connect Apple account': 'اربط حساب Apple',
   'Back up your data and use it on other phones': 'احفظ نسخة من بياناتك واستخدمها على أي موبايل تاني',
