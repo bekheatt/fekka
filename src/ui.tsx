@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Pressable, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, Animated, PanResponder, Switch, AccessibilityInfo, Easing, I18nManager } from 'react-native';
+import { View, Pressable, StyleSheet, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, Animated, Switch, AccessibilityInfo, Easing, I18nManager } from 'react-native';
 import { Text, TextInput } from './fonts';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -62,43 +62,8 @@ export const SplitBar = ({ parts, height = 10 }: { parts: { v: number; c: string
   );
 };
 
-// Swipe left to reveal Delete (like Mail). Swipe far to delete instantly.
-const ACTION_W = 88;
-export const Row = ({ icon, color, title, sub, value, valueColor, onDelete, onPress, left, last, dim }: any) => {
-  const x = useRef(new Animated.Value(0)).current;
-  const h = useRef(new Animated.Value(1)).current;
-  const open = useRef(false);
-  const width = useRef(360);
-
-  const snap = (to: number) => {
-    open.current = to !== 0;
-    Animated.spring(x, { toValue: to, useNativeDriver: false, friction: 8 }).start();
-  };
-  const remove = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
-    Animated.parallel([
-      Animated.timing(x, { toValue: -width.current, duration: 200, useNativeDriver: false }),
-      Animated.timing(h, { toValue: 0, duration: 220, delay: 120, useNativeDriver: false }),
-    ]).start(() => onDelete?.());
-  };
-
-  const pan = useRef(PanResponder.create({
-    // Capture: take a sideways drag before the tappable row inside (or the page scroll) keeps it
-    onMoveShouldSetPanResponderCapture: (_, g) => !!onDelete && Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
-    onMoveShouldSetPanResponder: (_, g) => !!onDelete && Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
-    onPanResponderTerminationRequest: () => false,
-    onPanResponderMove: (_, g) => {
-      const base = open.current ? -ACTION_W : 0;
-      x.setValue(Math.min(0, base + g.dx));
-    },
-    onPanResponderRelease: (_, g) => {
-      const pos = (open.current ? -ACTION_W : 0) + g.dx;
-      if (pos < -width.current * 0.55) return remove();
-      if (pos < -ACTION_W / 2 || g.vx < -0.6) { tap(); snap(-ACTION_W); } else snap(0);
-    },
-    onPanResponderTerminate: () => snap(0),
-  })).current;
-
+// A list row. Tap opens the item's edit screen, which has the Delete button.
+export const Row = ({ icon, color, title, sub, value, valueColor, onPress, left, last, dim }: any) => {
   const content = (
     <View style={[s.row, dim && { opacity: 0.45 }]}>
       {left}
@@ -115,23 +80,7 @@ export const Row = ({ icon, color, title, sub, value, valueColor, onDelete, onPr
     </View>
   );
 
-  if (!onDelete) return <Pressable disabled={!onPress} onPress={onPress} style={({ pressed }) => [!last && s.rowLine, pressed && { opacity: 0.6 }]}>{content}</Pressable>;
-
-  return (
-    <Animated.View
-      onLayout={e => { width.current = e.nativeEvent.layout.width; }}
-      style={[{ overflow: 'hidden', opacity: h, transform: [{ scaleY: h }] }, !last && s.rowLine]}>
-      <View style={s.deleteWrap}>
-        <Pressable onPress={remove} style={s.deleteBtn}>
-          <Ionicons name="trash" size={20} color="#fff" />
-          <Text style={s.deleteTxt}>{t('Delete')}</Text>
-        </Pressable>
-      </View>
-      <Animated.View {...pan.panHandlers} style={{ backgroundColor: C.card, transform: [{ translateX: x }] }}>
-        <Pressable onPress={() => (open.current ? snap(0) : onPress?.())}>{content}</Pressable>
-      </Animated.View>
-    </Animated.View>
-  );
+  return <Pressable disabled={!onPress} onPress={onPress} style={({ pressed }) => [!last && s.rowLine, pressed && { opacity: 0.6 }]}>{content}</Pressable>;
 };
 
 export const Empty = ({ icon, text, button, onPress }: { icon: any; text: string; button?: string; onPress?: () => void }) => (
@@ -272,9 +221,6 @@ const s = themed(() => StyleSheet.create({
   card: { backgroundColor: C.card, borderRadius: 24, paddingHorizontal: 18, paddingVertical: 4, shadowColor: '#14294A', shadowOpacity: 0.06, shadowRadius: 20, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 13, gap: 12 },
   rowLine: { borderBottomWidth: 1, borderColor: C.line },
-  deleteWrap: { direction: 'ltr', position: 'absolute', top: 0, bottom: 0, right: -14, left: 0, backgroundColor: C.red, alignItems: 'flex-end', justifyContent: 'center' },
-  deleteBtn: { width: ACTION_W + 14, height: '100%', alignItems: 'center', justifyContent: 'center', gap: 3, paddingRight: 14 },
-  deleteTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
   badge: { width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   badgeTxt: { fontWeight: '700', fontSize: 16 },
   rowTitle: { fontSize: 15, fontWeight: '600', color: C.ink },

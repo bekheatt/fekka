@@ -87,12 +87,17 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
   const fundGoal = d.goals.find(g => g.id === fundId);
 
   const ALERT_KINDS = ['gold21', 'gold24', 'usd', 'eur'];
-  const openAlert = () => { setF({ kind: 'gold21', dir: 'above', price: String(Math.round(d.rates.gold21 * 1.03)) }); setOpen('alert'); };
+  const openAlert = () => { setEditId(null); setF({ kind: 'gold21', dir: 'above', price: String(Math.round(d.rates.gold21 * 1.03)) }); setOpen('alert'); };
+  const editAlert = (a: { id: string; kind: string; dir: string; price: number }) => { setEditId(a.id); setF({ kind: a.kind, dir: a.dir, price: String(a.price) }); setOpen('alert'); };
   const saveAlert = () => {
     if (missing(f.price)) return false;
     const price = num(f.price);
+    const id = editId;
     askPermission().catch(() => false).finally(() => {
-      set(x => ({ ...x, alerts: [...x.alerts, { id: uid(), kind: f.kind, dir: f.dir, price, active: true }] }));
+      // Saving an edited alert also starts watching again if it had been reached
+      set(x => ({ ...x, alerts: id
+        ? x.alerts.map(y => y.id === id ? { ...y, kind: f.kind, dir: f.dir, price, active: true, firedAt: undefined } : y)
+        : [...x.alerts, { id: uid(), kind: f.kind, dir: f.dir, price, active: true }] }));
       close();
     });
   };
@@ -150,8 +155,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
           <Card key={g.id} style={s.goal}>
             <Row icon={g.icon} color={C.accent} title={g.name}
               sub={p >= 1 ? t('Goal reached') : t('{p}% · {x} to go', { p: Math.round(p * 100), x: fmtUnit(g.unit, left) })}
-              value={fmtUnit(g.unit, g.saved)} last onPress={() => fund(g)}
-              onDelete={() => set(x => ({ ...x, goals: x.goals.filter(y => y.id !== g.id) }))} />
+              value={fmtUnit(g.unit, g.saved)} last onPress={() => fund(g)} />
             <Progress value={p} color={p >= 1 ? C.green : C.accent} height={10} />
             <View style={s.goalFoot}>
               <Text style={s.goalHint}>
@@ -173,8 +177,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
             const st = SAVING_TYPES.find(y => y.key === x.kind);
             return <Row key={x.id} icon={st?.icon ?? 'star'} color={st?.color ?? C.sky}
               title={x.kind === 'custom' ? x.name : t(st?.name ?? '')}
-              sub={subFor(x)} value={le(savingValue(x, d.rates))} last={idx === d.savings.length - 1} onPress={() => editHolding(x)}
-              onDelete={() => set(z => ({ ...z, savings: z.savings.filter(y => y.id !== x.id) }))} />;
+              sub={subFor(x)} value={le(savingValue(x, d.rates))} last={idx === d.savings.length - 1} onPress={() => editHolding(x)} />;
           })}
       </Card>
 
@@ -215,12 +218,11 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
               title={t(a.dir === 'above' ? '{k} above {p}' : '{k} below {p}', { k: t(ALERT_NAMES[a.kind]), p: le(a.price) })}
               sub={a.active ? t('Watching · now {x}', { x: le(d.rates[a.kind]) }) : t('Reached on {d} · tap to watch again', { d: new Date(a.firedAt ?? Date.now()).toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) })}
               value="" last={idx === d.alerts.length - 1} dim={!a.active}
-              onPress={() => !a.active && set(x => ({ ...x, alerts: x.alerts.map(y => y.id === a.id ? { ...y, active: true, firedAt: undefined } : y) }))}
-              onDelete={() => set(x => ({ ...x, alerts: x.alerts.filter(y => y.id !== a.id) }))} />
+              onPress={() => editAlert(a)} />
           ))}
       </Card>
       <Hint>{t('Fakka checks prices whenever you open the app. Checking in the background comes with the App Store version.')}</Hint>
-      <Hint>{t('Tip: tap an item to edit it, swipe left to delete')}</Hint>
+      <Hint>{t('Tip: tap an item to edit or delete it')}</Hint>
 
       {/* Add holding */}
       <Sheet visible={open === 'hold'} title={t(editId ? 'Edit savings' : 'Add savings')} onClose={close} onSave={saveHolding}
@@ -300,7 +302,8 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
           );
         })()}
       </Sheet>
-      <Sheet visible={open === 'alert'} title={t('New price alert')} onClose={close} onSave={saveAlert}>
+      <Sheet visible={open === 'alert'} title={t(editId ? 'Edit price alert' : 'New price alert')} onClose={close} onSave={saveAlert}
+        onDelete={editId ? () => { const id = editId; set(x => ({ ...x, alerts: x.alerts.filter(y => y.id !== id) })); close(); } : undefined}>
         <Text style={s.lbl}>{t('What to watch')}</Text>
         <Chips options={ALERT_KINDS.map(k => ALERT_NAMES[k])} value={ALERT_NAMES[f.kind] ?? 'Gold 21K'}
           onChange={v => { const k = ALERT_KINDS.find(x => ALERT_NAMES[x] === v)!; setF((x: any) => ({ ...x, kind: k, price: String(Math.round(d.rates[k] * (x.dir === 'above' ? 1.03 : 0.97) * 100) / 100) })); }} />

@@ -155,8 +155,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
             return (
               <View key={g.id}>
                 <Row icon="people" color="#8E6FE0" title={`${g.name} · ${t('Month {r} of {n}', { r: Math.max(0, Math.min(st.round, g.members)), n: g.members })}`}
-                  sub={sub} value={le(g.monthly)} last onPress={() => edit('gameya', g.id)}
-                  onDelete={() => set(x => ({ ...x, gameyas: x.gameyas.filter(y => y.id !== g.id) }))} />
+                  sub={sub} value={le(g.monthly)} last onPress={() => edit('gameya', g.id)} />
                 <View style={[s.turns, idx < d.gameyas.length - 1 && { borderBottomWidth: 1, borderColor: C.line }]}>
                   {Array.from({ length: g.members }, (_, k) => k + 1).map(n => (
                     <View key={n} style={[s.turn,
@@ -179,8 +178,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
           : d.installments.map((i, idx) => (
             <Row key={i.id} icon={i.provider[0].toUpperCase()} color={colors[i.provider]} title={i.item}
               sub={`${i.provider} · ${i.monthsLeft > 0 ? t('{n} months left', { n: i.monthsLeft }) : t('Paid off')} · ${t('day {n}', { n: i.dueDay })}`} value={le(i.monthly)}
-              last={idx === d.installments.length - 1} onPress={() => edit('inst', i.id)}
-              onDelete={() => set(x => ({ ...x, installments: x.installments.filter(y => y.id !== i.id) }))} />
+              last={idx === d.installments.length - 1} onPress={() => edit('inst', i.id)} />
           ))}
       </Card>
 
@@ -191,8 +189,7 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
           : d.bills.map((b, idx) => {
             const bt = BILL_TYPES.find(x => x.name === b.cat);
             return <Row key={b.id} icon={bt?.icon ?? 'document-text'} color={bt?.color} title={b.name || t(b.cat)}
-              sub={`${t(b.cat)} · ${t('day {n}', { n: b.dueDay })}`} value={le(b.amount)} last={idx === d.bills.length - 1} onPress={() => edit('bill', b.id)}
-              onDelete={() => set(x => ({ ...x, bills: x.bills.filter(y => y.id !== b.id) }))} />;
+              sub={`${t(b.cat)} · ${t('day {n}', { n: b.dueDay })}`} value={le(b.amount)} last={idx === d.bills.length - 1} onPress={() => edit('bill', b.id)} />;
           })}
       </Card>
 
@@ -205,11 +202,10 @@ export default function Pay({ action, clear }: { action?: string; clear: () => v
               sub={isPropertyLoan(l)
                 ? `${t('You own {x} of {y}', { x: leShort(propertyOwned(l)), y: leShort(l.price!) })} (${Math.round(propertyOwned(l) / l.price! * 100)}%) · ${l.remaining > 0 ? t('{x} left', { x: leShort(l.remaining) }) : t('Paid off')}`
                 : `${l.lender} · ${l.remaining > 0 ? t('{x} left', { x: le(l.remaining) }) : t('Paid off')} · ${t('day {n}', { n: l.dueDay })}`} value={le(l.monthly)}
-              last={idx === d.loans.length - 1} onPress={() => edit('loan', l.id)}
-              onDelete={() => set(x => ({ ...x, loans: x.loans.filter(y => y.id !== l.id) }))} />
+              last={idx === d.loans.length - 1} onPress={() => edit('loan', l.id)} />
           ))}
       </Card>
-      <Hint>{t('Tip: tap an item to edit it, swipe left to delete')}</Hint>
+      <Hint>{t('Tip: tap an item to edit or delete it')}</Hint>
 
       <Sheet visible={mode === 'inst'} title={t(editId ? 'Edit installment' : 'New installment')} onClose={() => { setMode(null); setEditId(null); }} onSave={save} onDelete={editId ? remove : undefined}>
         <Text style={s.lbl}>{t('Which app?')}</Text>

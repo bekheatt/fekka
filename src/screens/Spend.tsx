@@ -158,8 +158,7 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
             <Row key={i.id} icon={isTransferIncome(i) ? 'swap-horizontal' : i.oneOff ? 'cash' : 'trending-up'} color={C.green} title={i.source}
               sub={i.oneOff ? `${t(isTransferIncome(i) ? 'Transfer' : 'One-time')} · ${new Date(i.oneOff).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })}${ym(new Date(i.oneOff)) !== m ? ` · ${t('last month')}` : ''}` : t('Every month')}
               value={le(i.monthly)} valueColor={C.green} onPress={() => editIncome(i)}
-              last={idx === incomes.length - 1}
-              onDelete={() => set(x => ({ ...x, incomes: x.incomes.filter(y => y.id !== i.id) }))} />
+              last={idx === incomes.length - 1} />
           ))}
       </Card>
 
@@ -171,11 +170,10 @@ export default function Spend({ action, clear }: { action?: string; clear: () =>
             const c = EXPENSE_CATS.find(x => x.name === e.cat) ?? EXPENSE_CATS[EXPENSE_CATS.length - 1];
             return <Row key={e.id} icon={c.icon} color={c.color} title={e.note || t(e.cat)}
               sub={`${t(e.cat)} · ${new Date(e.date).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })}${e.receipt ? ' · 🧾' : ''}`} value={le(e.amount)} onPress={() => editExpense(e)}
-              last={idx === arr.length - 1}
-              onDelete={() => { deleteReceipt(e.receipt); set(x => ({ ...x, expenses: x.expenses.filter(y => y.id !== e.id) })); }} />;
+              last={idx === arr.length - 1} />;
           })}
       </Card>
-      <Hint>{t('Tip: tap an item to edit it, swipe left to delete')}</Hint>
+      <Hint>{t('Tip: tap an item to edit or delete it')}</Hint>
 
       <Sheet visible={open === 'exp'} title={t(editId ? 'Edit expense' : 'New expense')} onClose={cancel} onSave={save} onDelete={editId ? remove : undefined}>
         <Text style={s.lbl}>{t('Category')}</Text>
