@@ -11,5 +11,6 @@ android/
 # Local only
 design-backup/
 brag-output/
+brag-output-*/
 .claude/settings.local.json
 *.p8
