@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, KeyboardAvoidingView, Platform, Animated, I18nManager, Alert } from 'react-native';
 import { Text, TextInput } from './fonts';
 import { SafeAreaView } from 'react-native-safe-area-context';

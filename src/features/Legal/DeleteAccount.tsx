@@ -1,7 +1,7 @@
 // Delete account (Settings → Legal & Privacy). Really deletes: the sign-in account and every server row
 // linked to it (Supabase delete_my_account + on delete cascade), then everything Fakka kept on this phone.
 // Everyone confirms by typing DELETE (there are no password accounts).
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, StyleSheet, Pressable, Modal, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';

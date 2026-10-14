@@ -1,5 +1,5 @@
 // Interest calculator: what does financing something really cost, in plain words
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { View, StyleSheet, Pressable, Modal, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text } from '../../fonts';
 import { Ionicons } from '@expo/vector-icons';

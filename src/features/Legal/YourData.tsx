@@ -1,5 +1,4 @@
 // Settings → Legal & Privacy → Your data: where everything is kept, what you agreed to, and a copy to take away.
-import React from 'react';
 import { View, StyleSheet, Pressable, Modal, ScrollView, Share, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../fonts';

@@ -1,6 +1,6 @@
 // Full-screen, one-step-at-a-time guide for building the iPhone Shortcuts automation that sends each
 // bank SMS to Fakka. Opened from Automatic logging once the person has a link.
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, View, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';

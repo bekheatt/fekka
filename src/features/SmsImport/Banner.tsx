@@ -1,5 +1,5 @@
 // Small card that slides down after a bank SMS is logged automatically: "Added L.E 58 · Oracle Ireland  [Undo]"
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';

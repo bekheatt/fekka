@@ -1,6 +1,6 @@
 // Shown when the app opens and bank messages arrived while it was closed: keep or discard each one,
 // or switch on "keep all future transactions" so this screen never shows again.
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, View, Pressable, StyleSheet, ScrollView, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';

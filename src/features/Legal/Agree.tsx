@@ -1,5 +1,5 @@
 // "I agree to the Terms of Service and Privacy Policy" tick box. Never pre-ticked; both names open the full text.
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';

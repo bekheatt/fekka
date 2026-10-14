@@ -1,5 +1,5 @@
 // Full-screen, scrollable Privacy Policy / Terms of Service (opened from the sign-in screen and Settings)
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { View, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';

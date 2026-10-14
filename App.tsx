@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Pressable, StyleSheet, AppState } from 'react-native';
 import { Text, FONTS } from './src/fonts';
 import { useFonts } from 'expo-font';
@@ -7,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { Provider, useStore, hasAccount } from './src/store';
 import { C, isDark, themed } from './src/theme';
-import { t, locale } from './src/i18n';
+import { t } from './src/i18n';
 import { tap } from './src/ui';
 import { scheduleReminders } from './src/notify';
 import Splash from './src/Splash';
@@ -24,16 +24,18 @@ import Save from './src/screens/Save';
 import Profile from './src/screens/Profile';
 import Banner, { BannerInfo } from './src/features/SmsImport/Banner';
 import { parseSms } from './src/features/SmsImport/parse';
-import { guessCategory, describe, inPounds, isLogged, isTransfer, logTransactions, undoLogged, fromInbox, type Pick } from './src/features/SmsImport/log';
+import { guessCategory, describe, isLogged, logTransactions, undoLogged, fromInbox, type Pick } from './src/features/SmsImport/log';
 import InboxReview, { Pending } from './src/features/SmsImport/InboxReview';
 import { prefetchCrowd, canShare, teach } from './src/features/SmsImport/crowd';
 import { loadInbox, clearInbox } from './src/cloud/supabase';
 import Tour, { tourRef } from './src/features/Tour/Tour';
 import LegalUpdate from './src/features/Legal/LegalUpdate';
 import { isCurrent } from './src/features/Legal/consent';
-import { le } from './src/theme';
 
 // 'add' is the round + button in the middle; Profile opens from the avatar on Home
+// Review-sheet ids for bank messages that came in a fakka://sms link rather than from the server inbox
+const LINK = 'link:';
+
 const TABS = [
   { key: 'home', label: 'Home', icon: 'home' },
   { key: 'spend', label: 'Spend', icon: 'wallet' },
@@ -56,22 +58,15 @@ function Shell() {
   const [quick, setQuick] = useState<{ amount?: string; cat?: string } | null>(null);
   const [banner, setBanner] = useState<BannerInfo | null>(null);
 
-  // A bank SMS handed over by an iPhone Shortcuts automation: add it straight away, offer Undo
+  // A bank message handed over in a fakka://sms link (the older Shortcuts setup). Any website or app can open
+  // such a link, so it is never added on its own: it waits in the review sheet until the person keeps it.
   const logSms = async (text: string) => {
     const tx = parseSms(text);
     const key = Date.now();
-    if (tx) await prefetchCrowd([tx]);
     if (!tx) return setBanner({ key, title: t('Not a payment message'), sub: t('Nothing was added'), icon: 'information-circle', color: C.sub });
     if (isLogged(dRef.current, tx.fingerprint)) return setBanner({ key, title: t('Already added'), sub: describe(tx), icon: 'checkmark-circle', color: C.sub });
-    set(x => logTransactions(x, [{ tx, cat: guessCategory(tx, x.merchantCats) }]).next);
-    const income = tx.kind === 'income';
-    setBanner({
-      key, icon: isTransfer(tx) ? 'swap-horizontal' : income ? 'arrow-down' : 'arrow-up', color: income ? C.green : C.red,
-      title: (income ? t('Added income') : t('Added expense')) + ' · ' + le(inPounds(tx, dRef.current.rates)),
-      sub: describe(tx) + (income ? '' : ' · ' + t(guessCategory(tx, dRef.current.merchantCats)))
-        + (tx.date && tx.date.toDateString() !== new Date().toDateString() ? ' · ' + tx.date.toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) : ''),
-      onUndo: () => set(x => undoLogged(x, [tx.fingerprint])),
-    });
+    await prefetchCrowd([tx]);
+    setPending(p => (p.some(x => x.tx.fingerprint === tx.fingerprint) ? p : [...p, { id: LINK + key, tx }]));
   };
 
   // Bank messages the server received while the app was closed (iPhone Shortcut → sms_inbox).
@@ -89,7 +84,9 @@ function Shell() {
         onUndo: () => set(x => undoLogged(x, fps)),
       });
     }
-    clearInbox(ids).catch(() => {}); // if this fails, kept ones are skipped next time as already added
+    // only server rows (link messages never were on the server); if this fails, kept ones are skipped next time as already added
+    const rows = ids.filter(id => !id.startsWith(LINK));
+    if (rows.length) clearInbox(rows).catch(() => {});
   };
   const checkInbox = async () => {
     const cur = dRef.current;

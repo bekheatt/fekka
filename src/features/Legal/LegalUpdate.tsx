@@ -1,7 +1,7 @@
 // Shown over the app when someone already using Fakka hasn't accepted the current Terms / Privacy Policy
 // (people from before they existed, or after a new version). Also makes sure an account's
 // acceptance reaches the server (legal_consents) if it couldn't be saved at sign-in, e.g. offline.
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '../../fonts';

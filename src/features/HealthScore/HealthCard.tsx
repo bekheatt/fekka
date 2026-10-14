@@ -1,5 +1,5 @@
 // Home-screen card for the Financial Health Score + a detail sheet when tapped
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
 import { Text } from '../../fonts';
 import { Ionicons } from '@expo/vector-icons';
@@ -178,26 +178,14 @@ const s = themed(() => StyleSheet.create({
   ringNum: { fontSize: 28, fontWeight: '700', color: C.ink, letterSpacing: -0.5 },
   label: { fontSize: 13, color: C.sub, fontWeight: '500' },
   band: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3, marginTop: 2 },
-  ringOf: { fontSize: 12, color: C.sub, fontWeight: '500' },
-  pill: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99 },
-  pillTxt: { fontSize: 12, fontWeight: '600' },
-  headline: { fontSize: 16, fontWeight: '600', color: C.ink, lineHeight: 21 },
   factors: { flexDirection: 'row', gap: 8, marginTop: 18 },
   factor: { flex: 1, backgroundColor: C.bg, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 10 },
   factorLabel: { fontSize: 11, color: C.sub, fontWeight: '500', textAlign: 'left' }, // 'left' = the start side, also in Arabic
   factorRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
-  factorDot: { width: 7, height: 7, borderRadius: 4 },
   factorVal: { fontSize: 15, fontWeight: '600', color: C.ink, textAlign: 'left' },
-  cta: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: C.soft, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginTop: 14 },
-  ctaTxt: { flex: 1, fontSize: 14, fontWeight: '600', color: C.primary },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { fontSize: 16, fontWeight: '600', color: C.ink },
   emptyTxt: { color: C.sub, fontSize: 14, marginTop: 8 },
-  scoreRow: { flexDirection: 'row', alignItems: 'flex-end', marginTop: 8, marginBottom: 12 },
-  score: { fontSize: 50, fontWeight: '700', letterSpacing: -1, lineHeight: 56 },
-  outOf: { fontSize: 17, color: C.sub, fontWeight: '600', marginLeft: 4, marginBottom: 6 },
-  badge: { marginLeft: 'auto', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, marginBottom: 6 },
-  badgeTxt: { fontSize: 14, fontWeight: '600' },
   trend: { fontSize: 13, fontWeight: '600', marginTop: 4 },
   sheetHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 18, paddingTop: 22 },
   sheetTitle: { fontSize: 20, fontWeight: '700', color: C.ink },

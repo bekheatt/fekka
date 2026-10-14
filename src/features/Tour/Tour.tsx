@@ -1,6 +1,6 @@
 // First-run tour of the app: dims the screen, spotlights one thing at a time and explains it.
 // Screens mark what can be spotlighted with ref={tourRef('id')} (plus collapsable={false} on Android).
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from '../../fonts';
 import { C, themed } from '../../theme';

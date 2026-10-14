@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, StyleSheet, Pressable, Alert, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -173,7 +173,6 @@ const s = themed(() => StyleSheet.create({
   link: { fontSize: 15, fontWeight: '600', color: C.primary },
   privacy: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 8 },
   wrap: { flex: 1, backgroundColor: C.bg, paddingHorizontal: 24 },
-  top: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   h1: { fontSize: 28, fontWeight: '700', color: C.ink, textAlign: 'center', letterSpacing: -0.5, lineHeight: 33 },
   p: { fontSize: 15, color: C.sub, marginTop: 8, textAlign: 'center', lineHeight: 21 },
   buttons: { paddingBottom: 16, paddingTop: 22, gap: 12 },
@@ -183,8 +182,5 @@ const s = themed(() => StyleSheet.create({
   pressed: { opacity: 0.75 },
   off: { opacity: 0.45 }, // looks unavailable until the Terms box is ticked (still tappable, to explain why)
   btnTxt: { fontSize: 16, fontWeight: '600' },
-  orRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 2 },
-  orLine: { flex: 1, height: 1, backgroundColor: C.line },
-  orTxt: { fontSize: 13, color: C.sub },
   note: { fontSize: 12, color: C.sub, textAlign: 'center' },
 }));

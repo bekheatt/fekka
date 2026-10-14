@@ -1,6 +1,6 @@
 // Set up automatic logging of bank SMS on iPhone: make a personal link, then build a Shortcuts automation
 // that quietly sends each bank message to Fekka's server (the app never opens).
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Modal, View, Pressable, StyleSheet, ScrollView, Alert, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';

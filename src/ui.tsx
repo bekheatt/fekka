@@ -43,7 +43,6 @@ export const Section = ({ children, action, onAction }: { children: string; acti
 export const Card = ({ children, style }: any) => <View style={[s.card, style]}>{children}</View>;
 
 // Padded card for summaries (the big numbers at the top of each screen)
-export const Panel = ({ children, style }: any) => <View style={[s.card, { padding: 20, paddingVertical: 20 }, style]}>{children}</View>;
 
 // Tinted circle with an icon in it
 export const Bubble = ({ icon, color, size = 40 }: { icon: any; color: string; size?: number }) => (

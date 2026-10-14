@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { useState } from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, EXPENSE_CATS, themed, isHidden } from '../theme';
-import { useStore, useTotals, daysUntil, daysLate, goalValue, ym } from '../store';
+import { useStore, useTotals, daysUntil, daysLate, ym } from '../store';
 import { Card, Row, Section, Screen, tap, Progress, Check, SplitBar, Empty, pressedStyle, HScroll } from '../ui';
 import { t, locale } from '../i18n';
 import Logo from '../Logo';
@@ -42,7 +42,6 @@ export default function Dashboard({ go }: { go: Go }) {
       : lateCount > 0 ? t('{n} due, {k} late', { n: tot.unpaid.length, k: lateCount }) : t('{n} due', { n: tot.unpaid.length }),
   ].filter(Boolean).join(' · ');
 
-  const base = Math.max(tot.income, tot.committed + tot.spent, 1);
   const segs = [
     { label: 'Installments', v: tot.instMonthly + tot.loanMonthly, c: C.sky },
     { label: 'Bills', v: tot.billsMonthly + tot.gameyaMonthly, c: '#8E6FE0' },

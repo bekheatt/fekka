@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, TextInput } from '../fonts';
 import { Ionicons } from '@expo/vector-icons';
 import { C, le, leShort, themed } from '../theme';
-import { useStore, useTotals, ym } from '../store';
+import { useStore, useTotals } from '../store';
 import { Header, Section, Card, Screen, tap } from '../ui';
 import { t, locale } from '../i18n';
 import Settings from './Settings';
@@ -26,7 +26,6 @@ export default function Profile() {
   const debtMonths = Math.max(0,
     ...d.installments.map(i => i.monthsLeft),
     ...d.loans.map(l => (l.monthly > 0 ? Math.ceil(l.remaining / l.monthly) : 0)));
-  const m = ym();
 
   if (showSettings) return <Settings onBack={() => setShowSettings(false)} />;
 

@@ -1,5 +1,5 @@
 // Paste bank SMS → review → add. Automatic logging (iPhone Shortcuts) is set up in AutoLogSetup.
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Modal, View, Pressable, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, TextInput } from '../../fonts';
 import { Ionicons } from '@expo/vector-icons';

@@ -1,6 +1,6 @@
 // Home card: "Safe to spend today". Updates by itself as expenses (and bank SMS) come in.
 // To remove the feature: delete this folder and the <SafeToSpendCard /> line in screens/Dashboard.tsx.
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../fonts';

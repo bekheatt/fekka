@@ -1,7 +1,7 @@
 // English uses Outfit, Arabic uses IBM Plex Sans Arabic (which also has Latin letters and numbers, so mixed
 // Arabic text stays in one family). Custom fonts ship one file per weight, so these
 // wrappers turn fontWeight into the right font file instead of letting the phone fake bold.
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import { Text as RNText, TextInput as RNTextInput, StyleSheet, TextProps, TextInputProps, TextStyle } from 'react-native';
 import {
   IBMPlexSansArabic_400Regular, IBMPlexSansArabic_500Medium, IBMPlexSansArabic_600SemiBold, IBMPlexSansArabic_700Bold,

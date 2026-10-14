@@ -1,6 +1,6 @@
 // "Can I afford it?" — type a price (or an installment) and get a clear yes / careful / not now,
 // based on your income, monthly commitments, usual spending and savings.
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { View, StyleSheet, Pressable, Modal, ScrollView, KeyboardAvoidingView, Platform, I18nManager } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from '../../fonts';

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Pressable, StyleSheet, Image, Animated } from 'react-native';
 import { Text } from '../fonts';
 import { pickReceipt, deleteReceipt } from '../receipts';
