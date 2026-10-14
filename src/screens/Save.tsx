@@ -221,7 +221,7 @@ export default function Save({ action, clear }: { action?: string; clear: () => 
               onPress={() => editAlert(a)} />
           ))}
       </Card>
-      <Hint>{t('Fakka checks prices whenever you open the app. Checking in the background comes with the App Store version.')}</Hint>
+      <Hint>{t('Fakka checks prices whenever you open the app.')}</Hint>
       <Hint>{t('Tip: tap an item to edit or delete it')}</Hint>
 
       {/* Add holding */}

@@ -1,0 +1,117 @@
+FAKKA: APP STORE LISTING (draft, 14 Oct 2026)
+Paste each block into App Store Connect > Fakka EG > the 1.0 version page.
+Every block is already within Apple's character limit (count shown in brackets).
+
+========================================================================
+ENGLISH (U.S.): the main listing
+========================================================================
+
+--- APP NAME [25 / 30] ---
+Fakka EG: Expense Tracker
+
+--- SUBTITLE [29 / 30] ---
+Installments, bills & gam'eya
+
+--- KEYWORDS (comma-separated, no spaces) [95 / 100] ---
+money,spending,savings,gold,loan,mortgage,salary,egypt,egp,sms,bank,debt,gameya,receipt,finance
+
+--- PROMOTIONAL TEXT (can be changed any time, no review needed) [166 / 170] ---
+Know where every pound goes. Installments, bills, gam'eya, gold and savings in one calm app made for Egypt, in Arabic or English. No ads, and your data is never sold.
+
+--- DESCRIPTION [1949 / 4000] ---
+Know where every pound goes.
+
+Fakka is a calm, private money app made for Egypt. Keep your installments, bills, gam'eya, gold and savings in one place, in Arabic or English.
+
+WHAT YOU CAN DO
+• See your month at a glance: what came in, what's due, and how much you can safely spend today.
+• Installments and loans: installment apps, bank loans, mortgages and credit cards, and the month you'll be debt-free.
+• Bills and reminders: electricity, internet, school fees and more, with a reminder the day before and on the day.
+• Gam'eya: your turn, what you've paid and what you'll receive.
+• Gold and savings at today's prices: 21K and 24K gold, dollars and euros, all valued in pounds with live prices. Set price alerts too (checked whenever you open Fakka).
+• Savings goals: a wedding, a car, a trip or Umrah, in pounds, gold or dollars.
+• Financial Health Score: one number from 0 to 100, and what to fix first.
+• "Can I afford it?" and an interest calculator: see what an installment plan really costs before you sign.
+• Bank messages: paste your bank's texts and Fakka adds the payments for you. On iPhone, an optional Shortcuts automation adds them by itself.
+• Receipt photos for any expense.
+
+PRIVATE BY DESIGN
+• Never connects to your bank and never asks for card or bank passwords.
+• No ads, no tracking, and your data is never sold.
+• Locks with Face ID the moment you leave, and can hide amounts on screen.
+• Use it as a guest and your data stays on your phone, or sign in with Apple or Google to keep it in sync across your devices.
+• Export your data or delete your account any time, right in the app.
+
+MADE FOR EGYPT
+Arabic and English with proper right-to-left, Egyptian pounds everywhere, and the things that really fill an Egyptian month: installments, gam'eya and gold.
+
+Fakka is a tracker, not a bank. It doesn't move money, lend money or give financial advice.
+
+Questions? Email support@fakkaeg.com. A real person reads every email.
+
+========================================================================
+ARABIC: add it with "+" next to the language menu at the top right, then choose Arabic
+========================================================================
+
+--- APP NAME [21 / 30] ---
+فكّة: مصاريفك وأقساطك
+
+--- SUBTITLE [24 / 30] ---
+الفواتير والجمعية والدهب
+
+--- KEYWORDS (comma-separated, no spaces) [91 / 100] ---
+مصاريف,مصروف,اقساط,قسط,جمعيه,فواتير,ادخار,ذهب,قرض,تمويل,مرتب,فلوس,حسابات,مصر,جنيه,بنك,رسايل
+
+--- PROMOTIONAL TEXT (can be changed any time, no review needed) [149 / 170] ---
+اعرف كل جنيه بيروح فين. أقساطك وفواتيرك وجمعيتك ودهبك وادخارك في تطبيق واحد هادي معمول لمصر، بالعربي أو الإنجليزي. من غير إعلانات، ومش بنبيع بياناتك.
+
+--- DESCRIPTION [1629 / 4000] ---
+اعرف كل جنيه بيروح فين.
+
+فكّة تطبيق هادي وخاص لمتابعة فلوسك، معمول لمصر. خلّي أقساطك وفواتيرك وجمعيتك ودهبك وادخارك في مكان واحد، بالعربي أو الإنجليزي.
+
+تقدر تعمل إيه
+• شوف شهرك كله مرة واحدة: دخل كام، عليك إيه، وتقدر تصرف كام النهارده بأمان.
+• الأقساط والقروض: تطبيقات التقسيط وقروض البنوك والتمويل العقاري والكريدت كارد، والشهر اللي هتخلص فيه.
+• الفواتير والتنبيهات: الكهرباء والإنترنت والمدارس وغيرها، مع تنبيه قبلها بيوم ويوم الدفع.
+• الجمعية: دورك، ودفعت كام، وهتقبض كام.
+• الدهب والادخار بأسعار النهارده: دهب 21 و24 والدولار واليورو، كلهم بيتحسبوا بالجنيه بالأسعار اللحظية. وكمان تنبيهات للأسعار (بتتشيك كل ما تفتح فكّة).
+• أهداف الادخار: فرح، عربية، سفرية أو عمرة، بالجنيه أو الدهب أو الدولار.
+• مؤشر صحتك المالية: رقم واحد من 0 لـ 100، وتصلّح إيه الأول.
+• "أقدر؟" وحاسبة الفوايد: اعرف القسط هيكلفك كام بجد قبل ما تمضي.
+• رسايل البنك: الصق رسايل البنك وفكّة يضيف المدفوعات لوحده. وعلى الآيفون، تقدر تعمل Shortcut يضيفها لوحده من غير ما تعمل حاجة.
+• صور الإيصالات لأي مصروف.
+
+خصوصيتك أولاً
+• عمره ما بيتوصل ببنكك، وعمره ما بيطلب باسورد الكارت أو البنك.
+• من غير إعلانات ولا تتبع، ومش بنبيع بياناتك.
+• بيتقفل بـ Face ID أول ما تخرج، وتقدر تخفي المبالغ من على الشاشة.
+• استخدمه كضيف وبياناتك تفضل على موبايلك، أو سجّل بـ Apple أو Google عشان بياناتك تتزامن على كل أجهزتك.
+• صدّر بياناتك أو امسح حسابك في أي وقت من جوه التطبيق.
+
+معمول لمصر
+عربي وإنجليزي والعربي مظبوط من اليمين للشمال، والجنيه المصري في كل حتة، والحاجات اللي بتملا الشهر المصري بجد: الأقساط والجمعية والدهب.
+
+فكّة لمتابعة فلوسك، مش بنك. مش بيحوّل فلوس، ولا بيدّي قروض، ولا بيقدم نصايح مالية.
+
+عندك سؤال؟ ابعت على support@fakkaeg.com. شخص حقيقي بيقرا كل إيميل.
+
+========================================================================
+THE OTHER FIELDS (same for both languages)
+========================================================================
+Support URL:          https://fakkaeg.com/support
+Marketing URL:        https://fakkaeg.com
+Privacy Policy URL:   https://fakkaeg.com/privacy
+Primary category:     Finance
+Secondary category:   Productivity (optional)
+Price:                Free
+Copyright:            2026 Ahmed Hesham Bekheat
+
+NOTES
+- Name: "Fakka EG: Expense Tracker" helps people find Fakka by searching "expense tracker".
+  The name under the icon on the phone stays "Fakka". If you'd rather keep it short, use "Fakka EG".
+- Arabic name: if App Store Connect says the name is taken, use "فكّة EG: مصاريفك وأقساطك".
+- Keywords: words already in the name or subtitle are left out (Apple searches those anyway).
+  No company names (valU, InstaPay...) because Apple rejects other brands in keywords.
+  "Budget" is left out on purpose because Fakka doesn't have budgets.
+- Promotional text is the only part you can change later without a new review.

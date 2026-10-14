@@ -236,7 +236,7 @@ const AR: Record<string, string> = {
   'Goes above': 'يطلع فوق', 'Drops below': 'ينزل تحت', 'Price in L.E': 'السعر بالجنيه', 'Now: {x}': 'دلوقتي: {x}',
   '{k} above {p}': '{k} فوق {p}', '{k} below {p}': '{k} تحت {p}', '{k} is above {p}': '{k} بقى فوق {p}', '{k} is below {p}': '{k} نزل تحت {p}',
   'Watching · now {x}': 'بنراقب · دلوقتي {x}', 'Reached on {d} · tap to watch again': 'وصل يوم {d} · اضغط للمراقبة تاني',
-  'Fakka checks prices whenever you open the app. Checking in the background comes with the App Store version.': 'فكّة بتشيك الأسعار كل ما تفتح التطبيق. الفحص في الخلفية هييجي مع نسخة الـ App Store.',
+  'Fakka checks prices whenever you open the app.': 'فكّة بتشيك الأسعار كل ما تفتح التطبيق.',
   // misc
   'Language, theme, Face ID, reminders': 'اللغة، الثيم، البصمة، التذكيرات',
   'Every pound, in its place.': 'كل جنيه في مكانه.',
