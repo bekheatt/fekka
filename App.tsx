@@ -26,6 +26,7 @@ import Banner, { BannerInfo } from './src/features/SmsImport/Banner';
 import { parseSms } from './src/features/SmsImport/parse';
 import { guessCategory, describe, isLogged, logTransactions, undoLogged, fromInbox, type Pick } from './src/features/SmsImport/log';
 import InboxReview, { Pending } from './src/features/SmsImport/InboxReview';
+import { inboxPause } from './src/features/SmsImport/inboxPause';
 import { prefetchCrowd, canShare, teach } from './src/features/SmsImport/crowd';
 import { loadInbox, clearInbox } from './src/cloud/supabase';
 import Tour, { tourRef } from './src/features/Tour/Tour';
@@ -90,7 +91,7 @@ function Shell() {
   };
   const checkInbox = async () => {
     const cur = dRef.current;
-    if (checking.current || !hasAccount(cur.settings)) return;
+    if (checking.current || inboxPause.on || !hasAccount(cur.settings)) return; // paused while the setup guide waits for its test message
     checking.current = true;
     try {
       const rows = await loadInbox();
