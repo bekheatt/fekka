@@ -116,7 +116,7 @@ export default function Dashboard({ go }: { go: Go }) {
             <Text style={s.leftLabel}>{t(tot.left >= 0 ? 'You still have' : "You're over budget by")}</Text>
             <View style={s.leftRow}>
               <Text style={[s.leftVal, { color: tot.left >= 0 ? C.ink : C.red }]}>{le(Math.abs(tot.left))}</Text>
-              <Text style={s.leftSub}>{t('of {x}', { x: le(tot.income) })}</Text>
+              <Text style={s.leftSub}>{t('of {x}', { x: le(tot.budget) })}</Text>
             </View>
             <View style={{ marginTop: 16 }}><SplitBar parts={segs.map(x => ({ v: x.v, c: x.c }))} /></View>
             <View style={s.legend}>

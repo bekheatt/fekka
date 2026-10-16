@@ -194,7 +194,12 @@ const AR: Record<string, string> = {
   'Emergency fund': 'فلوس الطوارئ', 'Wedding': 'فرح', 'Car': 'عربية', 'Umrah': 'عمرة', 'Travel': 'سفر',
   'Goal name': 'اسم الهدف', 'Target (L.E)': 'المستهدف (ج.م)',
   "You're all set, {n}!": 'كله جاهز يا {n}!', "You're all set!": 'كله جاهز!', "Here's your month at a glance": 'ده شهرك في لمحة',
-  'Left for daily spending': 'الباقي للمصاريف اليومية', 'Log your daily spending on the Spend tab to see where it goes.': 'سجل مصاريفك اليومية في تاب المصاريف علشان تعرف فلوسك بتروح فين.',
+  'How much do you have left for this month?': 'معاك كام باقي للشهر ده؟', "The cash and bank money you'll live on until the month ends. Not your savings.": 'الكاش وفلوس البنك اللي هتعيش بيها لحد آخر الشهر، مش تحويشك.',
+  'Money you have now (L.E)': 'الفلوس اللي معاك دلوقتي (ج.م)', 'Enter how much you have now to continue (0 is fine)': 'اكتب معاك كام دلوقتي علشان تكمل (صفر ينفع)',
+  "Your pay day ({n}) hasn't come yet, so Fakka adds your salary to this month.": 'لسه يوم قبضك ({n}) مجاش، ففكّة هتضيف مرتبك للشهر ده.',
+  'Already paid any of these this month?': 'دفعت حاجة من دول الشهر ده؟', "Tap the ones you've paid, so Fakka doesn't take them out twice": 'اختار اللي دفعته علشان فكّة متخصمهوش مرتين',
+  'You have now': 'معاك دلوقتي', 'Salary still coming': 'مرتب لسه جاي', 'Payments left this month': 'مدفوعات باقية الشهر ده',
+  'Left for daily spending': 'الباقي للمصاريف اليومية','Log your daily spending on the Spend tab to see where it goes.': 'سجل مصاريفك اليومية في تاب المصاريف علشان تعرف فلوسك بتروح فين.',
   'Redo setup': 'إعادة الإعداد', 'Go through the welcome questions again': 'جاوب على أسئلة البداية تاني',
   // income types
   'Income this month': 'دخل الشهر ده', 'One-time': 'مرة واحدة', 'Payment received': 'دفعة وصلت',

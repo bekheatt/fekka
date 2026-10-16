@@ -26,7 +26,11 @@ export type Settings = { name: string; lang: 'en' | 'ar'; theme: 'system' | 'lig
   smsAutoKeep?: boolean; // add transactions from bank messages without asking
   toured?: boolean;      // false = show the first-run tour on Home (new users, or 'Replay tour')
   consent?: Consent;     // the Terms / Privacy Policy versions accepted (asked again when they change)
+  start?: StartBalance;  // set up part-way through a month: that month starts from what they had then
 };
+// Money left for the month at set-up (at = ISO time). In that month it takes the place of income already
+// received, and the payments in `prepaid` (paid before set-up) don't come out of it again.
+export type StartBalance = { at: string; balance: number; prepaid?: string[] };
 
 export type Data = {
   installments: Installment[]; loans: Loan[]; bills: Bill[]; gameyas: Gameya[]; goals: Goal[];
@@ -331,7 +335,15 @@ export function useTotals() {
   const property = d.loans.filter(isPropertyLoan).reduce((s, l) => s + propertyOwned(l), 0);
   const assets = holdings + goalsSaved + property + Math.max(0, gNet);
   const debt = d.installments.reduce((s, i) => s + i.monthly * i.monthsLeft, 0) + d.loans.filter(l => !isPropertyLoan(l)).reduce((s, l) => s + l.remaining, 0) + Math.max(0, -gNet);
-  const left = income - committed - spent;
+  // The month Fakka was set up in starts from the money they had then, plus income still to come
+  const st = d.settings.start && ym(new Date(d.settings.start.at)) === m ? d.settings.start : undefined;
+  const startAt = st ? Date.parse(st.at) : 0, startDay = st ? new Date(st.at).getDate() : 0;
+  const budget = !st ? income : st.balance + d.incomes.reduce((s, i) => s + (i.oneOff
+    ? (ym(new Date(i.oneOff)) === m && Date.parse(i.oneOff) >= startAt ? i.monthly : 0) // logged after set-up
+    : ((i.day ?? 0) > startDay ? i.monthly : 0)), 0);                                       // pay day still to come
+  const prepaid = st ? due.filter(x => st.prepaid?.includes(x.id)).reduce((s, x) => s + x.amount, 0) : 0;
+  const spentSince = st ? d.expenses.filter(e => ym(new Date(e.date)) === m && Date.parse(e.date) >= startAt).reduce((s, e) => s + e.amount, 0) : spent;
+  const left = budget - (committed - prepaid) - spentSince;
   const unpaid = due.filter(x => !x.paid);
-  return { property, income, instMonthly, loanMonthly, billsMonthly, gameyaMonthly, committed, spent, assets, debt, netWorth: assets - debt, left, holdings, goalsSaved, due, unpaid };
+  return { property, income, budget, instMonthly, loanMonthly, billsMonthly, gameyaMonthly, committed, spent, assets, debt, netWorth: assets - debt, left, holdings, goalsSaved, due, unpaid };
 }

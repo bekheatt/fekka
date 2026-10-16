@@ -17,6 +17,7 @@ type Draft = {
   loans: Record<string, { monthly: string; remaining: string }>;
   bills: Record<string, string>;
   gameya: { on: boolean; monthly: string; members: string; turn: string };
+  balance: string; prepaid: string[]; // money left for this month now, and payments (pay keys) already paid this month
   sav: Record<string, string>;
   goal: { name: string; target: string };
   lock: boolean;
@@ -40,7 +41,7 @@ const INCOME_Q: Record<Work, { label: string; hint: string; source: string }> = 
   other: { label: 'Monthly income (L.E)', hint: 'Roughly how much comes in every month', source: 'Income' },
 };
 
-const STEPS = ['welcome', 'name', 'work', 'income', 'installments', 'loans', 'bills', 'gameya', 'savings', 'goal', 'done'] as const;
+const STEPS = ['welcome', 'name', 'work', 'income', 'installments', 'loans', 'bills', 'gameya', 'balance', 'savings', 'goal', 'done'] as const;
 const GOAL_IDEAS = [
   { name: 'Emergency fund', icon: 'umbrella' }, { name: 'Wedding', icon: 'heart' }, { name: 'Car', icon: 'car-sport' },
   { name: 'Umrah', icon: 'moon' }, { name: 'Travel', icon: 'airplane' }, { name: 'Home', icon: 'home' },
@@ -52,7 +53,7 @@ export default function Onboarding() {
   const [x, setX] = useState<Draft>({
     name: d.settings.name, work: d.settings.work, income: '', payDay: '', extraName: '', extra: '',
     inst: {}, loans: {}, bills: {}, gameya: { on: false, monthly: '', members: '', turn: '' },
-    sav: {}, goal: { name: '', target: '' }, lock: true,
+    balance: '', prepaid: [], sav: {}, goal: { name: '', target: '' }, lock: true,
   });
   const [tried, setTried] = useState(false); // tapped Continue before the step was filled: show why
   const fade = useRef(new Animated.Value(1)).current;
@@ -85,24 +86,34 @@ export default function Onboarding() {
     const month = ym();
     set(v => {
       const n: Data = { ...v };
+      // Payments ticked as already paid this month: marked paid, and kept out of the starting balance
+      const paidIds: string[] = [];
+      const paidNow = (k: string, id: string) => { if (!x.prepaid.includes(k)) return undefined; paidIds.push(id); return [month]; };
       if (num(x.income)) n.incomes = [...n.incomes, { id: uid(), source: t(INCOME_Q[w].source), monthly: num(x.income), day: num(x.payDay) || undefined }];
       if (num(x.extra)) n.incomes = [...n.incomes, { id: uid(), source: x.extraName.trim() || t('Other income'), monthly: num(x.extra) }];
-      n.installments = [...n.installments, ...Object.entries(x.inst).filter(([, v2]) => num(v2.monthly)).map(([p, v2]) =>
-        ({ id: uid(), provider: p, item: p, monthly: num(v2.monthly), monthsLeft: num(v2.months) || 12, dueDay: 1 }))];
-      n.loans = [...n.loans, ...Object.entries(x.loans).filter(([, v2]) => num(v2.monthly)).map(([ty, v2]) =>
-        ({ id: uid(), type: ty, lender: 'Bank', monthly: num(v2.monthly), remaining: num(v2.remaining), dueDay: 1 }))];
-      n.bills = [...n.bills, ...Object.entries(x.bills).filter(([, a]) => num(a)).map(([cat, a]) =>
-        ({ id: uid(), cat, name: '', amount: num(a), dueDay: 1 }))];
+      n.installments = [...n.installments, ...Object.entries(x.inst).filter(([, v2]) => num(v2.monthly)).map(([p, v2]) => {
+        const id = uid();
+        return { id, provider: p, item: p, monthly: num(v2.monthly), monthsLeft: num(v2.months) || 12, dueDay: 1, paidMonths: paidNow(`inst:${p}`, id) };
+      })];
+      n.loans = [...n.loans, ...Object.entries(x.loans).filter(([, v2]) => num(v2.monthly)).map(([ty, v2]) => {
+        const id = uid();
+        return { id, type: ty, lender: 'Bank', monthly: num(v2.monthly), remaining: num(v2.remaining), dueDay: 1, paidMonths: paidNow(`loan:${ty}`, id) };
+      })];
+      n.bills = [...n.bills, ...Object.entries(x.bills).filter(([, a]) => num(a)).map(([cat, a]) => {
+        const id = uid();
+        return { id, cat, name: '', amount: num(a), dueDay: 1, paidMonths: paidNow(`bill:${cat}`, id) };
+      })];
       if (x.gameya.on && num(x.gameya.monthly)) {
-        const members = Math.max(2, num(x.gameya.members) || 10);
-        n.gameyas = [...n.gameyas, { id: uid(), name: t("Gam'eya"), monthly: num(x.gameya.monthly), members, myTurn: Math.min(members, num(x.gameya.turn) || 1), start: month, dueDay: 1 }];
+        const members = Math.max(2, num(x.gameya.members) || 10), id = uid();
+        n.gameyas = [...n.gameyas, { id, name: t("Gam'eya"), monthly: num(x.gameya.monthly), members, myTurn: Math.min(members, num(x.gameya.turn) || 1), start: month, dueDay: 1, paidMonths: paidNow('gameya', id) }];
       }
       n.savings = [...n.savings, ...Object.entries(x.sav).filter(([, q]) => num(q)).map(([kind, q]) => ({ id: uid(), kind, qty: num(q) }))];
       if (num(x.goal.target)) {
         const idea = GOAL_IDEAS.find(g => t(g.name) === x.goal.name);
         n.goals = [...n.goals, { id: uid(), name: x.goal.name.trim() || t('Goal'), icon: idea?.icon ?? 'star', unit: 'egp', target: num(x.goal.target), saved: 0 }];
       }
-      n.settings = { ...n.settings, name: x.name.trim(), work: w, onboarded: true, toured: false, lock: lockOk || n.settings.lock };
+      n.settings = { ...n.settings, name: x.name.trim(), work: w, onboarded: true, toured: false, lock: lockOk || n.settings.lock,
+        start: { at: new Date().toISOString(), balance: num(x.balance), prepaid: paidIds } };
       return n;
     });
   };
@@ -112,7 +123,19 @@ export default function Onboarding() {
   const nameOk = !!x.name.trim();
   const incomeOk = num(x.income) > 0;
   const payOk = x.work !== 'employee' || (num(x.payDay) >= 1 && num(x.payDay) <= 31);
-  const canNext = key === 'name' ? nameOk : key === 'work' ? !!x.work : key === 'income' ? incomeOk && payOk : true;
+  const balanceOk = x.balance.trim() !== '' && num(x.balance) >= 0;
+  const canNext = key === 'name' ? nameOk : key === 'work' ? !!x.work : key === 'income' ? incomeOk && payOk : key === 'balance' ? balanceOk : true;
+
+  // The month so far: what they have now, salary still to come, and payments not paid yet
+  const pays: { k: string; label: string; amount: number }[] = [
+    ...Object.entries(x.inst).filter(([, v]) => num(v.monthly)).map(([p, v]) => ({ k: `inst:${p}`, label: p, amount: num(v.monthly) })),
+    ...Object.entries(x.loans).filter(([, v]) => num(v.monthly)).map(([l, v]) => ({ k: `loan:${l}`, label: t(l), amount: num(v.monthly) })),
+    ...Object.entries(x.bills).filter(([, a]) => num(a)).map(([b, a]) => ({ k: `bill:${b}`, label: t(b), amount: num(a) })),
+    ...(x.gameya.on && num(x.gameya.monthly) ? [{ k: 'gameya', label: t("Gam'eya"), amount: num(x.gameya.monthly) }] : []),
+  ];
+  const payStillToCome = x.work === 'employee' && num(x.payDay) > new Date().getDate();
+  const coming = payStillToCome ? num(x.income) : 0;
+  const stillDue = pays.filter(p => !x.prepaid.includes(p.k)).reduce((a, p) => a + p.amount, 0);
   const progress = step / (STEPS.length - 1);
 
   // Continue, or explain what's missing
@@ -264,6 +287,32 @@ export default function Onboarding() {
         </>
       );
 
+      case 'balance': return (
+        <>
+          <Q title={t('How much do you have left for this month?')} sub={t("The cash and bank money you'll live on until the month ends. Not your savings.")} />
+          <In label={t('Money you have now (L.E)')} value={x.balance} onChange={(v: string) => setX({ ...x, balance: v })} big placeholder="6,000" />
+          {tried && !balanceOk && <Text style={[s.hint, s.hintIn]}>{t('Enter how much you have now to continue (0 is fine)')}</Text>}
+          {payStillToCome && <Text style={[s.hint, s.hintIn]}>{t("Your pay day ({n}) hasn't come yet, so Fakka adds your salary to this month.", { n: num(x.payDay) })}</Text>}
+          {pays.length > 0 && (
+            <>
+              <Text style={[s.lbl, { marginTop: 12 }]}>{t('Already paid any of these this month?')}</Text>
+              <Text style={[s.hint, { marginTop: 0, marginBottom: 10 }]}>{t("Tap the ones you've paid, so Fakka doesn't take them out twice")}</Text>
+              <View style={s.multi}>
+                {pays.map(p => {
+                  const on = x.prepaid.includes(p.k);
+                  return (
+                    <Pressable key={p.k} onPress={() => { tap(); setX({ ...x, prepaid: on ? x.prepaid.filter(k => k !== p.k) : [...x.prepaid, p.k] }); }} style={[s.chip, on && { backgroundColor: C.green }]}>
+                      {on && <Ionicons name="checkmark" size={15} color="#fff" />}
+                      <Text style={[s.chipTxt, on && { color: '#fff' }]}>{p.label}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </>
+          )}
+        </>
+      );
+
       case 'savings': return (
         <>
           <Q title={t('What have you saved?')} sub={t('Fill in only what you have. We convert it to L.E with live prices')} />
@@ -295,18 +344,17 @@ export default function Onboarding() {
       );
 
       case 'done': {
-        const monthly = Object.values(x.inst).reduce((a, v) => a + num(v.monthly), 0) + Object.values(x.loans).reduce((a, v) => a + num(v.monthly), 0)
-          + Object.values(x.bills).reduce((a, v) => a + num(v), 0) + (x.gameya.on ? num(x.gameya.monthly) : 0);
-        const inc = num(x.income) + num(x.extra);
+        const free = num(x.balance) + coming - stillDue;
         return (
           <View style={{ alignItems: 'center', paddingTop: 20 }}>
             <View style={s.doneIcon}><Ionicons name="checkmark" size={46} color="#fff" /></View>
             <Text style={[s.h1, { textAlign: 'center', marginTop: 20 }]}>{x.name.trim() ? t("You're all set, {n}!", { n: x.name.trim().split(' ')[0] }) : t("You're all set!")}</Text>
             <Text style={[s.p, { textAlign: 'center' }]}>{t("Here's your month at a glance")}</Text>
             <View style={s.summary}>
-              <SumRow label={t('Income')} value={le(inc)} color={C.green} />
-              <SumRow label={t('Monthly payments')} value={le(monthly)} color={C.sky} />
-              <SumRow label={t('Left for daily spending')} value={le(inc - monthly)} color={inc - monthly >= 0 ? C.ink : C.red} last />
+              <SumRow label={t('You have now')} value={le(num(x.balance))} color={C.green} />
+              {coming > 0 && <SumRow label={t('Salary still coming')} value={le(coming)} color={C.green} />}
+              <SumRow label={t('Payments left this month')} value={le(stillDue)} color={C.sky} />
+              <SumRow label={t('Left for daily spending')} value={le(free)} color={free >= 0 ? C.ink : C.red} last />
             </View>
             <View style={[s.summary, { marginTop: 0 }]}>
               <Toggle icon="finger-print" title={t('Lock with Face ID / fingerprint')} sub={t('Locks the moment you leave the app, like a banking app')}
