@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { onCloudUser } from './cloud/supabase';
+import { onCloudUser, smsEndpoint } from './cloud/supabase';
+import { setShortcutEndpoint } from '../modules/fakka-shortcuts';
 import { loadSyncState, startSync, stopSync, push, pull, withDevice } from './cloud/sync';
 import { Appearance, AppState } from 'react-native';
 import { DEFAULT_RATES, PROVIDERS, BILL_TYPES, LOAN_TYPES, applyTheme, isDark, setHidden, le, C } from './theme';
@@ -164,6 +165,10 @@ export function Provider({ children }: { children: React.ReactNode }) {
   const dRef = useRef(d);
   dRef.current = d;
   const online = ready && hasAccount(d.settings);
+
+  // The "Log Bank SMS" Shortcuts action sends to this phone's personal link; cleared when signed out or turned off
+  const smsLink = online && d.settings.smsKey ? smsEndpoint(d.settings.smsKey) : null;
+  useEffect(() => { if (ready) setShortcutEndpoint(smsLink); }, [smsLink, ready]);
 
   // Data from another phone arrived: show it (keeping this phone's own settings)
   const applyRemote = (merged: any) => setD(x => {
