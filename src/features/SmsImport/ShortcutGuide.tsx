@@ -14,30 +14,41 @@ import { APP_NAME } from '../../brand';
 import { SHOTS, ShotKey } from './guideShots';
 
 // **text** = the exact word to look for on the iPhone screen.
-// shot = screenshot shown in the phone; spot = where to tap on it (0–1 from the left / top);
-// type = words to type (shown in a box with a Copy button); link = show the Copy link button.
-type Step = { title: string; text: string; shot?: ShotKey; spot?: { x: number; y: number }; type?: string; link?: boolean; note?: string; warn?: string };
+// shot = screenshot shown in the phone; spots = where to tap on it, in order (0–1 from the left / top of the
+// screenshot; two or more are numbered); type = words to type (box with a Copy button); link = Copy link button.
+type Spot = { x: number; y: number };
+type Step = { title: string; text: string; shot?: ShotKey; spots?: Spot[]; type?: string; link?: boolean; note?: string; warn?: string };
 const STEPS: Step[] = [
   { title: 'Copy your personal link', text: 'Tap the button below. You will paste this link into Shortcuts later.', link: true,
     note: 'Keep this link private: anyone with it can add transactions to your account.' },
-  { title: 'Open Shortcuts', shot: 'home', text: 'Go to your home screen and open the **Shortcuts** app. It comes with every iPhone.',
+  { title: 'Open Shortcuts', shot: 'home', spots: [{ x: 0.843, y: 0.572 }], text: 'Go to your home screen and open the **Shortcuts** app. It comes with every iPhone.',
     note: 'Can\'t find it? Download "Shortcuts" free from the App Store.' },
-  { title: 'Go to Automation', shot: 'automation', text: 'At the bottom of the screen, tap **Automation**.' },
-  { title: 'Make a new automation', shot: 'new', text: 'Tap **+** at the top right. If you have never made one, tap **New Automation** instead.' },
-  { title: 'Choose Message', shot: 'message', text: 'Scroll down the list and tap **Message**.' },
-  { title: 'Pick bank messages', shot: 'contains', text: 'Tap **Message Contains**, type the word below, then tap **Done**.', type: 'جم',
-    note: '**Your bank writes EGP instead of جم?** Make a second automation the same way and type **EGP** here.' },
-  { title: 'Let it run by itself', shot: 'run', text: 'Tap **Run Immediately**. Turn off **Notify When Run**. Then tap **Next** at the top right.' },
-  { title: 'Start from blank', shot: 'blank', text: 'Tap **New Blank Automation**.' },
-  { title: 'Add the web action', shot: 'search', text: 'Tap **Add Action**. In the search box, type the words below and tap the result.', type: 'Get Contents of URL' },
-  { title: 'Paste your link', shot: 'paste', text: 'Tap the blue word **URL**. Tap it once more and choose **Paste**.', link: true,
+  { title: 'Make a new automation', shot: 'automation', spots: [{ x: 0.501, y: 0.94 }, { x: 0.5, y: 0.628 }],
+    text: 'Tap **Automation** at the bottom (1). Then tap **New Automation** (2).',
+    note: 'Already have automations? Tap **+** at the top right instead.' },
+  { title: 'Choose Message', shot: 'message', spots: [{ x: 0.3, y: 0.821 }], text: 'Scroll down the list and tap **Message**.' },
+  { title: 'Pick bank messages', shot: 'when', spots: [{ x: 0.86, y: 0.339 }], text: 'Tap **Message Contains**, type the word below, then tap **Done**.', type: 'EGP',
+    note: '**Your bank writes جم instead of EGP?** Make a second automation the same way and type **جم** here.' },
+  { title: 'Let it run by itself', shot: 'when', spots: [{ x: 0.87, y: 0.505 }, { x: 0.862, y: 0.1 }],
+    text: 'Tap **Run Immediately** (1). Then tap **Next** at the top right (2).',
+    note: 'If you see **Notify When Run**, turn it off.' },
+  { title: 'Start from blank', shot: 'blank', spots: [{ x: 0.25, y: 0.363 }], text: 'Tap **Create New Shortcut**.',
+    note: 'On some iPhones it says **New Blank Automation**.' },
+  { title: 'Add the web action', shot: 'search', spots: [{ x: 0.39, y: 0.315 }], text: 'In the search box, type the words below. Then tap **Get Contents of URL**.', type: 'Get Contents of URL',
+    note: "Don't see a search box? Tap **Add Action** first." },
+  { title: 'Paste your link', shot: 'paste', spots: [{ x: 0.24, y: 0.314 }], text: 'Tap the blue word **URL**. Tap it once more and choose **Paste**.', link: true,
     note: 'Nothing to paste? Tap Copy link above, then go back to Shortcuts.' },
-  { title: 'Change GET to POST', shot: 'post', text: 'Tap the small arrow **›** at the end of that line. Tap **Method** and choose **POST**.' },
-  { title: 'Add a field', shot: 'field', text: 'Under **Request Body**, check that **JSON** is chosen. Tap **Add new field** and choose **Text**.' },
-  { title: 'Name the field "text"', shot: 'key', text: 'Tap the grey word **Key** and type the word below. Then tap **Text** next to it and choose **Shortcut Input** above the keyboard.', type: 'text',
-    warn: "Don't skip this. If the grey word **Key** is still showing, the field has no name. It must say **text**, and next to it the blue **Shortcut Input**." },
-  { title: 'Save it', shot: 'done', text: "Tap **Done** at the top right. That's it!" },
-  { title: 'Try it', shot: 'try', text: 'Send yourself an iMessage with the words below. Then open {app}: it shows the transaction so you can keep it or throw it away.', type: 'خصم 58 جم ORACLE IRELAND',
+  { title: 'Change GET to POST', shot: 'options', spots: [{ x: 0.463, y: 0.314 }, { x: 0.864, y: 0.373 }],
+    text: 'Tap the small blue arrow next to your link (1). Then tap **Method** and choose **POST** (2).' },
+  { title: 'Add a field', shot: 'options', spots: [{ x: 0.864, y: 0.473 }, { x: 0.31, y: 0.525 }],
+    text: 'Check that **Request Body** says **JSON** (1). Then tap **Add new field** (2).' },
+  { title: 'Choose Text', shot: 'fieldtype', spots: [{ x: 0.293, y: 0.32 }], text: 'In the menu, tap **Text**.' },
+  { title: 'Name the field "text"', shot: 'key', spots: [{ x: 0.211, y: 0.479 }], text: 'Tap the grey word **Key** and type the word below, in small letters.', type: 'text' },
+  { title: 'Connect the message', shot: 'input', spots: [{ x: 0.477, y: 0.479 }, { x: 0.616, y: 0.6 }],
+    text: 'Tap the grey word **Text** next to it (1). Then tap **Shortcut Input** above the keyboard (2).',
+    warn: "Don't skip this. The field must say **text**, and next to it the blue **Shortcut Input**." },
+  { title: 'Save it', shot: 'input', spots: [{ x: 0.897, y: 0.1 }], text: "Tap the blue **✓** at the top right. That's it!" },
+  { title: 'Try it', shot: 'try', spots: [{ x: 0.622, y: 0.37 }], text: 'Send yourself an iMessage with the words below. Then open {app}: tap **Keep** to add it.', type: 'Card purchase 58 EGP at ORACLE IRELAND',
     note: 'Made a new link, or deleted your account and signed up again? Open this automation and paste the new link. The old one stops working.' },
 ];
 
@@ -67,7 +78,7 @@ export default function ShortcutGuide({ visible, onClose, link }: { visible: boo
         <View style={{ paddingHorizontal: 24 }}><Progress value={(i + 1) / STEPS.length} color={C.primary} /></View>
 
         <ScrollView ref={scroll} contentContainerStyle={s.body}>
-          {step.shot ? <Phone shot={step.shot} spot={step.spot} /> : (
+          {step.shot ? <Phone shot={step.shot} spots={step.spots} /> : (
             <View style={s.icon}><Ionicons name="link" size={34} color={C.primary} /></View>
           )}
           <Text style={s.title}>{t(step.title)}</Text>
@@ -115,35 +126,35 @@ export default function ShortcutGuide({ visible, onClose, link }: { visible: boo
   );
 }
 
-// An iPhone drawn around the step's screenshot, with a pulsing circle where to tap
-function Phone({ shot, spot }: { shot: ShotKey; spot?: { x: number; y: number } }) {
+// An iPhone drawn around the step's screenshot, with a pulsing circle on each spot to tap (numbered when there are several)
+const SHOT_RATIO = 828 / 1792; // the screenshots' width / height, so the tap spots land exactly
+const BEZEL = 7;
+function Phone({ shot, spots = [] }: { shot: ShotKey; spots?: Spot[] }) {
   const { height } = useWindowDimensions();
   const h = Math.min(460, Math.max(300, height * 0.46));
-  const w = h / 2.06;                // iPhone shape including the frame
-  const src = SHOTS[shot];
+  const w = (h - BEZEL * 2) * SHOT_RATIO + BEZEL * 2;
   const pulse = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    if (!spot) return;
+    pulse.setValue(0);
     const loop = Animated.loop(Animated.timing(pulse, { toValue: 1, duration: 1300, easing: Easing.out(Easing.quad), useNativeDriver: true }));
     loop.start();
     return () => loop.stop();
-  }, [shot, spot]);
+  }, [shot]);
+  const ring = { opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.9, 0] }), transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1.8] }) }] };
 
   return (
     <View style={[s.phone, { width: w, height: h, borderRadius: w * 0.17 }]}>
       <View style={[s.screen, { borderRadius: w * 0.14 }]}>
-        {src ? <Image source={src} style={StyleSheet.absoluteFill} resizeMode="cover" /> : (
-          <View style={s.empty}>
-            <Ionicons name="image-outline" size={32} color={C.sub} />
-            <Text style={s.emptyTxt}>{t('Picture coming soon')}</Text>
+        <Image source={SHOTS[shot]} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        {spots.map((p, n) => (
+          // left is mirrored by React Native in Arabic, but the screenshot isn't, so flip it back
+          <View key={n} pointerEvents="none" style={[s.spotWrap, { left: `${(I18nManager.isRTL ? 1 - p.x : p.x) * 100}%`, top: `${p.y * 100}%` }]}>
+            <Animated.View style={[s.spotRing, ring]} />
+            <View style={[s.spotDot, spots.length > 1 && s.spotNum]}>
+              {spots.length > 1 && <Text style={s.spotNumTxt}>{n + 1}</Text>}
+            </View>
           </View>
-        )}
-        {src && spot && (
-          <View pointerEvents="none" style={[s.spotWrap, { left: `${(I18nManager.isRTL ? 1 - spot.x : spot.x) * 100}%`, top: `${spot.y * 100}%` }]}>
-            <Animated.View style={[s.spotRing, { opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.9, 0] }), transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1.8] }) }] }]} />
-            <View style={s.spotDot} />
-          </View>
-        )}
+        ))}
       </View>
       <View style={[s.island, { width: w * 0.3, height: w * 0.085, top: w * 0.055 }]} />
     </View>
@@ -157,14 +168,14 @@ const s = themed(() => StyleSheet.create({
   count: { fontSize: 15, fontWeight: '600', color: C.sub },
   body: { padding: 24, paddingTop: 22 },
   icon: { width: 72, height: 72, borderRadius: 36, backgroundColor: C.primary + '1A', alignItems: 'center', justifyContent: 'center', marginBottom: 22, marginTop: 14 },
-  phone: { alignSelf: 'center', backgroundColor: '#111', padding: 7, marginBottom: 24, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
+  phone: { alignSelf: 'center', backgroundColor: '#111', padding: BEZEL, marginBottom: 24, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
   screen: { flex: 1, overflow: 'hidden', backgroundColor: C.soft },
   island: { position: 'absolute', alignSelf: 'center', backgroundColor: '#000', borderRadius: 20 },
-  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
-  emptyTxt: { fontSize: 13, color: C.sub },
   spotWrap: { position: 'absolute', width: SPOT, height: SPOT, marginLeft: -SPOT / 2, marginTop: -SPOT / 2, alignItems: 'center', justifyContent: 'center' },
   spotRing: { position: 'absolute', width: SPOT, height: SPOT, borderRadius: SPOT / 2, borderWidth: 3, borderColor: '#FF3B30' },
   spotDot: { width: 22, height: 22, borderRadius: 11, borderWidth: 3, borderColor: '#FF3B30', backgroundColor: 'rgba(255,59,48,0.25)' },
+  spotNum: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: '#fff', backgroundColor: '#FF3B30', alignItems: 'center', justifyContent: 'center' },
+  spotNumTxt: { color: '#fff', fontSize: 14, fontWeight: '800' },
   title: { fontSize: 26, fontWeight: '700', color: C.ink, marginBottom: 10 },
   text: { fontSize: 18, color: C.ink, lineHeight: 27 },
   typeBox: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: C.soft, borderRadius: 14, padding: 14, marginTop: 18 },
