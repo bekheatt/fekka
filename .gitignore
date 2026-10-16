@@ -5,8 +5,8 @@ web-build/
 *.log
 .env*
 .DS_Store
-ios/
-android/
+/ios/
+/android/
 
 # Local only
 design-backup/
